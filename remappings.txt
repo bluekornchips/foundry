@@ -1,1 +1,2 @@
 clancy/=src/clancy/
+openzeppelin-contracts/=lib/openzeppelin-contracts/

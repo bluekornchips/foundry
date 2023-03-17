@@ -1,3 +1,6 @@
+# Git files
+./github/
+
 # Compiler files
 cache/
 out/
@@ -12,3 +15,6 @@ docs/
 
 # Dotenv file
 .env
+
+# Library files
+**/lib/**

@@ -2,5 +2,5 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
-
+sender = '0x62643f6CAC3E8e8bA332A3D753A0Ce751e1E3C93'
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

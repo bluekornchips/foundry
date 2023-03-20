@@ -17,12 +17,12 @@ contract ClancyERC721 is
 {
     using Counters for Counters.Counter;
 
-    Counters.Counter internal _token_id_counter;
-    string internal _base_uri_local;
-    uint96 internal _max_supply;
+    Counters.Counter internal _tokenIdCounter;
+    string internal _baseURILocal;
+    uint96 internal _maxSupply;
     uint96 public constant SUPPLY_CEILING = 1_000_000;
-    bool private _public_mint_status = false;
-    bool private _burn_enabled = false;
+    bool private _publicMintStatus = false;
+    bool private _burnEnabled = false;
 
     // Events
     event MaxSupplyChanged(uint256 indexed);
@@ -35,8 +35,8 @@ contract ClancyERC721 is
         uint96 max_supply_,
         string memory baseURILocal_
     ) ERC721(name_, symbol_) {
-        _max_supply = max_supply_;
-        _base_uri_local = baseURILocal_;
+        _maxSupply = max_supply_;
+        _baseURILocal = baseURILocal_;
     }
 
     /**
@@ -82,12 +82,9 @@ contract ClancyERC721 is
      *
      * @return The id of the newly minted token.
      */
-    function mint() public virtual override returns (uint256) {
-        require(
-            _public_mint_status,
-            "ClancyERC721: Public minting is disabled."
-        );
-        return clancyMint(_msgSender());
+    function mint() public virtual override returns (uint96) {
+        require(_publicMintStatus, "ClancyERC721: Public minting is disabled.");
+        return uint96(clancyMint(_msgSender()));
     }
 
     /**
@@ -99,7 +96,7 @@ contract ClancyERC721 is
      * @param status A boolean indicating whether or not burning is enabled.
      */
     function setBurnStatus(bool status) public onlyOwner {
-        _burn_enabled = status;
+        _burnEnabled = status;
         emit BurnStatusChanged(status);
     }
 
@@ -115,7 +112,7 @@ contract ClancyERC721 is
      * @param tokenId The ID of the token to be burned.
      */
     function burn(uint96 tokenId) public virtual whenNotPaused {
-        require(_burn_enabled, "ClancyERC721: Burning is disabled.");
+        require(_burnEnabled, "ClancyERC721: Burning is disabled.");
         require(
             _isApprovedOrOwner(_msgSender(), tokenId),
             "ClancyERC721: caller is not token owner or approved"
@@ -129,7 +126,7 @@ contract ClancyERC721 is
      * @return A boolean indicating whether or not burning is currently enabled.
      */
     function getBurnStatus() public view returns (bool) {
-        return _burn_enabled;
+        return _burnEnabled;
     }
 
     /**
@@ -141,7 +138,7 @@ contract ClancyERC721 is
      * @param status The new public minting status.
      */
     function setPublicMintStatus(bool status) public onlyOwner {
-        _public_mint_status = status;
+        _publicMintStatus = status;
     }
 
     /**
@@ -155,25 +152,25 @@ contract ClancyERC721 is
      *
      * Emits a {MaxSupplyChanged} event indicating the updated maximum supply.
      *
-     * @param increased_supply The new maximum supply.
+     * @param increasedSupply The new maximum supply.
      */
-    function setMaxSupply(uint96 increased_supply) public onlyOwner {
+    function setMaxSupply(uint96 increasedSupply) public onlyOwner {
         require(
-            increased_supply >= 0,
+            increasedSupply >= 0,
             "ClancyERC721: max supply must be greater than 0."
         );
         require(
-            increased_supply > _max_supply,
+            increasedSupply > _maxSupply,
             "ClancyERC721: max supply cannot be decreased."
         );
         require(
-            increased_supply <= SUPPLY_CEILING,
+            increasedSupply <= SUPPLY_CEILING,
             "ClancyERC721: max supply cannot exceed supply ceiling."
         );
 
-        _max_supply = increased_supply;
+        _maxSupply = increasedSupply;
 
-        emit MaxSupplyChanged(increased_supply);
+        emit MaxSupplyChanged(increasedSupply);
     }
 
     /**
@@ -184,12 +181,12 @@ contract ClancyERC721 is
      *
      * Emits a {BaseURIChanged} event indicating the updated base URI.
      *
-     * @param base_uri_ The new base URI for the token metadata.
+     * @param baseURI_ The new base URI for the token metadata.
      */
-    function setBaseURI(string calldata base_uri_) public onlyOwner {
-        string memory existing_base_uri = _base_uri_local;
-        _base_uri_local = base_uri_;
-        emit BaseURIChanged(existing_base_uri, _base_uri_local);
+    function setBaseURI(string calldata baseURI_) public onlyOwner {
+        string memory existingBaseURI = _baseURILocal;
+        _baseURILocal = baseURI_;
+        emit BaseURIChanged(existingBaseURI, _baseURILocal);
     }
 
     /**
@@ -197,7 +194,7 @@ contract ClancyERC721 is
      * @return A boolean indicating whether public minting is currently enabled or disabled.
      */
     function getPublicMintStatus() public view returns (bool) {
-        return _public_mint_status;
+        return _publicMintStatus;
     }
 
     /**
@@ -213,7 +210,7 @@ contract ClancyERC721 is
      * @return An unsigned integer representing the maximum supply.
      */
     function getMaxSupply() public view returns (uint96) {
-        return _max_supply;
+        return _maxSupply;
     }
 
     /**
@@ -221,7 +218,7 @@ contract ClancyERC721 is
      * @return A string representing the base URI.
      */
     function _baseURI() internal view virtual override returns (string memory) {
-        return _base_uri_local;
+        return _baseURILocal;
     }
 
     /**
@@ -230,7 +227,7 @@ contract ClancyERC721 is
      * @return uint256 representing the total number of tokens in existence.
      */
     function getTokenIdCounter() public view returns (uint256) {
-        return _token_id_counter.current();
+        return _tokenIdCounter.current();
     }
 
     /**
@@ -247,11 +244,11 @@ contract ClancyERC721 is
         address to
     ) internal whenNotPaused returns (uint256 tokenId) {
         require(
-            _token_id_counter.current() < _max_supply,
+            _tokenIdCounter.current() < _maxSupply,
             "ClancyERC721: Max supply reached."
         );
-        _token_id_counter.increment();
-        tokenId = _token_id_counter.current();
+        _tokenIdCounter.increment();
+        tokenId = _tokenIdCounter.current();
         _safeMint(to, tokenId);
         return tokenId;
     }

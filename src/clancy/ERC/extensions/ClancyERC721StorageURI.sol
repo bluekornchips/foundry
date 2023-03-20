@@ -8,9 +8,9 @@ contract ClancyERC721StorageURI is ClancyERC721, ERC721URIStorage {
     constructor(
         string memory name_,
         string memory symbol_,
-        uint96 max_supply_,
-        string memory base_uri_local_
-    ) ClancyERC721(name_, symbol_, max_supply_, base_uri_local_) {}
+        uint96 maxSupply_,
+        string memory baseURILocal_
+    ) ClancyERC721(name_, symbol_, maxSupply_, baseURILocal_) {}
 
     /**
      * @dev Sets the token URI for a given token ID.
@@ -98,7 +98,7 @@ contract ClancyERC721StorageURI is ClancyERC721, ERC721URIStorage {
         override(ClancyERC721, ERC721)
         returns (string memory)
     {
-        return _base_uri_local;
+        return _baseURILocal;
     }
     //# endregion
 }

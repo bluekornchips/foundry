@@ -2,5 +2,12 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
-sender = '0x62643f6CAC3E8e8bA332A3D753A0Ce751e1E3C93'
+
+[rpc_endpoints]
+sentinel_dev = 'http://20.104.160.183/'
+
+[etherscan]
+sentinel_dev={url ="http://20.104.128.142/", key = "b37517faef957f6114b495563fede7f80dd65f82ac2b658f1e0c77acc196750bd44b40f7b783b572ad74d7699c6893d2036fc6404953d1d471c59a844ba8721b"}
+
+
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

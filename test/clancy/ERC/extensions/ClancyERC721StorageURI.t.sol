@@ -32,6 +32,7 @@ contract ClancyERC721StorageURI_Test is Test, ClancyERC721TestHelpers {
             tokenURI,
             "tokenURI should be set"
         );
+
         // Mint another token to test that the tokenURI is not set for the new token
         clancyERC721StorageURI.mint();
         tokenId++;

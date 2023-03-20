@@ -3,28 +3,16 @@ pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import "clancy/ERC/ClancyERC721.sol";
+import "../helpers/ClancyERC721TestHelpers.sol";
+import "openzeppelin-contracts/contracts/utils/Strings.sol";
 
-contract ClancyERC721_Test is Test {
+contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
+    using Strings for uint256;
+
     ClancyERC721 public clancyERC721;
-
-    string public constant NAME = "ClancyERC721";
-    string public constant SYMBOL = "CERC721";
-    uint96 public constant MAX_SUPPLY = 100;
-    string public constant BASE_URI = "https://clancy.com/";
-
-    receive() external payable {}
 
     event MaxSupplyChanged(uint256 indexed);
     event BaseURIChanged(string indexed, string indexed);
-
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) public virtual returns (bytes4) {
-        return this.onERC721Received.selector;
-    }
 
     function setUp() public {
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
@@ -45,13 +33,13 @@ contract ClancyERC721_Test is Test {
         uint96 preMaxSupply = clancyERC721.getMaxSupply();
         uint96 ceiling = clancyERC721.SUPPLY_CEILING();
         if (amount < preMaxSupply) {
-            vm.expectRevert("ClancyERC721: max supply cannot be decreased");
+            vm.expectRevert("ClancyERC721: max supply cannot be decreased.");
             clancyERC721.setMaxSupply(amount);
             uint96 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(preMaxSupply, postMaxSupply);
         }
         if (amount < 0) {
-            vm.expectRevert("ClancyERC721: max supply must be greater than 0");
+            vm.expectRevert("ClancyERC721: max supply must be greater than 0.");
             clancyERC721.setMaxSupply(amount);
             uint96 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(preMaxSupply, postMaxSupply);
@@ -63,7 +51,7 @@ contract ClancyERC721_Test is Test {
         }
         if (amount > ceiling) {
             vm.expectRevert(
-                "ClancyERC721: max supply cannot exceed supply ceiling"
+                "ClancyERC721: max supply cannot exceed supply ceiling."
             );
             clancyERC721.setMaxSupply(amount);
             uint256 postMaxSupply = clancyERC721.getMaxSupply();
@@ -88,20 +76,12 @@ contract ClancyERC721_Test is Test {
 
     function testFuzz_SetBaseURI(string memory uri) public {
         string memory preBaseURI = clancyERC721.baseURI();
-        if (bytes(uri).length > 0) {
-            vm.expectEmit(true, true, false, false);
-            emit BaseURIChanged(preBaseURI, uri);
-            clancyERC721.setBaseURI(uri);
+        vm.expectEmit(true, true, false, false);
+        emit BaseURIChanged(preBaseURI, uri);
+        clancyERC721.setBaseURI(uri);
 
-            string memory postBaseURI = clancyERC721.baseURI();
-            assertEq(postBaseURI, uri);
-        }
-        if (bytes(uri).length == 0) {
-            vm.expectRevert("ClancyERC721: base URI must not be empty");
-            clancyERC721.setBaseURI(uri);
-            string memory postBaseURI = clancyERC721.baseURI();
-            assertEq(preBaseURI, postBaseURI);
-        }
+        string memory postBaseURI = clancyERC721.baseURI();
+        assertEq(postBaseURI, uri);
     }
 
     function test_baseURI() public {
@@ -137,7 +117,7 @@ contract ClancyERC721_Test is Test {
 
     //#region mint
     function test_mint_whenPublicMintIsDisabled_andNotPaused() public {
-        vm.expectRevert("ClancyERC721: Public minting is disabled");
+        vm.expectRevert("ClancyERC721: Public minting is disabled.");
         clancyERC721.mint();
     }
 
@@ -148,9 +128,221 @@ contract ClancyERC721_Test is Test {
         clancyERC721.mint();
     }
 
-    function test_mint() public {
+    function test_mint_1() public {
         clancyERC721.setPublicMintStatus(true);
         uint256 tokenId = clancyERC721.mint();
         assertEq(tokenId, 1);
     }
+
+    function test_mint_100() public {
+        clancyERC721.setPublicMintStatus(true);
+        uint256 totalSupply = clancyERC721.totalSupply();
+        assertEq(totalSupply, 0);
+        for (uint256 i = 0; i < 100; i++) {
+            clancyERC721.mint();
+            uint256 tokenId = clancyERC721.getTokenIdCounter();
+            string memory tokenURI = clancyERC721.tokenURI(i + 1);
+            string memory expectedTokenURI = string(
+                abi.encodePacked(BASE_URI, tokenId.toString())
+            );
+            assertEq(tokenURI, expectedTokenURI);
+        }
+        totalSupply = clancyERC721.totalSupply();
+        assertEq(totalSupply, 100);
+    }
+
+    function test_mint_101() public {
+        clancyERC721.setPublicMintStatus(true);
+        uint256 totalSupply = clancyERC721.totalSupply();
+        assertEq(totalSupply, 0);
+        for (uint256 i = 0; i < 100; i++) {
+            clancyERC721.mint();
+        }
+        totalSupply = clancyERC721.totalSupply();
+        assertEq(totalSupply, 100);
+        vm.expectRevert("ClancyERC721: Max supply reached.");
+        clancyERC721.mint();
+    }
+
+    // function test_mint_supplyCeiling() public {
+    //     clancyERC721.setPublicMintStatus(true);
+    //     uint256 ceiling = clancyERC721.SUPPLY_CEILING();
+    //     clancyERC721.setMaxSupply(uint96(ceiling));
+    //     assertEq(ceiling, 1_000_000);
+    //     for (uint256 i = 0; i < ceiling; i++) {
+    //         clancyERC721.mint();
+    //     }
+    //     uint256 totalSupply = clancyERC721.totalSupply();
+    //     assertEq(totalSupply, ceiling);
+    //     vm.expectRevert("ClancyERC721: Max supply reached.");
+    //     clancyERC721.mint();
+    // }
+
+    //#endregion
+
+    //#region burn status
+
+    function test_getBurnStatus() public {
+        bool burnStatus = clancyERC721.getBurnStatus();
+        assertEq(burnStatus, false);
+    }
+
+    function test_setBurnStatus() public {
+        bool preBurnStatus = clancyERC721.getBurnStatus();
+        assertEq(preBurnStatus, false);
+
+        clancyERC721.setBurnStatus(true);
+        bool postBurnStatus = clancyERC721.getBurnStatus();
+        assertEq(postBurnStatus, true);
+    }
+
+    function test_setBurnStatus_AsNonOwner() public {
+        vm.prank(address(clancyERC721));
+        vm.expectRevert("Ownable: caller is not the owner");
+        clancyERC721.setBurnStatus(true);
+    }
+
+    //#endregion
+
+    //#region burn
+
+    function test_burn_whenBurnIsDisabled() public {
+        vm.expectRevert("ClancyERC721: Burning is disabled.");
+        clancyERC721.burn(1);
+    }
+
+    function test_burn_whenBurnIsEnabled_andPaused() public {
+        clancyERC721.setBurnStatus(true);
+        clancyERC721.pause();
+        vm.expectRevert("Pausable: paused");
+        clancyERC721.burn(1);
+    }
+
+    function test_burn_whenBurnIsEnabled() public {
+        clancyERC721.setBurnStatus(true);
+        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.mint();
+
+        uint256 totalSupply = clancyERC721.totalSupply();
+        uint256 token_id_counter = clancyERC721.getTokenIdCounter();
+        assertEq(totalSupply, 1);
+        assertEq(token_id_counter, 1);
+
+        clancyERC721.burn(1);
+        token_id_counter = clancyERC721.getTokenIdCounter();
+        totalSupply = clancyERC721.totalSupply();
+        assertEq(totalSupply, 0);
+        assertEq(token_id_counter, 1);
+    }
+
+    function test_burn_AnotherAccountsToken() public {
+        clancyERC721.setBurnStatus(true);
+        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.mint();
+
+        uint256 totalSupply = clancyERC721.totalSupply();
+        uint256 token_id_counter = clancyERC721.getTokenIdCounter();
+        assertEq(totalSupply, 1);
+        assertEq(token_id_counter, 1);
+
+        vm.prank(address(clancyERC721));
+        vm.expectRevert("ClancyERC721: caller is not token owner or approved");
+        clancyERC721.burn(1);
+    }
+
+    function test_burn_100Tokens() public {
+        clancyERC721.setBurnStatus(true);
+        clancyERC721.setPublicMintStatus(true);
+        for (uint256 i = 0; i < 100; i++) {
+            clancyERC721.mint();
+        }
+
+        uint256 totalSupply = clancyERC721.totalSupply();
+        uint256 token_id_counter = clancyERC721.getTokenIdCounter();
+        assertEq(totalSupply, 100);
+        assertEq(token_id_counter, 100);
+
+        for (uint96 i = 0; i < 100; i++) {
+            clancyERC721.burn(i + 1);
+        }
+
+        token_id_counter = clancyERC721.getTokenIdCounter();
+        totalSupply = clancyERC721.totalSupply();
+        assertEq(totalSupply, 0);
+        assertEq(token_id_counter, 100);
+    }
+
+    //#endregion
+
+    //#region balanceOf
+
+    function test_balanceOf() public {
+        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.mint();
+        uint256 balance = clancyERC721.balanceOf(address(this));
+        assertEq(balance, 1);
+    }
+
+    function test_balanceOf_afterTransfer() public {
+        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.mint();
+        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+        uint256 balance = clancyERC721.balanceOf(address(this));
+        assertEq(balance, 0);
+    }
+
+    //#endregion
+
+    //#region safeTransferFrom
+
+    function test_safeTransferFrom() public {
+        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.mint();
+        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+        uint256 balance = clancyERC721.balanceOf(DEV_WALLET);
+        assertEq(balance, 1);
+    }
+
+    function test_safeTransferFrom_MintOneThensafeTransferFrom_CircuitTest()
+        public
+    {
+        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.mint();
+        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+
+        // Should not transfer
+        vm.expectRevert("ERC721: caller is not token owner or approved");
+        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+
+        // Should not transfer as token was already
+        vm.expectRevert("ERC721: caller is not token owner or approved");
+        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+
+        // Connect as a non-owner, should not be able to transfer
+        vm.prank(address(0x1));
+        vm.expectRevert("ERC721: caller is not token owner or approved");
+        clancyERC721.safeTransferFrom(DEV_WALLET, address(this), 1);
+    }
+
+    function test_safeTransferFrom_asApprovedOrOwner() public {
+        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.mint();
+        clancyERC721.approve(DEV_WALLET, 1);
+        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+        uint256 balance = clancyERC721.balanceOf(DEV_WALLET);
+        assertEq(balance, 1);
+    }
+
+    function test_safeTransferFrom_asApprovedOrOwnerForNonApprovedToken()
+        public
+    {
+        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.mint();
+        clancyERC721.mint();
+        clancyERC721.approve(DEV_WALLET, 1);
+        vm.prank(DEV_WALLET);
+        vm.expectRevert("ERC721: caller is not token owner or approved");
+        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 2);
+    }
+    //#endregion
 }

@@ -2,12 +2,19 @@
 pragma solidity ^0.8.17;
 
 import "openzeppelin-contracts/contracts/utils/Counters.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin-contracts/contracts/security/Pausable.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import "clancy/utils/ClancyPayable.sol";
 import "./IClancyERC721.sol";
 
-contract ClancyERC721 is ClancyPayable, ERC721, Pausable, IClancyERC721 {
+contract ClancyERC721 is
+    ClancyPayable,
+    ERC721Enumerable,
+    Pausable,
+    IClancyERC721,
+    IERC721Receiver
+{
     using Counters for Counters.Counter;
 
     Counters.Counter internal _token_id_counter;
@@ -20,15 +27,28 @@ contract ClancyERC721 is ClancyPayable, ERC721, Pausable, IClancyERC721 {
     // Events
     event MaxSupplyChanged(uint256 indexed);
     event BaseURIChanged(string indexed, string indexed);
+    event BurnStatusChanged(bool indexed);
 
     constructor(
-        string memory name,
-        string memory symbol,
-        uint96 max_supply,
-        string memory baseURILocal
-    ) ERC721(name, symbol) {
-        _max_supply = max_supply;
-        _base_uri_local = baseURILocal;
+        string memory name_,
+        string memory symbol_,
+        uint96 max_supply_,
+        string memory baseURILocal_
+    ) ERC721(name_, symbol_) {
+        _max_supply = max_supply_;
+        _base_uri_local = baseURILocal_;
+    }
+
+    /**
+     * @dev See {IERC721Receiver-onERC721Received}.
+     */
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 
     /**
@@ -65,9 +85,51 @@ contract ClancyERC721 is ClancyPayable, ERC721, Pausable, IClancyERC721 {
     function mint() public virtual override returns (uint256) {
         require(
             _public_mint_status,
-            "ClancyERC721: Public minting is disabled"
+            "ClancyERC721: Public minting is disabled."
         );
         return clancyMint(_msgSender());
+    }
+
+    /**
+     * @dev Sets the burn status of the contract.
+     *
+     * Requirements:
+     * - Can only be called by the owner of the contract.
+     *
+     * @param status A boolean indicating whether or not burning is enabled.
+     */
+    function setBurnStatus(bool status) public onlyOwner {
+        _burn_enabled = status;
+        emit BurnStatusChanged(status);
+    }
+
+    /**
+     * @dev Burns a token.
+     *
+     * Requirements:
+     * - Burning must be enabled.
+     * - The token must exist.
+     * - The caller must either own the token or be approved to burn it.
+     * - The contract must not be paused.
+     *
+     * @param tokenId The ID of the token to be burned.
+     */
+    function burn(uint96 tokenId) public virtual whenNotPaused {
+        require(_burn_enabled, "ClancyERC721: Burning is disabled.");
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId),
+            "ClancyERC721: caller is not token owner or approved"
+        );
+        _burn(tokenId);
+    }
+
+    /**
+     * @dev Returns the burn status of the contract.
+     *
+     * @return A boolean indicating whether or not burning is currently enabled.
+     */
+    function getBurnStatus() public view returns (bool) {
+        return _burn_enabled;
     }
 
     /**
@@ -98,15 +160,15 @@ contract ClancyERC721 is ClancyPayable, ERC721, Pausable, IClancyERC721 {
     function setMaxSupply(uint96 increased_supply) public onlyOwner {
         require(
             increased_supply >= 0,
-            "ClancyERC721: max supply must be greater than 0"
+            "ClancyERC721: max supply must be greater than 0."
         );
         require(
             increased_supply > _max_supply,
-            "ClancyERC721: max supply cannot be decreased"
+            "ClancyERC721: max supply cannot be decreased."
         );
         require(
             increased_supply <= SUPPLY_CEILING,
-            "ClancyERC721: max supply cannot exceed supply ceiling"
+            "ClancyERC721: max supply cannot exceed supply ceiling."
         );
 
         _max_supply = increased_supply;
@@ -119,17 +181,12 @@ contract ClancyERC721 is ClancyPayable, ERC721, Pausable, IClancyERC721 {
      *
      * Requirements:
      * - The caller must be the owner of the contract.
-     * - The base URI string must not be empty.
      *
      * Emits a {BaseURIChanged} event indicating the updated base URI.
      *
      * @param base_uri_ The new base URI for the token metadata.
      */
     function setBaseURI(string calldata base_uri_) public onlyOwner {
-        require(
-            bytes(base_uri_).length > 0,
-            "ClancyERC721: base URI must not be empty"
-        );
         string memory existing_base_uri = _base_uri_local;
         _base_uri_local = base_uri_;
         emit BaseURIChanged(existing_base_uri, _base_uri_local);
@@ -147,7 +204,7 @@ contract ClancyERC721 is ClancyPayable, ERC721, Pausable, IClancyERC721 {
      * @dev Returns the base URI for all tokens.
      * @return A string representing the base URI.
      */
-    function baseURI() public view returns (string memory) {
+    function baseURI() public view virtual returns (string memory) {
         return _baseURI();
     }
 
@@ -163,7 +220,7 @@ contract ClancyERC721 is ClancyPayable, ERC721, Pausable, IClancyERC721 {
      * @dev Returns the base URI for this contract.
      * @return A string representing the base URI.
      */
-    function _baseURI() internal view override returns (string memory) {
+    function _baseURI() internal view virtual override returns (string memory) {
         return _base_uri_local;
     }
 

@@ -8,6 +8,11 @@ import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import "clancy/utils/ClancyPayable.sol";
 import "./IClancyERC721.sol";
 
+error PublicMintDisabled(string message);
+error BurnDisabled(string message);
+error NotApprovedOrOwner(string message);
+error MaxSupply(string message);
+
 contract ClancyERC721 is
     ClancyPayable,
     ERC721Enumerable,
@@ -28,12 +33,6 @@ contract ClancyERC721 is
     event MaxSupplyChanged(uint256 indexed);
     event BaseURIChanged(string indexed, string indexed);
     event BurnStatusChanged(bool indexed);
-
-    // Errors
-    error PublicMintDisabled(string message);
-    error BurnDisabled(string message);
-    error NotApprovedOrOwner(string message);
-    error MaxSupply(string message);
 
     constructor(
         string memory name_,

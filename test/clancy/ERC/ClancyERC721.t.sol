@@ -16,12 +16,6 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
     event BaseURIChanged(string indexed, string indexed);
     event BurnStatusChanged(bool indexed);
 
-    // Errors
-    error PublicMintDisabled(string message);
-    error BurnDisabled(string message);
-    error NotApprovedOrOwner(string message);
-    error MaxSupply(string message);
-
     function setUp() public {
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
     }

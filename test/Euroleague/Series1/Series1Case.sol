@@ -13,14 +13,6 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
     Series1Case public series1Case;
     Moments public moments;
 
-    // Errors ClancyERC721
-    error NotApprovedOrOwner(string message);
-
-    // Errors Series1Case
-    error MomentsContractNotSet(string message);
-    error MomentsContractNotValid(string message);
-    error MomentsPerCaseNotValid(string message);
-
     function setUp() public {
         series1Case = new Series1Case(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
         moments = new Moments(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);

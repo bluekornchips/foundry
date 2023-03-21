@@ -4,6 +4,10 @@ pragma solidity ^0.8.17;
 import "clancy/ERC/ClancyERC721.sol";
 import "./Moments.sol";
 
+error MomentsContractNotSet(string message);
+error MomentsContractNotValid(string message);
+error MomentsPerCaseNotValid(string message);
+
 contract Series1Case is ClancyERC721 {
     using Address for address;
 
@@ -11,10 +15,6 @@ contract Series1Case is ClancyERC721 {
     uint8 private _momentsPerCase = 3;
 
     event CaseOpened(uint96 indexed token_id, address indexed case_address);
-
-    error MomentsContractNotSet(string message);
-    error MomentsContractNotValid(string message);
-    error MomentsPerCaseNotValid(string message);
 
     constructor(
         string memory name_,

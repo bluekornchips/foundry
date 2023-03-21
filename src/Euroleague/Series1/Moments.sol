@@ -3,6 +3,9 @@ pragma solidity ^0.8.17;
 
 import "clancy/ERC/ClancyERC721.sol";
 
+error MomentsNotCaseContract(string message);
+error MomentsCaseContractInvalid(string message);
+
 contract Moments is ClancyERC721 {
     using Address for address;
 
@@ -16,15 +19,11 @@ contract Moments is ClancyERC721 {
      */
     modifier onlyCaseContract() {
         if (!_caseContracts[_msgSender()])
-            revert NotCaseContract({
+            revert MomentsNotCaseContract({
                 message: "Moments: Caller must be a case contract"
             });
         _;
     }
-
-    // Errors
-    error NotCaseContract(string message);
-    error CaseContractNotValid(string message);
 
     constructor(
         string memory name_,
@@ -49,12 +48,12 @@ contract Moments is ClancyERC721 {
         bool isValid
     ) public onlyOwner {
         if (caseContract == address(0))
-            revert CaseContractNotValid({
-                message: "Case contract cannot be the zero address."
+            revert MomentsCaseContractInvalid({
+                message: "Moments: Case contract cannot be the zero address."
             });
         if (!caseContract.isContract())
-            revert CaseContractNotValid({
-                message: "Address is not a contract."
+            revert MomentsCaseContractInvalid({
+                message: "Moments: Address is not a contract."
             });
         _caseContracts[caseContract] = isValid;
     }

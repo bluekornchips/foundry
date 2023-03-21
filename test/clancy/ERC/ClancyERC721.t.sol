@@ -11,8 +11,16 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
 
     ClancyERC721 public clancyERC721;
 
+    // Events
     event MaxSupplyChanged(uint256 indexed);
     event BaseURIChanged(string indexed, string indexed);
+    event BurnStatusChanged(bool indexed);
+
+    // Errors
+    error PublicMintDisabled(string message);
+    error BurnDisabled(string message);
+    error NotApprovedOrOwner(string message);
+    error MaxSupply(string message);
 
     function setUp() public {
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
@@ -32,14 +40,24 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
     function testFuzz_SetMaxSupply(uint96 amount) public {
         uint96 preMaxSupply = clancyERC721.getMaxSupply();
         uint96 ceiling = clancyERC721.SUPPLY_CEILING();
-        if (amount < preMaxSupply) {
-            vm.expectRevert("ClancyERC721: max supply cannot be decreased.");
+        if (amount < 0) {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    MaxSupply.selector,
+                    "ClancyERC721: max supply must be greater than 0."
+                )
+            );
             clancyERC721.setMaxSupply(amount);
             uint96 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(preMaxSupply, postMaxSupply);
         }
-        if (amount < 0) {
-            vm.expectRevert("ClancyERC721: max supply must be greater than 0.");
+        if (amount < preMaxSupply && amount > 0) {
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    MaxSupply.selector,
+                    "ClancyERC721: max supply cannot be decreased."
+                )
+            );
             clancyERC721.setMaxSupply(amount);
             uint96 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(preMaxSupply, postMaxSupply);
@@ -51,7 +69,10 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
         }
         if (amount > ceiling) {
             vm.expectRevert(
-                "ClancyERC721: max supply cannot exceed supply ceiling."
+                abi.encodeWithSelector(
+                    MaxSupply.selector,
+                    "ClancyERC721: max supply cannot exceed supply ceiling."
+                )
             );
             clancyERC721.setMaxSupply(amount);
             uint256 postMaxSupply = clancyERC721.getMaxSupply();
@@ -117,7 +138,12 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
 
     //#region mint
     function test_mint_whenPublicMintIsDisabled_andNotPaused() public {
-        vm.expectRevert("ClancyERC721: Public minting is disabled.");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                PublicMintDisabled.selector,
+                "ClancyERC721: Public minting is disabled."
+            )
+        );
         clancyERC721.mint();
     }
 
@@ -160,7 +186,12 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
         }
         totalSupply = clancyERC721.totalSupply();
         assertEq(totalSupply, 100);
-        vm.expectRevert("ClancyERC721: Max supply reached.");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                MaxSupply.selector,
+                "ClancyERC721: Max supply reached."
+            )
+        );
         clancyERC721.mint();
     }
 
@@ -207,7 +238,12 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
     //#region burn
 
     function test_burn_whenBurnIsDisabled() public {
-        vm.expectRevert("ClancyERC721: Burning is disabled.");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                BurnDisabled.selector,
+                "ClancyERC721: Burning is disabled."
+            )
+        );
         clancyERC721.burn(1);
     }
 
@@ -246,7 +282,12 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
         assertEq(token_id_counter, 1);
 
         vm.prank(address(clancyERC721));
-        vm.expectRevert("ClancyERC721: caller is not token owner or approved");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                NotApprovedOrOwner.selector,
+                "ClancyERC721: caller is not token owner or approved"
+            )
+        );
         clancyERC721.burn(1);
     }
 

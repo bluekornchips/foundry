@@ -13,6 +13,14 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
     Series1Case public series1Case;
     Moments public moments;
 
+    // Errors ClancyERC721
+    error NotApprovedOrOwner(string message);
+
+    // Errors Series1Case
+    error MomentsContractNotSet(string message);
+    error MomentsContractNotValid(string message);
+    error MomentsPerCaseNotValid(string message);
+
     function setUp() public {
         series1Case = new Series1Case(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
         moments = new Moments(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
@@ -50,7 +58,10 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
     ) public {
         vm.assume(momentsPerCase <= 0);
         vm.expectRevert(
-            "Series1Case: Moments per case must be greater than zero"
+            abi.encodeWithSelector(
+                MomentsPerCaseNotValid.selector,
+                "Series1Case: Moments per case must be greater than zero"
+            )
         );
         series1Case.setMomentsPerCase(uint8(momentsPerCase));
     }
@@ -95,13 +106,21 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
 
     function test_setMomentsContract_ZeroAddress_ShouldRevert() public {
         vm.expectRevert(
-            "Series1Case: Moments contract cannot be the zero address"
+            abi.encodeWithSelector(
+                MomentsContractNotValid.selector,
+                "Series1Case: Moments contract cannot be the zero address"
+            )
         );
         series1Case.setMomentsContract(address(0));
     }
 
     function test_setMomentsContract_ToEOA_ShouldRevert() public {
-        vm.expectRevert("Series1Case: Address is not a contract");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                MomentsContractNotValid.selector,
+                "Series1Case: Address is not a contract"
+            )
+        );
         series1Case.setMomentsContract(DEV_WALLET);
     }
 
@@ -149,7 +168,12 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
         uint96 tokenId = series1Case.mint();
 
         vm.prank(DEV_WALLET);
-        vm.expectRevert("ClancyERC721: caller is not token owner or approved");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                NotApprovedOrOwner.selector,
+                "ClancyERC721: caller is not token owner or approved"
+            )
+        );
         series1Case.openCase(tokenId);
     }
 

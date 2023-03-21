@@ -13,6 +13,14 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
     Moments public moments;
     Series1Case public series1Case;
 
+    // Errors ClancyERC721
+    error PublicMintDisabled(string message);
+    error MaxSupply(string message);
+
+    // Errors Moments
+    error NotCaseContract(string message);
+    error CaseContractNotValid(string message);
+
     function setUp() public {
         moments = new Moments(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
         series1Case = new Series1Case(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
@@ -46,6 +54,16 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
         moments.setCaseContract(address(series1Case), true);
     }
 
+    function test_setCaseContract_AsZeroAddress_ShouldRevert() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                CaseContractNotValid.selector,
+                "Case contract cannot be the zero address."
+            )
+        );
+        moments.setCaseContract(address(0), true);
+    }
+
     function test_setCaseContract_setExisingTrueToFalse() public {
         moments.setCaseContract(address(series1Case), true);
         bool isCaseContract = moments.isCaseContract(address(series1Case));
@@ -62,7 +80,12 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
         moments.setCaseContract(address(series1Case), true);
 
         vm.prank(address(series1Case));
-        vm.expectRevert("ClancyERC721: Public minting is disabled.");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                PublicMintDisabled.selector,
+                "ClancyERC721: Public minting is disabled."
+            )
+        );
         moments.mint();
     }
 
@@ -115,7 +138,12 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
         }
         totalSupply = moments.totalSupply();
         assertEq(totalSupply, 100);
-        vm.expectRevert("ClancyERC721: Max supply reached.");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                MaxSupply.selector,
+                "ClancyERC721: Max supply reached."
+            )
+        );
         vm.prank(address(series1Case));
         moments.mint();
     }

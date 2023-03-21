@@ -12,6 +12,10 @@ contract Series1Case is ClancyERC721 {
 
     event CaseOpened(uint96 indexed token_id, address indexed case_address);
 
+    error MomentsContractNotSet(string message);
+    error MomentsContractNotValid(string message);
+    error MomentsPerCaseNotValid(string message);
+
     constructor(
         string memory name_,
         string memory symbol_,
@@ -39,10 +43,8 @@ contract Series1Case is ClancyERC721 {
     function openCase(
         uint96 tokenId
     ) public whenNotPaused returns (uint96[] memory) {
-        require(
-            _momentsContract != Moments(payable(address(0))),
-            "Moments contract not set"
-        );
+        if (_momentsContract == Moments(payable(address(0))))
+            revert MomentsContractNotSet({message: "Moments contract not set"});
 
         address ownerOfToken = this.ownerOf(tokenId);
 
@@ -74,14 +76,14 @@ contract Series1Case is ClancyERC721 {
      * @param momentsContract The address of the Moments contract.
      */
     function setMomentsContract(address momentsContract) public onlyOwner {
-        require(
-            momentsContract != address(0),
-            "Series1Case: Moments contract cannot be the zero address"
-        );
-        require(
-            momentsContract.isContract(),
-            "Series1Case: Address is not a contract"
-        );
+        if (momentsContract == address(0))
+            revert MomentsContractNotValid({
+                message: "Series1Case: Moments contract cannot be the zero address"
+            });
+        if (!momentsContract.isContract())
+            revert MomentsContractNotValid({
+                message: "Series1Case: Address is not a contract"
+            });
         _momentsContract = Moments(payable(momentsContract));
     }
 
@@ -95,10 +97,10 @@ contract Series1Case is ClancyERC721 {
      * @param momentsPerCase The number of moments to set per case.
      */
     function setMomentsPerCase(uint8 momentsPerCase) public onlyOwner {
-        require(
-            momentsPerCase > 0,
-            "Series1Case: Moments per case must be greater than zero"
-        );
+        if (momentsPerCase <= 0)
+            revert MomentsPerCaseNotValid({
+                message: "Series1Case: Moments per case must be greater than zero"
+            });
         _momentsPerCase = momentsPerCase;
     }
 

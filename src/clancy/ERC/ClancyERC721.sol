@@ -29,6 +29,12 @@ contract ClancyERC721 is
     event BaseURIChanged(string indexed, string indexed);
     event BurnStatusChanged(bool indexed);
 
+    // Errors
+    error PublicMintDisabled(string message);
+    error BurnDisabled(string message);
+    error NotApprovedOrOwner(string message);
+    error MaxSupply(string message);
+
     constructor(
         string memory name_,
         string memory symbol_,
@@ -83,7 +89,10 @@ contract ClancyERC721 is
      * @return The id of the newly minted token.
      */
     function mint() public virtual override returns (uint96) {
-        require(_publicMintStatus, "ClancyERC721: Public minting is disabled.");
+        if (!_publicMintStatus)
+            revert PublicMintDisabled({
+                message: "ClancyERC721: Public minting is disabled."
+            });
         return uint96(clancyMint(_msgSender()));
     }
 
@@ -112,11 +121,14 @@ contract ClancyERC721 is
      * @param tokenId The ID of the token to be burned.
      */
     function burn(uint96 tokenId) public virtual whenNotPaused {
-        require(_burnEnabled, "ClancyERC721: Burning is disabled.");
-        require(
-            _isApprovedOrOwner(_msgSender(), tokenId),
-            "ClancyERC721: caller is not token owner or approved"
-        );
+        if (!_burnEnabled)
+            revert BurnDisabled({
+                message: "ClancyERC721: Burning is disabled."
+            });
+        if (!_isApprovedOrOwner(_msgSender(), tokenId))
+            revert NotApprovedOrOwner({
+                message: "ClancyERC721: caller is not token owner or approved"
+            });
         _burn(tokenId);
     }
 
@@ -155,18 +167,18 @@ contract ClancyERC721 is
      * @param increasedSupply The new maximum supply.
      */
     function setMaxSupply(uint96 increasedSupply) public onlyOwner {
-        require(
-            increasedSupply >= 0,
-            "ClancyERC721: max supply must be greater than 0."
-        );
-        require(
-            increasedSupply > _maxSupply,
-            "ClancyERC721: max supply cannot be decreased."
-        );
-        require(
-            increasedSupply <= SUPPLY_CEILING,
-            "ClancyERC721: max supply cannot exceed supply ceiling."
-        );
+        if (increasedSupply <= 0)
+            revert MaxSupply({
+                message: "ClancyERC721: max supply must be greater than 0."
+            });
+        if (increasedSupply <= _maxSupply)
+            revert MaxSupply({
+                message: "ClancyERC721: max supply cannot be decreased."
+            });
+        if (increasedSupply > SUPPLY_CEILING)
+            revert MaxSupply({
+                message: "ClancyERC721: max supply cannot exceed supply ceiling."
+            });
 
         _maxSupply = increasedSupply;
 
@@ -243,10 +255,9 @@ contract ClancyERC721 is
     function clancyMint(
         address to
     ) internal whenNotPaused returns (uint256 tokenId) {
-        require(
-            _tokenIdCounter.current() < _maxSupply,
-            "ClancyERC721: Max supply reached."
-        );
+        if (_tokenIdCounter.current() >= _maxSupply) {
+            revert MaxSupply({message: "ClancyERC721: Max supply reached."});
+        }
         _tokenIdCounter.increment();
         tokenId = _tokenIdCounter.current();
         _safeMint(to, tokenId);

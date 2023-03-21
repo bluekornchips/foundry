@@ -15,12 +15,16 @@ contract Moments is ClancyERC721 {
      * - The caller must be a Case contract.
      */
     modifier onlyCaseContract() {
-        require(
-            _caseContracts[_msgSender()],
-            "Moments: Caller must be a case contract"
-        );
+        if (!_caseContracts[_msgSender()])
+            revert NotCaseContract({
+                message: "Moments: Caller must be a case contract"
+            });
         _;
     }
+
+    // Errors
+    error NotCaseContract(string message);
+    error CaseContractNotValid(string message);
 
     constructor(
         string memory name_,
@@ -44,14 +48,14 @@ contract Moments is ClancyERC721 {
         address caseContract,
         bool isValid
     ) public onlyOwner {
-        require(
-            caseContract != address(0),
-            "Moments: Case contract cannot be the zero address."
-        );
-        require(
-            caseContract.isContract(),
-            "Moments: Address is not a contract."
-        );
+        if (caseContract == address(0))
+            revert CaseContractNotValid({
+                message: "Case contract cannot be the zero address."
+            });
+        if (!caseContract.isContract())
+            revert CaseContractNotValid({
+                message: "Address is not a contract."
+            });
         _caseContracts[caseContract] = isValid;
     }
 

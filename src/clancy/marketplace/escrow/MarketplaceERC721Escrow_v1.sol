@@ -6,14 +6,12 @@ import "openzeppelin-contracts/contracts/security/Pausable.sol";
 import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
+import "./IMarketplaceERC721Escrow_v1.sol";
 import "./MarketplaceERC721EscrowStructs_v1.sol";
 import "clancy/ERC/ClancyERC721.sol";
 
-error InputContractInvalid(string message);
-error NotTokenOwnerOrApproved(string message);
-error PriceTooHigh(string message);
-
 contract MarketplaceERC721Escrow_v1 is
+    IMarketplaceERC721Escrow_v1,
     IERC721Receiver,
     Ownable,
     Pausable,
@@ -22,23 +20,11 @@ contract MarketplaceERC721Escrow_v1 is
     using Counters for Counters.Counter;
     using Address for address;
 
-    uint96 public constant MAX_PRICE = 1_000_000_000 ether;
-
+    uint32 public constant MAX_ITEMS = 10;
     mapping(address => bool) private _contracts;
-    mapping(uint256 => MarketplaceEscrowItem) private _items;
+    mapping(address => mapping(uint256 => MarketplaceEscrowItem))
+        private _items;
     Counters.Counter private _itemIdCounter;
-
-    event MarketplaceItemCreated(
-        uint256 indexed itemId,
-        uint256 indexed tokenId,
-        uint256 listedAt,
-        address indexed tokenContract,
-        address seller,
-        address buyer,
-        bool isSold,
-        bool isClaimed,
-        uint256 price
-    );
 
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
@@ -52,39 +38,25 @@ contract MarketplaceERC721Escrow_v1 is
         return this.onERC721Received.selector;
     }
 
+    function getItemIdCounter() public view returns (uint256) {
+        return _itemIdCounter.current();
+    }
+
     function createItem(
         address tokenContract,
-        uint256 tokenId,
-        uint96 price
-    ) public whenNotPaused nonReentrant {
+        uint256 tokenId
+    ) public whenNotPaused nonReentrant returns (uint256) {
+        if (_itemIdCounter.current() >= MAX_ITEMS)
+            revert MarketplaceERC721Escrow_v1_MarketplaceFull();
         if (!getAllowedContract(tokenContract))
-            revert InputContractInvalid({
-                message: "MarketplaceERC721Escrow_v1: Token contract is not allowed."
-            });
-
+            revert MarketplaceERC721Escrow_v1_InputContractInvalid();
         if (IERC721(tokenContract).ownerOf(tokenId) != _msgSender())
-            revert NotTokenOwnerOrApproved({
-                message: "MarketplaceERC721Escrow_v1: Not token owner or approved."
-            });
-
-        if (price > MAX_PRICE)
-            revert PriceTooHigh({
-                message: "MarketplaceERC721Escrow_v1: Price too high."
-            });
+            revert MarketplaceERC721Escrow_v1_NotTokenOwner();
+        if (_items[tokenContract][tokenId].soldAt != 0)
+            revert MarketplaceERC721Escrow_v1_ItemAlreadyForSale();
 
         _itemIdCounter.increment();
-
-        _items[_itemIdCounter.current()] = MarketplaceEscrowItem({
-            itemId: _itemIdCounter.current(),
-            tokenId: tokenId,
-            listedAt: block.timestamp,
-            soldAt: 0,
-            tokenContract: tokenContract,
-            seller: _msgSender(),
-            buyer: address(0),
-            isSold: false,
-            isClaimed: false
-        });
+        uint256 itemId = _itemIdCounter.current();
 
         IERC721(tokenContract).safeTransferFrom(
             _msgSender(),
@@ -92,28 +64,134 @@ contract MarketplaceERC721Escrow_v1 is
             tokenId
         );
 
-        emit MarketplaceItemCreated(
-            _itemIdCounter.current(),
-            tokenId,
-            block.timestamp,
-            tokenContract,
+        _items[tokenContract][tokenId] = MarketplaceEscrowItem({
+            itemId: itemId,
+            listedAt: block.timestamp,
+            seller: _msgSender(),
+            buyer: address(0),
+            soldAt: 0
+        });
+
+        emit MarketplaceItemCreated({
+            listedAt: block.timestamp,
+            tokenContract: tokenContract,
+            tokenId: tokenId,
+            seller: _msgSender(),
+            itemId: itemId
+        });
+
+        return itemId;
+    }
+
+    function cancelItem(
+        address tokenContract,
+        uint256 tokenId
+    ) public whenNotPaused nonReentrant {
+        if (!getAllowedContract(tokenContract))
+            revert MarketplaceERC721Escrow_v1_InputContractInvalid();
+
+        MarketplaceEscrowItem storage item = _items[tokenContract][tokenId];
+
+        if (item.itemId == 0)
+            revert MarketplaceERC721Escrow_v1_ItemDoesNotExist();
+        /**
+         * The token is not approved for transfer by the marketplace during the createItem function.
+         * We use the item.seller instead of an approved caller or owner.
+         * This prevents the item from being cancelled without clearing the mapping.
+         */
+        if (item.seller != _msgSender())
+            revert MarketplaceERC721Escrow_v1_NotTokenSeller();
+
+        if (item.buyer != address(0))
+            revert MarketplaceERC721Escrow_v1_ItemIsSold();
+
+        delete _items[tokenContract][tokenId];
+
+        IERC721(tokenContract).safeTransferFrom(
+            address(this),
             _msgSender(),
-            address(0),
-            false,
-            false,
-            price
+            tokenId
         );
+
+        emit MarketplaceItemCancelled({
+            itemId: item.itemId,
+            tokenContract: tokenContract,
+            tokenId: tokenId,
+            cancelledAt: block.timestamp
+        });
+    }
+
+    function createPurchase(
+        address tokenContract,
+        uint256 tokenId,
+        address buyer
+    ) public onlyOwner {
+        if (!getAllowedContract(tokenContract))
+            revert MarketplaceERC721Escrow_v1_InputContractInvalid();
+
+        MarketplaceEscrowItem storage item = _items[tokenContract][tokenId];
+
+        if (item.soldAt != 0) revert MarketplaceERC721Escrow_v1_ItemIsSold();
+        if (item.seller == address(0))
+            revert MarketplaceERC721Escrow_v1_ItemSellerCannotBeZeroAddress();
+        if (item.seller == buyer)
+            revert MarketplaceERC721Escrow_v1_ItemBuyerCannotBeSeller();
+
+        item.buyer = buyer;
+        item.soldAt = block.timestamp;
+
+        emit MarketplaceItemPurchaseCreated({
+            itemId: item.itemId,
+            tokenContract: tokenContract,
+            tokenId: tokenId,
+            soldAt: item.soldAt,
+            seller: item.seller,
+            buyer: buyer
+        });
+    }
+
+    function claimItem(
+        address tokenContract,
+        uint256 tokenId
+    ) public whenNotPaused nonReentrant {
+        if (!getAllowedContract(tokenContract))
+            revert MarketplaceERC721Escrow_v1_InputContractInvalid();
+
+        MarketplaceEscrowItem storage item = _items[tokenContract][tokenId];
+
+        if (item.itemId == 0)
+            revert MarketplaceERC721Escrow_v1_ItemDoesNotExist();
+        if (item.soldAt == 0) revert MarketplaceERC721Escrow_v1_ItemIsNotSold();
+        if (item.buyer != _msgSender())
+            revert MarketplaceERC721Escrow_v1_NotTokenBuyer();
+
+        delete _items[tokenContract][tokenId];
+
+        IERC721(tokenContract).safeTransferFrom(
+            address(this),
+            _msgSender(),
+            tokenId
+        );
+
+        emit MarketplaceItemClaimed({
+            itemId: item.itemId,
+            tokenContract: tokenContract,
+            tokenId: tokenId,
+            claimedAt: block.timestamp
+        });
     }
 
     /**
-     * @dev Returns whether a particular token contract is allowed to participate in the marketplace.
-     * @param tokenContract The address of the token contract to get the allowed status for.
-     * @return A boolean indicating whether the token contract is allowed to participate in the marketplace.
+     * @dev Retrieves the MarketplaceEscrowItem object associated with a given token and token contract.
+     * @param tokenContract The address of the token contract.
+     * @param tokenId The unique identifier of the token.
+     * @return Returns a MarketplaceEscrowItem struct containing the details of the specified token's escrow status.
      */
-    function getAllowedContract(
-        address tokenContract
-    ) public view returns (bool) {
-        return _contracts[tokenContract];
+    function getItem(
+        address tokenContract,
+        uint256 tokenId
+    ) public view returns (MarketplaceEscrowItem memory) {
+        return _items[tokenContract][tokenId];
     }
 
     /**
@@ -152,9 +230,18 @@ contract MarketplaceERC721Escrow_v1 is
         bool allowed
     ) public onlyOwner {
         if (!ERC165Checker.supportsERC165(tokenContract))
-            revert InputContractInvalid({
-                message: "MarketplaceERC721Escrow_v1: Address is not an ERC721 contract."
-            });
+            revert MarketplaceERC721Escrow_v1_InputContractInvalid();
         _contracts[tokenContract] = allowed;
+    }
+
+    /**
+     * @dev Returns whether a particular token contract is allowed to participate in the marketplace.
+     * @param tokenContract The address of the token contract to get the allowed status for.
+     * @return A boolean indicating whether the token contract is allowed to participate in the marketplace.
+     */
+    function getAllowedContract(
+        address tokenContract
+    ) public view returns (bool) {
+        return _contracts[tokenContract];
     }
 }

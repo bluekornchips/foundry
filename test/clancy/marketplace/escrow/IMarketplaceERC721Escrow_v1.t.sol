@@ -1,19 +1,11 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.17;
 
-interface IMarketplaceERC721Escrow_v1 {
-    error InputContractInvalid();
-    error NotTokenOwner();
-    error NotTokenSeller();
-    error NotTokenBuyer();
-    error MarketplaceFull();
-    error ItemIsSold();
-    error ItemIsNotSold();
-    error ItemDoesNotExist();
-    error ItemBuyerCannotBeSeller();
-    error ItemAlreadyForSale();
-    error ItemSellerCannotBeZeroAddress();
+import "forge-std/Test.sol";
+import "clancy-test/helpers/ClancyERC721TestHelpers.sol";
+import "clancy/marketplace/escrow/MarketplaceERC721Escrow_v1.sol";
 
+contract IMarketplaceERC721Escrow_v1_Test is Test, ClancyERC721TestHelpers {
     event MarketplaceItemCreated(
         uint256 indexed itemId,
         address indexed tokenContract,
@@ -46,9 +38,4 @@ interface IMarketplaceERC721Escrow_v1 {
         address seller;
         address buyer;
     }
-
-    function getItem(
-        address tokenContract,
-        uint256 itemId
-    ) external view returns (MarketplaceItem memory);
 }

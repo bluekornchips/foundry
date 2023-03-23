@@ -50,10 +50,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
     ) public {
         vm.assume(momentsPerCase <= 0);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                MomentsPerCaseNotValid.selector,
-                "Series1Case: Moments per case must be greater than zero"
-            )
+            abi.encodeWithSelector(ISeries1Case.MomentsPerCaseNotValid.selector)
         );
         series1Case.setMomentsPerCase(uint8(momentsPerCase));
     }
@@ -99,8 +96,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
     function test_setMomentsContract_ZeroAddress_ShouldRevert() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                MomentsContractNotValid.selector,
-                "Series1Case: Moments contract cannot be the zero address"
+                ISeries1Case.MomentsContractNotValid.selector
             )
         );
         series1Case.setMomentsContract(address(0));
@@ -109,8 +105,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
     function test_setMomentsContract_ToEOA_ShouldRevert() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                MomentsContractNotValid.selector,
-                "Series1Case: Address is not a contract"
+                ISeries1Case.MomentsContractNotValid.selector
             )
         );
         series1Case.setMomentsContract(DEV_WALLET);
@@ -161,10 +156,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
 
         vm.prank(DEV_WALLET);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                NotApprovedOrOwner.selector,
-                "ClancyERC721: caller is not token owner or approved"
-            )
+            abi.encodeWithSelector(IClancyERC721.NotApprovedOrOwner.selector)
         );
         series1Case.openCase(tokenId);
     }

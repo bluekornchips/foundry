@@ -35,6 +35,8 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
 
     //#region setCaseContract
     function test_setCaseContract() public {
+        // vm.expectEmit(true, true, false, false);
+        // emit CaseContractSet(address(series1Case), true);
         moments.setCaseContract(address(series1Case), true);
         bool isCaseContract = moments.isCaseContract(address(series1Case));
         assertEq(isCaseContract, true);
@@ -47,26 +49,16 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
     }
 
     function test_setCaseContract_AsZeroAddress_ShouldRevert() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                MomentsCaseContractInvalid.selector,
-                "Moments: Case contract cannot be the zero address."
-            )
-        );
+        vm.expectRevert(IMoments.CaseContractInvalid.selector);
         moments.setCaseContract(address(0), true);
     }
 
     function test_setCaseContract_AsEOA_ShouldRevert() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                MomentsCaseContractInvalid.selector,
-                "Moments: Address is not a contract."
-            )
-        );
+        vm.expectRevert(IMoments.CaseContractInvalid.selector);
         moments.setCaseContract(DEV_WALLET, true);
     }
 
-    function test_setCaseContract_setExisingTrueToFalse() public {
+    function test_setCaseContract_setExisingTrueToFalse_ShouldPass() public {
         moments.setCaseContract(address(series1Case), true);
         bool isCaseContract = moments.isCaseContract(address(series1Case));
         assertEq(isCaseContract, true);
@@ -78,20 +70,19 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
     //#endregion
 
     //#region mint
-    function test_mint_whenPublicMintIsDisabled_andNotPaused() public {
+    function test_mint_whenPublicMintIsDisabledAndNotPaused_ShouldPass()
+        public
+    {
         moments.setCaseContract(address(series1Case), true);
 
         vm.prank(address(series1Case));
         vm.expectRevert(
-            abi.encodeWithSelector(
-                PublicMintDisabled.selector,
-                "ClancyERC721: Public minting is disabled."
-            )
+            abi.encodeWithSelector(IClancyERC721.PublicMintDisabled.selector)
         );
         moments.mint();
     }
 
-    function test_mint_whenPublicMintIsEnabled_andPaused() public {
+    function test_mint_whenPublicMintIsEnabledAndPaused_ShouldRevert() public {
         moments.pause();
         moments.setPublicMintStatus(true);
         moments.setCaseContract(address(series1Case), true);
@@ -104,10 +95,7 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
     function test_mint_fromNonCaseContract_ShouldRevert() public {
         moments.setPublicMintStatus(true);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                MomentsNotCaseContract.selector,
-                "Moments: Caller must be a case contract"
-            )
+            abi.encodeWithSelector(IMoments.NotCaseContract.selector)
         );
         moments.mint();
     }
@@ -152,10 +140,7 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
         totalSupply = moments.totalSupply();
         assertEq(totalSupply, 100);
         vm.expectRevert(
-            abi.encodeWithSelector(
-                MaxSupply.selector,
-                "ClancyERC721: Max supply reached."
-            )
+            abi.encodeWithSelector(IClancyERC721.MaxSupply_Reached.selector)
         );
         vm.prank(address(series1Case));
         moments.mint();

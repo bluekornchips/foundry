@@ -8,11 +8,6 @@ import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import "clancy/utils/ClancyPayable.sol";
 import "./IClancyERC721.sol";
 
-error PublicMintDisabled(string message);
-error BurnDisabled(string message);
-error NotApprovedOrOwner(string message);
-error MaxSupply(string message);
-
 contract ClancyERC721 is
     ClancyPayable,
     ERC721Enumerable,
@@ -26,13 +21,8 @@ contract ClancyERC721 is
     string internal _baseURILocal;
     uint96 internal _maxSupply;
     uint96 public constant SUPPLY_CEILING = 1_000_000;
-    bool private _publicMintStatus = false;
+    bool private _publicMintEnabled = false;
     bool private _burnEnabled = false;
-
-    // Events
-    event MaxSupplyChanged(uint256 indexed);
-    event BaseURIChanged(string indexed, string indexed);
-    event BurnStatusChanged(bool indexed);
 
     constructor(
         string memory name_,
@@ -88,10 +78,7 @@ contract ClancyERC721 is
      * @return The id of the newly minted token.
      */
     function mint() public virtual override returns (uint96) {
-        if (!_publicMintStatus)
-            revert PublicMintDisabled({
-                message: "ClancyERC721: Public minting is disabled."
-            });
+        if (!_publicMintEnabled) revert PublicMintDisabled();
         return uint96(clancyMint(_msgSender()));
     }
 
@@ -120,14 +107,9 @@ contract ClancyERC721 is
      * @param tokenId The ID of the token to be burned.
      */
     function burn(uint96 tokenId) public virtual whenNotPaused {
-        if (!_burnEnabled)
-            revert BurnDisabled({
-                message: "ClancyERC721: Burning is disabled."
-            });
+        if (!_burnEnabled) revert BurnDisabled();
         if (!_isApprovedOrOwner(_msgSender(), tokenId))
-            revert NotApprovedOrOwner({
-                message: "ClancyERC721: caller is not token owner or approved"
-            });
+            revert NotApprovedOrOwner();
         _burn(tokenId);
     }
 
@@ -149,7 +131,7 @@ contract ClancyERC721 is
      * @param status The new public minting status.
      */
     function setPublicMintStatus(bool status) public onlyOwner {
-        _publicMintStatus = status;
+        _publicMintEnabled = status;
     }
 
     /**
@@ -166,18 +148,10 @@ contract ClancyERC721 is
      * @param increasedSupply The new maximum supply.
      */
     function setMaxSupply(uint96 increasedSupply) public onlyOwner {
-        if (increasedSupply <= 0)
-            revert MaxSupply({
-                message: "ClancyERC721: max supply must be greater than 0."
-            });
-        if (increasedSupply <= _maxSupply)
-            revert MaxSupply({
-                message: "ClancyERC721: max supply cannot be decreased."
-            });
-        if (increasedSupply > SUPPLY_CEILING)
-            revert MaxSupply({
-                message: "ClancyERC721: max supply cannot exceed supply ceiling."
-            });
+        if (increasedSupply <= 0) revert MaxSupply_LTEZero();
+        if (increasedSupply < totalSupply())
+            revert MaxSupply_LowerThanCurrentSupply();
+        if (increasedSupply > SUPPLY_CEILING) revert MaxSupply_AboveCeiling();
 
         _maxSupply = increasedSupply;
 
@@ -205,7 +179,7 @@ contract ClancyERC721 is
      * @return A boolean indicating whether public minting is currently enabled or disabled.
      */
     function getPublicMintStatus() public view returns (bool) {
-        return _publicMintStatus;
+        return _publicMintEnabled;
     }
 
     /**
@@ -254,9 +228,7 @@ contract ClancyERC721 is
     function clancyMint(
         address to
     ) internal whenNotPaused returns (uint256 tokenId) {
-        if (_tokenIdCounter.current() >= _maxSupply) {
-            revert MaxSupply({message: "ClancyERC721: Max supply reached."});
-        }
+        if (_tokenIdCounter.current() >= _maxSupply) revert MaxSupply_Reached();
         _tokenIdCounter.increment();
         tokenId = _tokenIdCounter.current();
         _safeMint(to, tokenId);

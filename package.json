@@ -1,0 +1,15 @@
+{
+  "name": "foundry",
+  "version": "1.0.0",
+  "description": "A foundry project.",
+  "scripts": {
+    "remixd": "remixd -s ./ -u https://remix.ethereum.org"
+  },
+  "author": "Tristan",
+  "license": "ISC",
+  "homepage": "https://github.com/bluekornchips/foundry#readme",
+  "dependencies": {
+    "yarn": "^1.22.19",
+    "@remix-project/remixd": "^0.6.8"
+  }
+}

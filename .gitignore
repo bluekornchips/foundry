@@ -18,3 +18,13 @@ docs/
 
 # Library files
 **/lib/**
+
+# contract artifacts
+**/artifacts/**
+
+# npm
+node_modules/
+package-lock.json
+
+# yarn
+yarn.lock

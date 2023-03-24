@@ -15,7 +15,7 @@ interface IClancyERC721 {
     event BaseURIChanged(string indexed, string indexed);
     event BurnStatusChanged(bool indexed);
 
-    function mint() external returns (uint96);
+    function mint() external returns (uint256);
 
     // function mintTo(address to_) external returns (uint256);
 }

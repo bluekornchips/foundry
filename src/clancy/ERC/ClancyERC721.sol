@@ -17,17 +17,28 @@ contract ClancyERC721 is
 {
     using Counters for Counters.Counter;
 
+    /// @dev A counter for tracking the token ID
     Counters.Counter internal _tokenIdCounter;
+
+    /// @dev A base URI for metadata of the token, to be concatenated with the token ID
     string internal _baseURILocal;
-    uint96 internal _maxSupply;
-    uint96 public constant SUPPLY_CEILING = 1_000_000;
+
+    /// @dev The maximum supply of the token
+    uint256 internal _maxSupply;
+
+    /// @dev The ceiling for the total supply of the token
+    uint256 public constant SUPPLY_CEILING = 1_000_000;
+
+    /// @dev A flag for enabling or disabling public minting
     bool private _publicMintEnabled = false;
+
+    /// @dev A flag for enabling or disabling burning of tokens
     bool private _burnEnabled = false;
 
     constructor(
         string memory name_,
         string memory symbol_,
-        uint96 max_supply_,
+        uint256 max_supply_,
         string memory baseURILocal_
     ) ERC721(name_, symbol_) {
         _maxSupply = max_supply_;
@@ -77,9 +88,9 @@ contract ClancyERC721 is
      *
      * @return The id of the newly minted token.
      */
-    function mint() public virtual override returns (uint96) {
+    function mint() public virtual override returns (uint256) {
         if (!_publicMintEnabled) revert PublicMintDisabled();
-        return uint96(clancyMint(_msgSender()));
+        return uint256(clancyMint(_msgSender()));
     }
 
     /**
@@ -106,7 +117,7 @@ contract ClancyERC721 is
      *
      * @param tokenId The ID of the token to be burned.
      */
-    function burn(uint96 tokenId) public virtual whenNotPaused {
+    function burn(uint256 tokenId) public virtual whenNotPaused {
         if (!_burnEnabled) revert BurnDisabled();
         if (!_isApprovedOrOwner(_msgSender(), tokenId))
             revert NotApprovedOrOwner();
@@ -147,7 +158,7 @@ contract ClancyERC721 is
      *
      * @param increasedSupply The new maximum supply.
      */
-    function setMaxSupply(uint96 increasedSupply) public onlyOwner {
+    function setMaxSupply(uint256 increasedSupply) public onlyOwner {
         if (increasedSupply <= 0) revert MaxSupply_LTEZero();
         if (increasedSupply < totalSupply())
             revert MaxSupply_LowerThanCurrentSupply();
@@ -194,7 +205,7 @@ contract ClancyERC721 is
      * @dev Returns the maximum supply for this token.
      * @return An unsigned integer representing the maximum supply.
      */
-    function getMaxSupply() public view returns (uint96) {
+    function getMaxSupply() public view returns (uint256) {
         return _maxSupply;
     }
 

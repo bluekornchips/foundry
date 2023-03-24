@@ -1,0 +1,13 @@
+{
+    "files.exclude":{
+        "**/.git": true,
+        ".github": true
+    },
+    "search.exclude": {
+		"**/.github": true,
+		"**/build": true,
+		"**/node_modules": true,
+		"**/yarn-error.log": true,
+		"**/yarn.lock": true
+	}
+}

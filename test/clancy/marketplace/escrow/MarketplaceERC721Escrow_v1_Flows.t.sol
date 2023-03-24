@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.19;
 
-import {Test} from "forge-std/Test.sol";
+import "forge-std/Test.sol";
 
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
@@ -127,14 +127,21 @@ contract MarketplaceERC721Escrow_v1_Test is
 
     //#region Multiple Contracts Tests
     function test_ListingOneTokenFromEitherContract_ShouldPass() public {
-        uint256 tokensOne_tokenId = mintAndApprovePrank(
-            TEST_WALLET_MAIN,
-            tokensOne
+        // console.log("Marketplace Address:%s", address(marketplace));
+        uint256 tokensOne_tokenId = mintPrank(TEST_WALLET_MAIN, tokensOne);
+        uint256 tokensTwo_tokenId = mintPrank(TEST_WALLET_MAIN, tokensTwo);
+
+        assertEq(
+            IERC721(tokensOne).ownerOf(tokensOne_tokenId),
+            address(TEST_WALLET_MAIN)
         );
-        uint256 tokensTwo_tokenId = mintAndApprovePrank(
-            TEST_WALLET_MAIN,
-            tokensTwo
+        assertEq(
+            IERC721(tokensTwo).ownerOf(tokensTwo_tokenId),
+            address(TEST_WALLET_MAIN)
         );
+
+        approvePrank(TEST_WALLET_MAIN, tokensOne, tokensOne_tokenId);
+        approvePrank(TEST_WALLET_MAIN, tokensTwo, tokensTwo_tokenId);
 
         vm.prank(TEST_WALLET_MAIN);
         uint256 tokensOne_itemId = marketplace.createItem(
@@ -147,6 +154,44 @@ contract MarketplaceERC721Escrow_v1_Test is
             address(tokensTwo),
             tokensTwo_tokenId
         );
+
+        assertEq(
+            IERC721(tokensOne).ownerOf(tokensOne_tokenId),
+            address(marketplace)
+        );
+        assertEq(
+            IERC721(tokensTwo).ownerOf(tokensTwo_tokenId),
+            address(marketplace)
+        );
+
+        // Create a purchase for TEST_WALLET_1 for both tokens
+        marketplace.createPurchase(
+            address(tokensOne),
+            tokensOne_tokenId,
+            address(TEST_WALLET_1)
+        );
+
+        marketplace.createPurchase(
+            address(tokensTwo),
+            tokensTwo_tokenId,
+            address(TEST_WALLET_1)
+        );
+
+        // Claim both tokens
+        vm.prank(TEST_WALLET_1);
+        marketplace.claimItem(address(tokensOne), tokensOne_tokenId);
+        vm.prank(TEST_WALLET_1);
+        marketplace.claimItem(address(tokensTwo), tokensTwo_tokenId);
+
+        // Check that both tokens are owned by TEST_WALLET_1
+        assertEq(
+            IERC721(tokensOne).ownerOf(tokensOne_tokenId),
+            address(TEST_WALLET_1)
+        );
+        assertEq(
+            IERC721(tokensTwo).ownerOf(tokensTwo_tokenId),
+            address(TEST_WALLET_1)
+        );
     }
 
     //#endregion
@@ -158,15 +203,21 @@ contract MarketplaceERC721Escrow_v1_Test is
         return tokenId;
     }
 
-    function mintAndApprovePrank(
+    function mintPrank(
         address pranker,
         ClancyERC721 ercContract
     ) internal returns (uint256) {
         vm.prank(pranker);
-        uint256 tokenId = IClancyERC721(ercContract).mint();
+        return IClancyERC721(ercContract).mint();
+    }
+
+    function approvePrank(
+        address pranker,
+        ClancyERC721 ercContract,
+        uint256 tokenId
+    ) internal {
         vm.prank(pranker);
         IERC721(ercContract).approve(address(marketplace), tokenId);
-        return tokenId;
     }
     //#endregion
 }

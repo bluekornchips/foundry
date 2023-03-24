@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "clancy/ERC/extensions/ClancyERC721StorageURI.sol";
-import "../../helpers/ClancyERC721TestHelpers.sol";
+import {Test} from "forge-std/Test.sol";
 
-contract ClancyERC721StorageURI_Test is Test, ClancyERC721TestHelpers {
+import {ClancyERC721StorageURI} from "clancy/ERC/extensions/ClancyERC721StorageURI.sol";
+
+import {ClancyERC721TestHelpers} from "clancy-test/helpers/ClancyERC721TestHelpers.sol";
+import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
+
+contract ClancyERC721StorageURI_Test is
+    Test,
+    ClancyERC721TestHelpers,
+    TEST_CONSTANTS
+{
     ClancyERC721StorageURI public clancyERC721StorageURI;
 
     function setUp() public {

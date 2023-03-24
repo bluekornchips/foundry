@@ -1,13 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "clancy-test/helpers/ClancyERC721TestHelpers.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
-import "euroleague/series1/Series1Case.sol";
-import "euroleague/series1/Moments.sol";
+import {Test} from "forge-std/Test.sol";
 
-contract Case_Test is Test, ClancyERC721TestHelpers {
+import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
+
+import {IClancyERC721} from "clancy/ERC/IClancyERC721.sol";
+
+import {ISeries1Case, Series1Case} from "euroleague/series1/Series1Case.sol";
+import {Moments} from "euroleague/series1/Moments.sol";
+
+import {ClancyERC721TestHelpers} from "clancy-test/helpers/ClancyERC721TestHelpers.sol";
+import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
+
+contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     using Strings for uint256;
 
     Series1Case public series1Case;
@@ -34,7 +40,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
     }
 
     function test_setMomentsPerCaseAsNonOwner_ShouldRevert() public {
-        vm.prank(DEV_WALLET);
+        vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert("Ownable: caller is not the owner");
         series1Case.setMomentsPerCase(5);
     }
@@ -88,7 +94,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
             BASE_URI
         );
 
-        vm.prank(DEV_WALLET);
+        vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert("Ownable: caller is not the owner");
         series1Case.setMomentsContract(address(momentsContract));
     }
@@ -108,7 +114,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
                 ISeries1Case.MomentsContractNotValid.selector
             )
         );
-        series1Case.setMomentsContract(DEV_WALLET);
+        series1Case.setMomentsContract(TEST_WALLET_MAIN);
     }
 
     //#endregion
@@ -136,15 +142,15 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
         momentsSetup();
 
         uint256 momentsPerCase = series1Case.getMomentsPerCase();
-        uint256 momentsBalanceBefore = moments.balanceOf(DEV_WALLET);
+        uint256 momentsBalanceBefore = moments.balanceOf(TEST_WALLET_MAIN);
 
-        vm.prank(DEV_WALLET);
-        uint96 tokenId = series1Case.mint();
+        vm.prank(TEST_WALLET_MAIN);
+        uint256 tokenId = series1Case.mint();
 
-        vm.prank(DEV_WALLET);
+        vm.prank(TEST_WALLET_MAIN);
         series1Case.openCase(tokenId);
 
-        uint256 momentsBalanceAfter = moments.balanceOf(DEV_WALLET);
+        uint256 momentsBalanceAfter = moments.balanceOf(TEST_WALLET_MAIN);
         assertEq(momentsBalanceAfter, momentsBalanceBefore + momentsPerCase);
         assertEq(momentsBalanceAfter, 3);
     }
@@ -152,9 +158,9 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
     function test_openCase_AsNonOwner_ShouldRevert() public {
         momentsSetup();
 
-        uint96 tokenId = series1Case.mint();
+        uint256 tokenId = series1Case.mint();
 
-        vm.prank(DEV_WALLET);
+        vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert(
             abi.encodeWithSelector(IClancyERC721.NotApprovedOrOwner.selector)
         );
@@ -164,14 +170,14 @@ contract Case_Test is Test, ClancyERC721TestHelpers {
     function test_openCase_AsApproved_ShouldSucceed() public {
         momentsSetup();
 
-        vm.prank(DEV_WALLET);
-        uint96 tokenId = series1Case.mint();
+        vm.prank(TEST_WALLET_MAIN);
+        uint256 tokenId = series1Case.mint();
 
-        vm.prank(DEV_WALLET);
+        vm.prank(TEST_WALLET_MAIN);
         series1Case.approve(address(this), tokenId);
         series1Case.openCase(tokenId);
-        uint256 momentsBalance = moments.balanceOf(DEV_WALLET);
-        uint256 series1CaseBalance = series1Case.balanceOf(DEV_WALLET);
+        uint256 momentsBalance = moments.balanceOf(TEST_WALLET_MAIN);
+        uint256 series1CaseBalance = series1Case.balanceOf(TEST_WALLET_MAIN);
         assertEq(momentsBalance, 3);
         assertEq(series1CaseBalance, 0);
     }

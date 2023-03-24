@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
-import "openzeppelin-contracts/contracts/security/Pausable.sol";
-import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
-import "clancy/ERC/ClancyERC721.sol";
-import "./IMarketplaceERC721Escrow_v1.sol";
+import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
+import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
+import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
+import {Pausable} from "openzeppelin-contracts/contracts/security/Pausable.sol";
+import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
+import {ReentrancyGuard} from "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
+import {IERC721Receiver} from "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
+import {ERC165Checker} from "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
+
+import {IClancyERC721, ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+
+import {IMarketplaceERC721Escrow_v1} from "./IMarketplaceERC721Escrow_v1.sol";
 
 contract MarketplaceERC721Escrow_v1 is
     IMarketplaceERC721Escrow_v1,

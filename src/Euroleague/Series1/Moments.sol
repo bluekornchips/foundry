@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.17;
 
-import "clancy/ERC/ClancyERC721.sol";
-import "./IMoments.sol";
+import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
+
+import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+
+import {IMoments} from "./IMoments.sol";
 
 contract Moments is IMoments, ClancyERC721 {
     using Address for address;
@@ -23,7 +26,7 @@ contract Moments is IMoments, ClancyERC721 {
     constructor(
         string memory name_,
         string memory symbol_,
-        uint96 max_supply_,
+        uint256 max_supply_,
         string memory base_uri_
     ) ClancyERC721(name_, symbol_, max_supply_, base_uri_) {}
 
@@ -72,7 +75,7 @@ contract Moments is IMoments, ClancyERC721 {
         override
         whenNotPaused
         onlyCaseContract
-        returns (uint96)
+        returns (uint256)
     {
         return super.mint();
     }

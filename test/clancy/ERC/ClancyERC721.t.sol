@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
-import "clancy-test/helpers/ClancyERC721TestHelpers.sol";
-import "clancy/ERC/ClancyERC721.sol";
+import {Test} from "forge-std/Test.sol";
+import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
-contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
+import {IClancyERC721, ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+
+import {ClancyERC721TestHelpers} from "clancy-test/helpers/ClancyERC721TestHelpers.sol";
+import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
+
+contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     using Strings for uint256;
 
     ClancyERC721 public clancyERC721;
@@ -30,17 +33,17 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
         assertEq(maxSupply, 100);
     }
 
-    function testFuzz_SetMaxSupply(uint96 amount) public {
-        uint96 existingMaxSupply = clancyERC721.getMaxSupply();
+    function testFuzz_SetMaxSupply(uint256 amount) public {
+        uint256 existingMaxSupply = clancyERC721.getMaxSupply();
         uint256 currentSupply = clancyERC721.totalSupply();
-        uint96 ceiling = clancyERC721.SUPPLY_CEILING();
+        uint256 ceiling = clancyERC721.SUPPLY_CEILING();
 
         // A negative amount, should revert.
         if (amount < 0) {
             vm.expectRevert(IClancyERC721.MaxSupply_LTEZero.selector);
             clancyERC721.setMaxSupply(amount);
 
-            uint96 postMaxSupply = clancyERC721.getMaxSupply();
+            uint256 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         }
         // Less than the existing max supply, and less than the current supply, should revert.
@@ -48,13 +51,13 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
             vm.expectRevert(IClancyERC721.MaxSupply_CannotBeDecreased.selector);
             clancyERC721.setMaxSupply(amount);
 
-            uint96 postMaxSupply = clancyERC721.getMaxSupply();
+            uint256 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         }
         // Greater than the existing max supply and less than ceiling, should pass.
         else if (amount > existingMaxSupply && amount <= ceiling) {
             clancyERC721.setMaxSupply(amount);
-            uint96 postMaxSupply = clancyERC721.getMaxSupply();
+            uint256 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(amount, postMaxSupply);
         }
         // Greater than the ceiling, should revert.
@@ -71,30 +74,30 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
                 IClancyERC721.MaxSupply_LowerThanCurrentSupply.selector
             );
             clancyERC721.setMaxSupply(amount);
-            uint96 postMaxSupply = clancyERC721.getMaxSupply();
+            uint256 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         }
         // Equal to zero, should revert.
         else if (amount == 0) {
             vm.expectRevert(IClancyERC721.MaxSupply_LTEZero.selector);
             clancyERC721.setMaxSupply(amount);
-            uint96 postMaxSupply = clancyERC721.getMaxSupply();
+            uint256 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         } else {
             clancyERC721.setMaxSupply(amount);
-            uint96 postMaxSupply = clancyERC721.getMaxSupply();
+            uint256 postMaxSupply = clancyERC721.getMaxSupply();
             assertEq(amount, postMaxSupply);
         }
     }
 
     function test_setMaxSupply() public {
-        uint96 test_max_supply = 200;
+        uint256 test_max_supply = 200;
 
         vm.expectEmit(true, false, false, false);
         emit MaxSupplyChanged(test_max_supply);
         clancyERC721.setMaxSupply(test_max_supply);
 
-        uint96 maxSupply = clancyERC721.getMaxSupply();
+        uint256 maxSupply = clancyERC721.getMaxSupply();
         assertEq(maxSupply, test_max_supply);
     }
 
@@ -199,7 +202,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
     // function test_mint_supplyCeiling() public {
     //     clancyERC721.setPublicMintStatus(true);
     //     uint256 ceiling = clancyERC721.SUPPLY_CEILING();
-    //     clancyERC721.setMaxSupply(uint96(ceiling));
+    //     clancyERC721.setMaxSupply(uint256(ceiling));
     //     assertEq(ceiling, 1_000_000);
     //     for (uint256 i = 0; i < ceiling; i++) {
     //         clancyERC721.mint();
@@ -298,7 +301,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
     //     assertEq(totalSupply, 100);
     //     assertEq(token_id_counter, 100);
 
-    //     for (uint96 i = 0; i < 100; i++) {
+    //     for (uint256 i = 0; i < 100; i++) {
     //         clancyERC721.burn(i + 1);
     //     }
 
@@ -322,7 +325,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
     function test_balanceOf_afterTransfer() public {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
-        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
         uint256 balance = clancyERC721.balanceOf(address(this));
         assertEq(balance, 0);
     }
@@ -334,8 +337,8 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
     function test_safeTransferFrom() public {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
-        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
-        uint256 balance = clancyERC721.balanceOf(DEV_WALLET);
+        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
+        uint256 balance = clancyERC721.balanceOf(TEST_WALLET_MAIN);
         assertEq(balance, 1);
     }
 
@@ -344,28 +347,28 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
     {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
-        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
 
         // Should not transfer
         vm.expectRevert("ERC721: caller is not token owner or approved");
-        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
 
         // Should not transfer as token was already
         vm.expectRevert("ERC721: caller is not token owner or approved");
-        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
+        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
 
         // Connect as a non-owner, should not be able to transfer
         vm.prank(address(0x1));
         vm.expectRevert("ERC721: caller is not token owner or approved");
-        clancyERC721.safeTransferFrom(DEV_WALLET, address(this), 1);
+        clancyERC721.safeTransferFrom(TEST_WALLET_MAIN, address(this), 1);
     }
 
     function test_safeTransferFrom_asApprovedOrOwner() public {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
-        clancyERC721.approve(DEV_WALLET, 1);
-        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 1);
-        uint256 balance = clancyERC721.balanceOf(DEV_WALLET);
+        clancyERC721.approve(TEST_WALLET_MAIN, 1);
+        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
+        uint256 balance = clancyERC721.balanceOf(TEST_WALLET_MAIN);
         assertEq(balance, 1);
     }
 
@@ -375,10 +378,10 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
         clancyERC721.mint();
-        clancyERC721.approve(DEV_WALLET, 1);
-        vm.prank(DEV_WALLET);
+        clancyERC721.approve(TEST_WALLET_MAIN, 1);
+        vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert("ERC721: caller is not token owner or approved");
-        clancyERC721.safeTransferFrom(address(this), DEV_WALLET, 2);
+        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 2);
     }
     //#endregion
 }

@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "clancy-test/helpers/ClancyERC721TestHelpers.sol";
-import "clancy/marketplace/escrow/MarketplaceERC721Escrow_v1.sol";
+import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
+import {ClancyERC721TestHelpers} from "clancy-test/helpers/ClancyERC721TestHelpers.sol";
 
-contract IMarketplaceERC721Escrow_v1_Test is Test, ClancyERC721TestHelpers {
+abstract contract IMarketplaceERC721Escrow_v1_Test is
+    ClancyERC721TestHelpers,
+    TEST_CONSTANTS
+{
     event MarketplaceItemCreated(
         uint256 indexed itemId,
         address indexed tokenContract,

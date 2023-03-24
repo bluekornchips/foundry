@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.17;
 
-import "clancy/ERC/ClancyERC721.sol";
-import "./Moments.sol";
-import "./ISeries1Case.sol";
+import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
+
+import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+
+import {Moments} from "./Moments.sol";
+import {ISeries1Case} from "./ISeries1Case.sol";
 
 contract Series1Case is ISeries1Case, ClancyERC721 {
     using Address for address;
@@ -14,7 +17,7 @@ contract Series1Case is ISeries1Case, ClancyERC721 {
     constructor(
         string memory name_,
         string memory symbol_,
-        uint96 maxSupply,
+        uint256 maxSupply,
         string memory base_uri_
     ) ClancyERC721(name_, symbol_, maxSupply, base_uri_) {}
 
@@ -36,8 +39,8 @@ contract Series1Case is ISeries1Case, ClancyERC721 {
      * @return An array of the IDs of the moments that were minted.
      */
     function openCase(
-        uint96 tokenId
-    ) public whenNotPaused returns (uint96[] memory) {
+        uint256 tokenId
+    ) public whenNotPaused returns (uint256[] memory) {
         if (_momentsContract == Moments(payable(address(0))))
             revert MomentsContractNotSet();
 
@@ -45,8 +48,8 @@ contract Series1Case is ISeries1Case, ClancyERC721 {
 
         burn(tokenId);
 
-        uint96[] memory minted_moments = new uint96[](_momentsPerCase);
-        for (uint96 i = 0; i < _momentsPerCase; i++) {
+        uint256[] memory minted_moments = new uint256[](_momentsPerCase);
+        for (uint256 i = 0; i < _momentsPerCase; i++) {
             minted_moments[i] = _momentsContract.mint();
             _momentsContract.safeTransferFrom(
                 address(this),

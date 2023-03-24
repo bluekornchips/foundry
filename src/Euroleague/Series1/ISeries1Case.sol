@@ -6,5 +6,5 @@ interface ISeries1Case {
     error MomentsContractNotValid();
     error MomentsPerCaseNotValid();
 
-    event CaseOpened(uint96 indexed token_id, address indexed case_address);
+    event CaseOpened(uint256 indexed token_id, address indexed case_address);
 }

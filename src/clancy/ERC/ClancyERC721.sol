@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/utils/Counters.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "openzeppelin-contracts/contracts/security/Pausable.sol";
-import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
-import "clancy/utils/ClancyPayable.sol";
-import "./IClancyERC721.sol";
+import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
+import {Pausable} from "openzeppelin-contracts/contracts/security/Pausable.sol";
+import {IERC721Receiver} from "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
+import {ERC721, ERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+
+import {ClancyPayable} from "clancy/utils/ClancyPayable.sol";
+
+import {IClancyERC721} from "./IClancyERC721.sol";
 
 contract ClancyERC721 is
     ClancyPayable,

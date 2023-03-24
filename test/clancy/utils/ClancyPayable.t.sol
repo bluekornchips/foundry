@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "clancy/utils/ClancyPayable.sol";
+import {Test} from "forge-std/Test.sol";
+
+import {ClancyPayable} from "clancy/utils/ClancyPayable.sol";
 
 contract ClancyPayable_Test is Test {
     ClancyPayable public clancyPayable;

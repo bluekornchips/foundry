@@ -1,13 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "openzeppelin-contracts/contracts/utils/Strings.sol";
-import "clancy-test/helpers/ClancyERC721TestHelpers.sol";
-import "euroleague/series1/Series1Case.sol";
-import "euroleague/series1/Moments.sol";
+import {Test} from "forge-std/Test.sol";
 
-contract Moments_Test is Test, ClancyERC721TestHelpers {
+import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
+
+import {IClancyERC721} from "clancy/ERC/IClancyERC721.sol";
+
+import {Series1Case} from "euroleague/series1/Series1Case.sol";
+import {IMoments, Moments} from "euroleague/series1/Moments.sol";
+
+import {ClancyERC721TestHelpers} from "clancy-test/helpers/ClancyERC721TestHelpers.sol";
+import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
+
+contract Moments_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     using Strings for uint256;
 
     Moments public moments;
@@ -43,7 +49,7 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
     }
 
     function test_setCaseContractAsNonOwner_ShouldRevert() public {
-        vm.prank(DEV_WALLET);
+        vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert("Ownable: caller is not the owner");
         moments.setCaseContract(address(series1Case), true);
     }
@@ -55,7 +61,7 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
 
     function test_setCaseContract_AsEOA_ShouldRevert() public {
         vm.expectRevert(IMoments.CaseContractInvalid.selector);
-        moments.setCaseContract(DEV_WALLET, true);
+        moments.setCaseContract(TEST_WALLET_MAIN, true);
     }
 
     function test_setCaseContract_setExisingTrueToFalse_ShouldPass() public {
@@ -150,7 +156,7 @@ contract Moments_Test is Test, ClancyERC721TestHelpers {
     //     moments.setCaseContract(address(series1Case), true);
     //     moments.setPublicMintStatus(true);
     //     uint256 ceiling = moments.SUPPLY_CEILING();
-    //     moments.setMaxSupply(uint96(ceiling));
+    //     moments.setMaxSupply(uint256(ceiling));
     //     assertEq(ceiling, 1_000_000);
     //     for (uint256 i = 0; i < ceiling; i++) {
     //         vm.prank(address(series1Case));

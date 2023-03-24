@@ -1,14 +1,17 @@
 //SPDX-License-Identifier: None
 pragma solidity ^0.8.17;
 
-import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "clancy/ERC/ClancyERC721.sol";
+import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
+import {ERC721URIStorage} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import {ERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+
+import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
 
 contract ClancyERC721StorageURI is ClancyERC721, ERC721URIStorage {
     constructor(
         string memory name_,
         string memory symbol_,
-        uint96 maxSupply_,
+        uint256 maxSupply_,
         string memory baseURILocal_
     ) ClancyERC721(name_, symbol_, maxSupply_, baseURILocal_) {}
 

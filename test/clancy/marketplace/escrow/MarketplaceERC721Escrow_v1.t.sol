@@ -1,10 +1,17 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.17;
 
-import "./IMarketplaceERC721Escrow_v1.t.sol";
-import "clancy/ERC/ClancyERC721.sol";
+import "forge-std/Test.sol";
 
-contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
+import {IMarketplaceERC721Escrow_v1_Test} from "./IMarketplaceERC721Escrow_v1.t.sol";
+
+import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+import {IMarketplaceERC721Escrow_v1, MarketplaceERC721Escrow_v1} from "clancy/marketplace/escrow/MarketplaceERC721Escrow_v1.sol";
+
+contract MarketplaceERC721Escrow_v1_Test is
+    IMarketplaceERC721Escrow_v1_Test,
+    Test
+{
     ClancyERC721 clancyERC721;
     MarketplaceERC721Escrow_v1 marketplace;
 
@@ -20,7 +27,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
 
     //#region setAllowedContract
     function test_setAllowedContract_WhenNotOwner_ShouldRevert() public {
-        vm.prank(DEV_WALLET);
+        vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert("Ownable: caller is not the owner");
         marketplace.setAllowedContract(address(clancyERC721), true);
     }
@@ -38,7 +45,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
         vm.expectRevert(
             IMarketplaceERC721Escrow_v1.InputContractInvalid.selector
         );
-        marketplace.setAllowedContract(DEV_WALLET, true);
+        marketplace.setAllowedContract(TEST_WALLET_MAIN, true);
     }
 
     function test_setAllowedContract_ShouldSucceed() public {
@@ -63,7 +70,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_createItem_AsNonOwner_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = clancyERC721.mint();
+        uint256 tokenId = clancyERC721.mint();
         vm.expectRevert("ERC721: caller is not token owner or approved");
         marketplace.createItem(address(clancyERC721), tokenId);
     }
@@ -71,7 +78,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_createItem_AsUnapproved_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = clancyERC721.mint();
+        uint256 tokenId = clancyERC721.mint();
         vm.expectRevert("ERC721: caller is not token owner or approved");
         marketplace.createItem(address(clancyERC721), tokenId);
     }
@@ -79,7 +86,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_createItem_ShouldPass() public returns (uint256) {
         marketplaceSetup();
 
-        uint96 tokenId = clancyERC721.mint();
+        uint256 tokenId = clancyERC721.mint();
 
         assertEq(clancyERC721.balanceOf(address(this)), 1);
         assertEq(clancyERC721.ownerOf(tokenId), address(this));
@@ -91,7 +98,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
         emit MarketplaceItemCreated(
             marketplace.getItemIdCounter() + 1,
             address(clancyERC721),
-            uint256(tokenId),
+            tokenId,
             address(this)
         );
         uint256 marketplaceItemId = marketplace.createItem(
@@ -109,7 +116,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
         marketplaceSetup();
 
         for (uint256 i = 0; i < marketplace_max_items; i++) {
-            uint96 tokenId = clancyERC721.mint();
+            uint256 tokenId = clancyERC721.mint();
             clancyERC721.approve(address(marketplace), tokenId);
             vm.expectEmit(true, true, true, true, address(marketplace));
             emit MarketplaceItemCreated(
@@ -130,7 +137,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_createItem_MaxItemsPlusOne_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = 0;
+        uint256 tokenId = 0;
         for (uint256 i = 0; i < marketplace_max_items; i++) {
             tokenId = clancyERC721.mint();
             clancyERC721.approve(address(marketplace), tokenId);
@@ -166,7 +173,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_getItem_ShouldPass() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
         marketplace.createItem(address(clancyERC721), tokenId);
 
         IMarketplaceERC721Escrow_v1.MarketplaceItem memory item = marketplace
@@ -182,7 +189,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_cancelItem_ForNonApprovedContract_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
         vm.expectRevert(
             IMarketplaceERC721Escrow_v1.InputContractInvalid.selector
         );
@@ -202,9 +209,9 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_cancelItem_ByApprovedNonSeller_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprovePrank(DEV_WALLET);
+        uint256 tokenId = mintAndApprovePrank(TEST_WALLET_MAIN);
 
-        vm.prank(address(DEV_WALLET));
+        vm.prank(address(TEST_WALLET_MAIN));
         marketplace.createItem(address(clancyERC721), tokenId);
 
         vm.prank(address(marketplace));
@@ -217,9 +224,9 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprovePrank(DEV_WALLET);
+        uint256 tokenId = mintAndApprovePrank(TEST_WALLET_MAIN);
 
-        vm.prank(address(DEV_WALLET));
+        vm.prank(address(TEST_WALLET_MAIN));
         marketplace.createItem(address(clancyERC721), tokenId);
 
         string
@@ -233,7 +240,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
                 selector,
                 address(marketplace),
                 address(this),
-                uint256(tokenId)
+                tokenId
             )
         );
         assertEq(success, false);
@@ -242,7 +249,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_cancelItem_AsOwnerButNotSeller_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
         marketplace.createItem(address(clancyERC721), tokenId);
 
         vm.prank(address(clancyERC721));
@@ -253,13 +260,13 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_cancelItem_WhenItemIsSold_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         marketplace.createItem(address(clancyERC721), tokenId);
         marketplace.createPurchase(
             address(clancyERC721),
             tokenId,
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
 
         vm.expectRevert(IMarketplaceERC721Escrow_v1.ItemIsSold.selector);
@@ -269,7 +276,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_cancelItem_ShouldPass() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         uint256 itemId = marketplace.createItem(address(clancyERC721), tokenId);
         console.log("Listed item with ID: %s", itemId);
@@ -279,11 +286,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
         console.log("itemId: %s, seller: %s", item.itemId, item.seller);
 
         vm.expectEmit(true, true, true, false, address(marketplace));
-        emit MarketplaceItemCancelled(
-            itemId,
-            address(clancyERC721),
-            uint256(tokenId)
-        );
+        emit MarketplaceItemCancelled(itemId, address(clancyERC721), tokenId);
         marketplace.cancelItem(address(clancyERC721), tokenId);
 
         assertEq(clancyERC721.ownerOf(tokenId), address(this));
@@ -305,7 +308,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_createPurchase_ForNonApprovedContract_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         marketplace.createItem(address(clancyERC721), tokenId);
 
@@ -315,14 +318,14 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
         marketplace.createPurchase(
             address(marketplace),
             tokenId,
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
     }
 
     function test_createPurchase_AsNonOwner_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         marketplace.createItem(address(clancyERC721), tokenId);
 
@@ -331,14 +334,14 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
         marketplace.createPurchase(
             address(clancyERC721),
             tokenId,
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
     }
 
     function test_createPurchase_SetBuyerToSeller_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         marketplace.createItem(address(clancyERC721), tokenId);
 
@@ -355,28 +358,28 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_createPurchase_Twice_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         marketplace.createItem(address(clancyERC721), tokenId);
 
         marketplace.createPurchase(
             address(clancyERC721),
             tokenId,
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
 
         vm.expectRevert(IMarketplaceERC721Escrow_v1.ItemIsSold.selector);
         marketplace.createPurchase(
             address(clancyERC721),
             tokenId,
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
     }
 
     function test_createPurchase_ShouldPass() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         uint256 itemId = marketplace.createItem(address(clancyERC721), tokenId);
 
@@ -386,12 +389,12 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
             address(clancyERC721),
             tokenId,
             address(this),
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
         marketplace.createPurchase(
             address(clancyERC721),
             tokenId,
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
     }
 
@@ -401,7 +404,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_claimItem_ForInvalidId_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         marketplace.createItem(address(clancyERC721), tokenId);
 
@@ -412,13 +415,13 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_claimItem_SenderIsNotBuyer_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         marketplace.createItem(address(clancyERC721), tokenId);
         marketplace.createPurchase(
             address(clancyERC721),
             tokenId,
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
 
         vm.expectRevert(IMarketplaceERC721Escrow_v1.NotTokenBuyer.selector);
@@ -428,7 +431,7 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_claimItem_ItemIsNotSold_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         marketplace.createItem(address(clancyERC721), tokenId);
 
@@ -439,25 +442,25 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
     function test_claimItem_WhenContractIsPaused_ShouldRevert() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         marketplace.createItem(address(clancyERC721), tokenId);
         marketplace.createPurchase(
             address(clancyERC721),
             tokenId,
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
 
         marketplace.pause();
         vm.expectRevert("Pausable: paused");
-        vm.prank(address(DEV_WALLET));
+        vm.prank(address(TEST_WALLET_MAIN));
         marketplace.claimItem(address(clancyERC721), tokenId);
     }
 
     function test_claimItem_ShouldPass() public {
         marketplaceSetup();
 
-        uint96 tokenId = mintAndApprove();
+        uint256 tokenId = mintAndApprove();
 
         uint256 itemId = marketplace.createItem(address(clancyERC721), tokenId);
         console.log("Created item with ID: %s", itemId);
@@ -465,15 +468,15 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
         marketplace.createPurchase(
             address(clancyERC721),
             tokenId,
-            address(DEV_WALLET)
+            address(TEST_WALLET_MAIN)
         );
 
         vm.expectEmit(true, true, true, false, address(marketplace));
         emit MarketplaceItemClaimed(itemId, address(clancyERC721), tokenId);
 
-        vm.prank(address(DEV_WALLET));
+        vm.prank(address(TEST_WALLET_MAIN));
         marketplace.claimItem(address(clancyERC721), tokenId);
-        assertEq(clancyERC721.ownerOf(tokenId), address(DEV_WALLET));
+        assertEq(clancyERC721.ownerOf(tokenId), address(TEST_WALLET_MAIN));
     }
 
     //#endregion
@@ -488,15 +491,15 @@ contract MarketplaceERC721Escrow_v1_Test is IMarketplaceERC721Escrow_v1_Test {
         marketplace.setAllowedContract(address(clancyERC721), true);
     }
 
-    function mintAndApprove() internal returns (uint96) {
-        uint96 tokenId = clancyERC721.mint();
+    function mintAndApprove() internal returns (uint256) {
+        uint256 tokenId = clancyERC721.mint();
         clancyERC721.approve(address(marketplace), tokenId);
         return tokenId;
     }
 
-    function mintAndApprovePrank(address pranker) internal returns (uint96) {
+    function mintAndApprovePrank(address pranker) internal returns (uint256) {
         vm.prank(pranker);
-        uint96 tokenId = clancyERC721.mint();
+        uint256 tokenId = clancyERC721.mint();
         vm.prank(pranker);
         clancyERC721.approve(address(marketplace), tokenId);
         return tokenId;

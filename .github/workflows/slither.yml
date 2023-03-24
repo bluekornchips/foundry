@@ -8,3 +8,4 @@ jobs:
       - uses: crytic/slither-action@main
         with:
           target: '/'
+          slither-config: "slither.config.json"

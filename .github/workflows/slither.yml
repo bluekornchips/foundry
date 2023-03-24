@@ -5,7 +5,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: crytic/slither-action@main
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.3.0
+        id: slither
         with:
-          target: '/'
-          slither-config: "slither.config.json"
+          sarif: results.sarif
+          fail-on: none
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.slither.outputs.sarif }}

@@ -12,7 +12,7 @@ jobs:
         with:
           sarif: results.sarif
           fail-on: none
-
+          remappings: 'src=/github/workspace/src,euroleague/series1=/github/workspace/test/Euroleague/Series1'
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:

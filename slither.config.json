@@ -1,0 +1,11 @@
+{
+    "filter_paths": "lib",
+    "sol_remaps": [
+        "ds-test/=lib/forge-std/lib/ds-test/src/",
+        "forge-std/=lib/forge-std/src/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+        "euroleague=src/euroleague/",
+        "clancy/=src/clancy/",
+        "clancy-test=test/clancy/"
+    ]
+}

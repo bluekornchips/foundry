@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "A foundry project.",
   "scripts": {
-    "remixd": "remixd -s ./ -u https://remix.ethereum.org"
+    "remixd": "remixd -s ./ -u https://remix.ethereum.org",
+    "slither-docker": "docker run --rm -it -v ${PWD}:/my_local trailofbits/eth-security-toolbox"
   },
   "author": "Tristan",
   "license": "ISC",

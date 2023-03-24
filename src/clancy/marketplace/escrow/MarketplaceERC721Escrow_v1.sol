@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: None
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.19;
 
 import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";

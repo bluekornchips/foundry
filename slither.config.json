@@ -1,3 +1,9 @@
 {
-    "filter_paths": "(lib/|mocks/|test/)"
-}
+    "solc_remaps": [
+      "ds-test/=/my_local/lib/ds-test/src/",
+      "forge-std/=/my_local/lib/forge-std/src/",
+      "openzeppelin-contracts/=/my_local/lib/openzeppelin-contracts/",
+      "euroleague/=/my_local/src/euroleague/",
+      "clancy/=/my_local/src/clancy/"
+    ]
+  }

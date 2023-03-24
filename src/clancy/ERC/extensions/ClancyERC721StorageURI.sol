@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: None
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.19;
 
 import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import {ERC721URIStorage} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";

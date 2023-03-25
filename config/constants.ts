@@ -27,4 +27,7 @@ export const ODOO_PACK_INFO = {
 }
 
 // # Blockchain
-export const SENTINEL_RPC_URL = process.env.SENTINEL_RPC_URL;
+export const SENTINEL_RPC = {
+    URL: process.env.SENTINEL_RPC_URL,
+    NAME: "sentinel_dev",
+}

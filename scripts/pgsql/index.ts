@@ -1,5 +1,5 @@
-import { Clancy } from "./clancy";
+import { contracts } from "./contracts"
 
 export const pgsql = {
-    Clancy,
+    contracts,
 }

@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { Ducky } from "../../../../client/logging/ducky/ducky";
-import { SENTINEL_RPC_URL } from "../../../../config/constants";
+import { SENTINEL_RPC } from "../../../../config/constants";
 import parentDirectory from "../../../../utils/projectDirectory";
 import { ERC } from "../../../blockchain/clancy/ERC";
 import { pgsql } from "../../../pgsql";
@@ -25,16 +25,16 @@ const main = async () => {
     // Deploy the contract to the network.
     const blockchain_deployment_response: ethers.Contract = await ERC.ClancyERC721(CONTRACT_NAME, CONTRACT_SYMBOL, MAX_SUPPLY, URI);
     if (!blockchain_deployment_response) {
-        Ducky.Error(FILE_DIR, "ClancyERC721", `Could not deploy ${CONTRACT_NAME} contract to ${SENTINEL_RPC_URL}`);
+        Ducky.Error(FILE_DIR, "ClancyERC721", `Could not deploy ${CONTRACT_NAME} contract to ${SENTINEL_RPC.NAME}`);
         process.exit(1);
     }
-    const contract_pgsql_response = await pgsql.Clancy.ERC.ClancyERC721(CONTRACT_NAME, blockchain_deployment_response.address, foundry_artifact);
+    const contract_pgsql_response = await pgsql.contracts.upsert(CONTRACT_NAME, blockchain_deployment_response.address, foundry_artifact);
     if (!contract_pgsql_response) {
         Ducky.Error(FILE_DIR, "ClancyERC721", `Could not add ${CONTRACT_NAME} to PostgreSQL`);
         process.exit(1);
     }
 
-    Ducky.Debug(FILE_DIR, "ClancyERC721", `Successfully deployed ${CONTRACT_NAME} contract to ${SENTINEL_RPC_URL}`);
+    Ducky.Debug(FILE_DIR, "ClancyERC721", `Successfully deployed ${CONTRACT_NAME} contract to ${SENTINEL_RPC.NAME}`);
 }
 
 main().catch((error) => {

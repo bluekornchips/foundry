@@ -2,7 +2,7 @@ import { contracts, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const ClancyERC721 = async (contract_name: string, contract_address: string, artifact: any): Promise<contracts> => {
+export const upsert = async (contract_name: string, contract_address: string, artifact: any): Promise<contracts> => {
 
     const contract_response: contracts = await prisma.contracts.upsert({
         create: {

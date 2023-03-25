@@ -16,6 +16,11 @@ docs/
 # Dotenv file
 .env
 
+# Hardhat
+hardhat.config.js
+cache_hardhat
+hardhat.config.ts
+
 # Library files
 **/lib/**
 
@@ -25,6 +30,13 @@ docs/
 # npm
 node_modules/
 package-lock.json
+typechain-types/
+
+# prisma
+prisma/
 
 # yarn
 yarn.lock
+
+#remixd
+compiler_config.json

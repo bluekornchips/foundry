@@ -4,7 +4,7 @@ out = 'out'
 libs = ['lib']
 
 [rpc_endpoints]
-sentinel_dev = 'http://20.104.160.183/'
+sentinel_dev = '${SENTINEL_RPC_URL}'
 
 [etherscan]
 sentinel_dev={url ="http://20.104.128.142/", key = "b37517faef957f6114b495563fede7f80dd65f82ac2b658f1e0c77acc196750bd44b40f7b783b572ad74d7699c6893d2036fc6404953d1d471c59a844ba8721b"}

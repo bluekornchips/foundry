@@ -26,6 +26,9 @@ const main = async () => {
         case "marketplace":
             await collections.clancy.marketplace.escrow.MarketplaceERC721Escrow_v1.deploy();
             break;
+        case "erc721":
+            await collections.clancy.ERC.ClancyERC721.deploy();
+            break;
         default:
             Ducky.Error("Deployment", "main", `Package ${input_args.packageName} not found`);
             break;

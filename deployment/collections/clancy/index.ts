@@ -1,4 +1,4 @@
-import ERC from "./ERC/ClancyERC721";
+import ERC from "./ERC";
 import marketplace from "./marketplace";
 
 const clancy = {

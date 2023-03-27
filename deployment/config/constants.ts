@@ -37,3 +37,8 @@ export const RPC = {
 export const EOAS = {
     DEPLOYMENT_KEY: process.env.DEPLOYMENT_KEY || ""
 }
+
+export const VALID_CONTRACTS = [
+    "erc721",
+    "marketplace",
+]

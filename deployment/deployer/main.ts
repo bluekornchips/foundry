@@ -1,16 +1,24 @@
 import { Ducky } from '../client/logging/ducky';
-import collections from '../collections';
 import utility from '../utility';
 import yargs from 'yargs';
+import deploy_contract from './deploy_contract';
+import { VALID_CONTRACTS } from '../config/constants';
+import { ethers } from 'ethers';
 
 const argv = yargs.options({
-    packageName: {
-        alias: 'p',
-        description: 'The package to be run',
-        type: 'string',
-        demandOption: true
+    deploy: {
+        alias: 'd',
+        description: 'The contracts to be deployed',
+        type: 'array',
+        demandOption: false
     }
 }).argv;
+
+type ContractContainer = {
+    [key: string]: {
+        contract: ethers.Contract
+    }
+}
 
 
 const main = async () => {
@@ -19,22 +27,28 @@ const main = async () => {
     console.log(utility.printFancy("Deployment", true))
     console.log(utility.printRepeated("="))
 
-    // Use the package name in your code as needed
-    Ducky.Info(`Deploying package: ${input_args.packageName}`);
+    const contracts: ContractContainer = {}
 
-    switch (input_args.packageName) {
-        case "marketplace":
-            await collections.clancy.marketplace.escrow.MarketplaceERC721Escrow_v1.deploy();
-            break;
-        case "erc721":
-            await collections.clancy.ERC.ClancyERC721.deploy();
-            break;
-        default:
-            Ducky.Error("Deployment", "main", `Package ${input_args.packageName} not found`);
-            break;
+    if (input_args.deploy) {
+        // Ensure each input parameter is a string, and matches the VALID_CONTRACTS array
+        const contract_names: string[] = input_args.deploy = input_args.deploy.map((element) => {
+            if (VALID_CONTRACTS.includes(element as string)) {
+                return element as string
+            }
+            else {
+                const message = `Contract ${element} not found`
+                Ducky.Error("Deployment", "main", message)
+                throw new Error(message)
+            }
+        })
+        for (const contract_name of contract_names) {
+            const contract = await deploy_contract(contract_name)
+            contracts[contract_name] = {
+                contract: contract
+            }
+        }
     }
 }
-
 
 main().catch((error) => {
     console.error(error);

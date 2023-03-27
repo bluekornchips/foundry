@@ -1,5 +1,5 @@
-import { ethers } from "ethers";
 import pgsql from "../../../../../pgsql";
+import { ethers } from "ethers";
 import { RPC } from "../../../../../config/constants";
 import { Ducky } from "../../../../../client/logging/ducky/ducky";
 import contracts from "../../../../../contracts";
@@ -12,7 +12,7 @@ const CONTRACT_NAME = "MarketplaceERC721Escrow_v1";
  * @dev Deploys the MarketplaceERC721Escrow_v1 contract to the EVM network and adds it to PostgreSQL
  * @throws If there is an error deploying the contract to the EVM network or adding it to PostgreSQL
  */
-const deploy = async () => {
+const deploy = async (): Promise<ethers.Contract> => {
     const foundry_artifact = artifact_finder(CONTRACT_NAME);
 
     // Deploy the contract to the network.
@@ -31,6 +31,7 @@ const deploy = async () => {
         throw new Error(message);
     }
     Ducky.Debug(FILE_DIR, "deploy", `Successfully deployed ${CONTRACT_NAME} contract to ${RPC.NAME}`);
+    return contract;
 }
 
 export default deploy;

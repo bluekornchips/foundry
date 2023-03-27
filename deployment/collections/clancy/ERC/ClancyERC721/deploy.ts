@@ -12,7 +12,7 @@ const CONTRACT_NAME = "ClancyERC721",
     MAX_SUPPLY = 100,
     URI = "https://clancy.com/api/";
 
-const deploy = async () => {
+const deploy = async (): Promise<ethers.Contract> => {
     const foundry_artifact = artifact_finder(CONTRACT_NAME)
 
     // Deploy the contract to the network.
@@ -32,6 +32,8 @@ const deploy = async () => {
     }
 
     Ducky.Debug(FILE_DIR, "deploy", `Successfully deployed ${CONTRACT_NAME} contract to ${RPC.NAME}`);
+
+    return contract;
 }
 
 export default deploy;

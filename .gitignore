@@ -26,11 +26,11 @@ hardhat.config.ts
 
 # contract artifacts
 **/artifacts/**
+artifacts/
 
 # npm
 node_modules/
 package-lock.json
-typechain-types/
 
 # prisma
 prisma/

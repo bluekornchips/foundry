@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 // # Project
 export const ENV = process.env.ENV || 'DEV';
 
@@ -27,7 +29,14 @@ export const ODOO_PACK_INFO = {
 }
 
 // # Blockchain
-export const SENTINEL_RPC = {
-    URL: process.env.SENTINEL_RPC_URL,
-    NAME: "sentinel_dev",
+export const RPC = {
+    URL: process.env.RPC_URL,
+    NAME: process.env.RPC_NAME,
+    // NAME: "sentinel_dev",
+    // URL: "http://127.0.0.1:8545",
+    // NAME: "local",
+}
+
+export const EOAS = {
+    WALLET_PRIVATE_KEY_DEV: process.env.WALLET_PRIVATE_KEY_DEV || ""
 }

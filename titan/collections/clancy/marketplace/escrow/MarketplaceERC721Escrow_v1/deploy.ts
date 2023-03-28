@@ -17,7 +17,7 @@ const deploy = async (): Promise<ethers.Contract> => {
     const options = getContractOptions()
     const artifact = artifact_finder(options.MarketplaceERC721Escrow_v1.name);
 
-    Ducky.Debug(FILE_DIR, options.MarketplaceERC721Escrow_v1.name, `Deploying ${options.MarketplaceERC721Escrow_v1.name} to ${RPC.NAME}`);
+    Ducky.Debug(FILE_DIR, "deploy", `Deploying ${options.MarketplaceERC721Escrow_v1.name} to ${RPC.NAME}`);
     try {
         const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, createWalletWithPrivateKey(EOAS.DEPLOYMENT_KEY))
 

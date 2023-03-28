@@ -1,4 +1,5 @@
 ClancyERC721:
+   name: "ClancyERC721"
    cargs:
       name: "ClancyERC721"
       symbol: "CLANCY"
@@ -6,6 +7,8 @@ ClancyERC721:
       uri: "https://clancy.com/api/"
    publicMintStatus: true
    publicBurnStatus: false
+   validForSale: true
 
 MarketplaceERC721Escrow_v1:
    name: "MarketplaceERC721Escrow_v1"
+   validForSale: false

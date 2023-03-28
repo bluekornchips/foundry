@@ -16,9 +16,9 @@ export const printFancy = (content: string, centered: boolean = false): string =
     if (centered) {
         const content_length = content.length;
         const total_spaces = LINE_WIDTH - content_length;
-        left_spaces = Math.floor(total_spaces / 2);
-        right_spaces = Math.ceil(total_spaces / 2);
-        line = " ".repeat(left_spaces) + content + " ".repeat(right_spaces);
+        left_spaces = Math.floor(total_spaces / 2) - 1;
+        right_spaces = Math.ceil(total_spaces / 2) - 1;
+        line = "|" + " ".repeat(left_spaces) + content + " ".repeat(right_spaces) + "|";
     }
     else {
         // If we don't want the content centered, we just need to add spaces to the right of the content

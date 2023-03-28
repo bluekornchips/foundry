@@ -1,0 +1,11 @@
+ClancyERC721:
+   cargs:
+      name: "ClancyERC721"
+      symbol: "CLANCY"
+      max_supply: 100
+      uri: "https://clancy.com/api/"
+   publicMintStatus: true
+   publicBurnStatus: false
+
+MarketplaceERC721Escrow_v1:
+   name: "MarketplaceERC721Escrow_v1"

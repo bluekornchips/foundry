@@ -38,7 +38,7 @@ const deploy = async (): Promise<ethers.Contract> => {
 
         return contract as ethers.Contract;
     } catch (error: any) {
-        Ducky.Error(FILE_DIR, "ClancyERC721", error.message)
+        Ducky.Error(FILE_DIR, "deploy", error.message)
         throw new Error(error.message);
     }
 };

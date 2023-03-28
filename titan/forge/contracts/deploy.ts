@@ -5,6 +5,8 @@ import { VALID_CONTRACTS } from "../../config/constants";
 import utility from "../../utility";
 import { ContractContainer } from "../../types";
 
+const FILE_DIR = "titan/forge/contracts"
+
 const deploy = async (contract_names: string[]): Promise<ContractContainer> => {
     console.log(utility.printRepeated("="))
     console.log(utility.printFancy("Deployment", true))
@@ -29,7 +31,7 @@ const deploy_contract = async (contract_name: string): Promise<ethers.Contract> 
             return erc721;
         default:
             const message = `Contract ${contract_name} not found`;
-            Ducky.Error("Deployment", "main", message);
+            Ducky.Error(FILE_DIR, "deploy_contract", message);
             throw new Error(message);
     }
 }

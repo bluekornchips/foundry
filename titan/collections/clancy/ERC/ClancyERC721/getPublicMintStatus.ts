@@ -4,21 +4,22 @@ import { Ducky } from "../../../../client/logging/ducky";
 const FILE_DIR = "titan/collections/clancy/ERC/ClancyERC721";
 
 /**
- * @dev Gets the public mint status of the specified contract
- * @param contract The contract instance to get the public mint status for
- * @return A Promise resolving to a boolean indicating whether public minting is allowed or not
- * @throws If there is an error getting the public mint status
+ * Retrieves the public mint status of a contract.
+ * @param contract The contract object to retrieve the status from.
+ * @returns The public mint status of the contract.
+ * @throws If the public mint status could not be retrieved.
  */
 const getPublicMintStatus = async (contract: ethers.Contract): Promise<boolean> => {
     try {
-        const publicMintStatus = await contract.getPublicMintStatus()
-        Ducky.Debug(FILE_DIR, "getPublicMintStatus", `${await contract.name()}.publicMintStatus is ${publicMintStatus}`)
-        return publicMintStatus
+        const isPublicMintingEnabled = await contract.getPublicMintStatus(); // Retrieve the public mint status of the contract.
+        Ducky.Debug(FILE_DIR, "getPublicMintStatus", `${await contract.name()}.publicMintStatus is ${isPublicMintingEnabled}`);
+        return isPublicMintingEnabled;
     } catch (error: any) {
-        const message = `Could not getPublicMintStatus for ${contract.address}`;
-        Ducky.Critical(FILE_DIR, "coordinator", message);
+        const message = `Could not getPublicMintStatus for contract at address ${contract.address}`;
+        Ducky.Error(FILE_DIR, "getPublicMintStatus", message);
         throw new Error(message);
     }
 }
+
 
 export default getPublicMintStatus

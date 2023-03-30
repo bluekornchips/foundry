@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+   eth-security-toolbox:
+      image: trailofbits/eth-security-toolbox
+      restart: always
+      container_name: eth-security-toolbox
+      volumes:
+         - ${PWD}:/my_local
+      tty: true
+      stdin_open: true

@@ -9,9 +9,9 @@ const FILE_DIR = "titan/utility";
  * @return The artifact for the specified contract
  * @throws If there is an error finding the artifact for the specified contract
  */
-const artifact_finder = (contract_name: string): any => {
+const artifact_finder = (contract_name: string, extra_path: string = ""): any => {
     try {
-        const foundry_artifact = require(`${projectDirectory()}out/${contract_name}.sol/${contract_name}.json`);
+        const foundry_artifact = require(`${projectDirectory()}out/${extra_path}${contract_name}.sol/${contract_name}.json`);
         return foundry_artifact;
     } catch (error: any) {
         Ducky.Critical(FILE_DIR, "artifact_finder", `Could not find artifact for ${contract_name} contract`);

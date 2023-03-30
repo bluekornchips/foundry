@@ -1,32 +1,29 @@
 import { ethers } from "ethers";
 import { Ducky } from "../../../../client/logging/ducky";
-import getContractOptions from "../../../../utility/getContractOptions";
 import getPublicMintStatus from "./getPublicMintStatus";
 
 const FILE_DIR = "titan/collections/clancy/ERC/ClancyERC721";
 
 /**
- * @dev Sets the public mint status of the specified contract to the specified value
- * @param contract The contract instance to set the public mint status for
- * @param options.ClancyERC721.publicMintStatus Whether public minting is allowed or not
- * @throws If there is an error setting the public mint status
+ * Sets the public mint status of a contract to the specified value.
+ * @param contract The contract object to set the status for.
+ * @param status The desired public mint status of the contract.
+ * @throws If the public mint status could not be set.
  */
-const setPublicMintStatus = async (contract: ethers.Contract) => {
+const setPublicMintStatus = async (contract: ethers.Contract, status: boolean) => {
     try {
-        // First check if this needs to be executed
-        const options = getContractOptions()
-        const publicMintStatus: boolean = await getPublicMintStatus(contract);
-        if (publicMintStatus === options.ClancyERC721.publicMintStatus) {
-            Ducky.Debug(FILE_DIR, "setPublicMintStatus", `Public mint status for ${await contract.name()} is already ${options.ClancyERC721.publicMintStatus}`)
-            return
+        const isPublicMintingEnabled: boolean = await getPublicMintStatus(contract); // Retrieve the current public mint status of the contract.
+        if (isPublicMintingEnabled === status) {
+            Ducky.Debug(FILE_DIR, "setPublicMintStatus", `Public mint status for ${await contract.name()} is already ${status}`);
+            return;
         }
-        Ducky.Debug(FILE_DIR, "setPublicMintStatus", `Setting public mint status for ${await contract.name()} to ${options.ClancyERC721.publicMintStatus}`)
-        const setPublicMintStatus = await contract.setPublicMintStatus(options.ClancyERC721.publicMintStatus)
-        await setPublicMintStatus.wait()
-        Ducky.Debug(FILE_DIR, "setPublicMintStatus", `Set public mint status for ${await contract.name()} to ${options.ClancyERC721.publicMintStatus}`)
+        Ducky.Debug(FILE_DIR, "setPublicMintStatus", `Setting public mint status for ${await contract.name()} to ${status}`);
+        const setPublicMintStatusTx = await contract.setPublicMintStatus(status); // Set the public mint status of the contract to the desired value.
+        await setPublicMintStatusTx.wait(); // Wait for the transaction to be confirmed.
+        Ducky.Debug(FILE_DIR, "setPublicMintStatus", `Set public mint status for ${await contract.name()} to ${status}`);
     } catch (error: any) {
-        const message = `Could not setPublicMintStatus for ${contract.address}`;
-        Ducky.Critical(FILE_DIR, "coordinator", message);
+        const message = `Could not setPublicMintStatus for contract at address ${contract.address}`;
+        Ducky.Error(FILE_DIR, "setPublicMintStatus", message);
         throw new Error(message);
     }
 }

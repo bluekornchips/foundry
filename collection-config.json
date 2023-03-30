@@ -1,0 +1,106 @@
+{
+	"Clancy": {
+		"ERC": {
+			"ClancyERC721": {
+				"name": "ClancyERC721",
+				"validForSale": true,
+				"cargs": {
+					"name": "ClancyERC721",
+					"symbol": "CLANCY",
+					"max_supply": 100,
+					"uri": "https://clancy.com/api/"
+				},
+				"publicMintStatus": true,
+				"publicBurnStatus": false
+			}
+		},
+		"Marketplace": {
+			"MarketplaceERC721Escrow": {
+				"name": "MarketplaceERC721Escrow_v1"
+			}
+		}
+	},
+	"Euroleague": {
+		"ERC": {
+			"Moments": {
+				"name": "Moments",
+				"validForSale": true,
+				"cargs": {
+					"name": "Moments",
+					"symbol": "MOM",
+					"max_supply": 100,
+					"uri": "https://clancy.com/api/"
+				},
+				"publicMintStatus": true,
+				"publicBurnStatus": false
+			},
+			"Series1Cases": [
+				{
+					"name": "Series1Case",
+					"validForSale": true,
+					"cargs": {
+						"name": "Clutch",
+						"symbol": "CLTCH",
+						"max_supply": 100,
+						"uri": "https://clancy.com/api/"
+					},
+					"publicMintStatus": true,
+					"publicBurnStatus": false,
+					"momentsPerCase": 3
+				},
+				{
+					"name": "Series1Case",
+					"validForSale": true,
+					"cargs": {
+						"name": "CrunchTime",
+						"symbol": "CRNCHTM",
+						"max_supply": 100,
+						"uri": "https://clancy.com/api/"
+					},
+					"publicMintStatus": true,
+					"publicBurnStatus": false,
+					"momentsPerCase": 3
+				},
+				{
+					"name": "Series1Case",
+					"validForSale": true,
+					"cargs": {
+						"name": "HeatinUp",
+						"symbol": "HTNP",
+						"max_supply": 100,
+						"uri": "https://clancy.com/api/"
+					},
+					"publicMintStatus": true,
+					"publicBurnStatus": false,
+					"momentsPerCase": 5
+				},
+				{
+					"name": "Series1Case",
+					"validForSale": true,
+					"cargs": {
+						"name": "Slampacked",
+						"symbol": "SLMPCKD",
+						"max_supply": 100,
+						"uri": "https://clancy.com/api/"
+					},
+					"publicMintStatus": true,
+					"publicBurnStatus": false,
+					"momentsPerCase": 3
+				},
+				{
+					"name": "Series1Case",
+					"validForSale": true,
+					"cargs": {
+						"name": "Swishin",
+						"symbol": "SWSHN",
+						"max_supply": 100,
+						"uri": "https://clancy.com/api/"
+					},
+					"publicMintStatus": true,
+					"publicBurnStatus": false,
+					"momentsPerCase": 3
+				}
+			]
+		}
+	}
+}

@@ -6,12 +6,13 @@ const FILE_DIR = "titan/pgsql/contracts";
 const prisma = new PrismaClient();
 
 /**
- * @dev Upserts the specified contract into the contracts table in PostgreSQL
- * @param contract_name The name of the contract to upsert
- * @param contract The contract instance to upsert
- * @param artifact The contract artifact containing the ABI and bytecode for the contract
- * @return A Promise resolving to the upserted contract
- * @throws If there is an error upserting the contract into PostgreSQL
+ * Upserts a contract to the PostgreSQL database.
+ * 
+ * @param contract_name The name of the contract.
+ * @param contract The ethers.js contract instance.
+ * @param artifact The contract artifact.
+ * 
+ * @returns A Promise that resolves to the upserted contract.
  */
 const upsert = async (contract_name: string, contract: ethers.Contract, artifact: any): Promise<contracts> => {
     const contract_address = await contract.getAddress();
@@ -34,13 +35,13 @@ const upsert = async (contract_name: string, contract: ethers.Contract, artifact
                 contract_artifact: JSON.stringify(artifact),
             },
         });
-
+        Ducky.Debug(FILE_DIR, "upsert", `Upserted ${contract_name} to PostgreSQL`);
         return contract_response;
-
     } catch (error: any) {
-        Ducky.Critical(FILE_DIR, "upsert", error.message);
+        Ducky.Error(FILE_DIR, "upsert", error.message);
         throw new Error(error.message);
     }
 }
+
 
 export default upsert;

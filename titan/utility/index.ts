@@ -1,16 +1,16 @@
 
 import projectDirectory from "./projectDirectory"
-import { printFancy, printRepeated } from "./linePrinter"
+import { printFancy } from "./linePrinter"
 import blockchain from "./blockchain"
 import artifactFinder from "./artifactFinder"
-import getContractOptions from "./getContractOptions"
+import getCollectionConfigs from "./getCollectionConfigs"
+
 const utility = {
     blockchain,
-    getContractOptions,
+    getCollectionConfigs,
     artifactFinder,
     projectDirectory,
     printFancy,
-    printRepeated
 }
 
 export default utility

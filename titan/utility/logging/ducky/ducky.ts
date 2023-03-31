@@ -12,7 +12,7 @@ import dateHelper from "./dateHelper";
  * @param {string} [method] - The method to use when sending the log to the server.
  * @param {string} [data] - The data to send to the server.
  */
-export class Ducky {
+class Ducky {
 
     private static _logLevel = 3;
     private static _quackEnabled = true;
@@ -94,3 +94,5 @@ export class Ducky {
         }
     }
 }
+
+export default Ducky;

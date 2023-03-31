@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { FILE } from "dns";
-import { Ducky } from "../../../client/logging/ducky/ducky";
+import Ducky from "../../../client/logging/ducky/ducky";
 
 const FILE_DIR = "titan/pgsql/helpers/reset";
 const prisma = new PrismaClient();

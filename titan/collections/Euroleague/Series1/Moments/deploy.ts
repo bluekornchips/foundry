@@ -1,8 +1,8 @@
 import artifact_finder from "../../../../utility/artifactFinder"
 import collections from "../../.."
-import { Ducky } from "../../../../client/logging/ducky";
 import { ethers } from "ethers"
 import { VALID_CONTRACTS } from "../../../../config/constants"
+import Ducky from "../../../../utility/logging/ducky";
 
 const FILE_DIR = "titan/collections/Euroleague/Series1/Moments";
 

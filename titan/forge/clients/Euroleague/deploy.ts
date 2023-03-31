@@ -1,11 +1,9 @@
-import { Ducky } from "../../../client/logging/ducky";
-import collections from "../../../collections";
-import { IEuroleagueConfig } from "../../../interfaces";
-import { ContractContainer } from "../../../types";
 import utility from "../../../utility";
-import { ethers } from "ethers";
 import deploy_moments from "./moments";
 import deploy_series1_case from "./series1case";
+import Ducky from "../../../utility/logging/ducky";
+import { ContractContainer } from "../../../types";
+import collections from "../../../collections";
 
 const FILE_DIR = "titan/forge/clients/Euroleague"
 
@@ -13,8 +11,7 @@ const FILE_DIR = "titan/forge/clients/Euroleague"
  * Deploy the Euroleague collection of ERC-721 tokens.
  */
 const deploy = async () => {
-    // Print a fancy header indicating which collection is being deployed.
-    utility.printFancy("Euroleague", true, 1);
+    utility.printFancy("Euroleague", true);
 
     // Get the configuration for the Euroleague collection.
     const euroleagueConfig = utility.getCollectionConfigs().Euroleague
@@ -24,10 +21,16 @@ const deploy = async () => {
         const moments = await deploy_moments(euroleagueConfig)
 
         // Deploy the series of ERC-721 tokens representing Euroleague cases.
-        const series1case = await deploy_series1_case(euroleagueConfig)
+        const series1cases: ContractContainer = await deploy_series1_case(euroleagueConfig)
+
+        // For each series1case contract, set the moments contract and the case contract.
+        for (const series1case of Object.values(series1cases)) {
+            await collections.euroleague.series1.series1case.setMomentsContract(series1case, await moments.getAddress())
+            await collections.euroleague.series1.moments.setCaseContract(moments, await series1case.getAddress(), true)
+        }
 
         // Log a success message indicating that the deployment completed.
-        console.log("Euroleague collection successfully deployed.")
+        utility.printFancy("Euroleague collection successfully deployed.", true)
     } catch (error: any) {
         // Log an error message if the deployment fails and re-throw the error.
         Ducky.Error(FILE_DIR, "deploy", `Failed to deploy Euroleague collection: ${error.message}`);

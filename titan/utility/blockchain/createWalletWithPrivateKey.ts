@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { Ducky } from "../../client/logging/ducky";
 import getProvider from "./getProvider";
+import Ducky from "../logging/ducky";
 
 const FILE_DIR = "titan/utility/blockchain";
 

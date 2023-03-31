@@ -1,4 +1,4 @@
-import { Ducky } from "../client/logging/ducky/ducky";
+import Ducky from "./logging/ducky";
 
 const dir = process.cwd()
 const FILE_DIR = "titan/utility"

@@ -1,6 +1,6 @@
 import { contracts, PrismaClient } from "@prisma/client";
 import { ethers } from "ethers";
-import { Ducky } from "../../client/logging/ducky/ducky";
+import Ducky from "../../utility/logging/ducky";
 
 const FILE_DIR = "titan/pgsql/contracts";
 const prisma = new PrismaClient();

@@ -1,9 +1,9 @@
 import { ethers } from "ethers"
-import { Ducky } from "../../../../../client/logging/ducky/ducky";
 import { EOAS, RPC } from "../../../../../config/constants";
 import pgsql from "../../../../../pgsql";
 import artifact_finder from "../../../../../utility/artifactFinder";
 import createWalletWithPrivateKey from "../../../../../utility/blockchain/createWalletWithPrivateKey";
+import Ducky from "../../../../../utility/logging/ducky";
 
 const FILE_DIR = "titan/collections/clancy/marketplace/escrow/MarketplaceERC721Escrow_v1"
 

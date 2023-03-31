@@ -1,8 +1,8 @@
 import { ethers } from "ethers"
-import { Ducky } from "../../../../client/logging/ducky";
 import { EOAS, RPC } from "../../../../config/constants";
 import pgsql from "../../../../pgsql";
 import createWalletWithPrivateKey from "../../../../utility/blockchain/createWalletWithPrivateKey";
+import Ducky from "../../../../utility/logging/ducky";
 
 const FILE_DIR = "titan/collections/clancy/ERC/ClancyERC721"
 

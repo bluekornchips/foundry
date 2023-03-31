@@ -1,7 +1,7 @@
-import { Ducky } from "../../../client/logging/ducky"
 import collections from "../../../collections"
 import { IEuroleagueConfig } from "../../../interfaces"
 import { ContractContainer } from "../../../types"
+import Ducky from "../../../utility/logging/ducky"
 
 const FILE_DIR = "forge/clients/Euroleague"
 

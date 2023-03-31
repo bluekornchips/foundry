@@ -1,7 +1,9 @@
 import deploy from "./deploy"
+import setCaseContract from "./setCaseContract"
 
 const moments = {
-    deploy
+    deploy,
+    setCaseContract
 }
 
 

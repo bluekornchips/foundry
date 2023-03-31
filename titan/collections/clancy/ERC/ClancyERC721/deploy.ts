@@ -16,10 +16,10 @@ const FILE_DIR = "titan/collections/clancy/ERC/ClancyERC721"
  * @returns The deployed contract instance.
  * @throws If the contract deployment or addition to PostgreSQL fails.
  */
-const deploy = async (name: string, symbol: string, max_supply: number, uri: string, artifact: any): Promise<ethers.Contract> => {
+const deploy = async (name: string, symbol: string, max_supply: number, uri: string, odoo_token_id: number, artifact: any): Promise<ethers.Contract> => {
     Ducky.Debug(FILE_DIR, "deploy", `Deploying ${name} to ${RPC.NAME}`);
     const deployedContract = await deployToBlockchain(name, symbol, max_supply, uri, artifact);
-    await addToPostgres(name, deployedContract, artifact); // Add the deployed contract and its artifact to PostgreSQL.
+    await addToPostgres(name, deployedContract, odoo_token_id, artifact); // Add the deployed contract and its artifact to PostgreSQL.
     return deployedContract;
 };
 
@@ -39,9 +39,9 @@ const deployToBlockchain = async (contractName: string, contractSymbol: string, 
 }
 
 
-const addToPostgres = async (name: string, contract: ethers.Contract, artifact: any) => {
+const addToPostgres = async (name: string, contract: ethers.Contract, odoo_token_id: number, artifact: any) => {
     try {
-        const upsertResult = await pgsql.contracts.upsert(name, contract, artifact);
+        const upsertResult = await pgsql.contracts.upsert(name, contract, odoo_token_id, artifact);
         if (!upsertResult) {
             const message = `Could not add ${name} to PostgreSQL.`;
             Ducky.Error(FILE_DIR, "addToPostgres", message);

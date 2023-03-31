@@ -4,6 +4,7 @@ import deploy_series1_case from "./series1case";
 import Ducky from "../../../utility/logging/ducky";
 import { ContractContainer } from "../../../types";
 import collections from "../../../collections";
+import getActiveEnv from "../../env";
 
 const FILE_DIR = "titan/forge/clients/Euroleague"
 
@@ -11,7 +12,7 @@ const FILE_DIR = "titan/forge/clients/Euroleague"
  * Deploy the Euroleague collection of ERC-721 tokens.
  */
 const deploy = async () => {
-    utility.printFancy("Euroleague", true);
+    utility.printFancy(`Euroleague - ${getActiveEnv().env}`, true);
 
     // Get the configuration for the Euroleague collection.
     const euroleagueConfig = utility.getCollectionConfigs().Euroleague
@@ -19,6 +20,7 @@ const deploy = async () => {
     try {
         // Deploy the Euroleague Moments ERC-721 token.
         const moments = await deploy_moments(euroleagueConfig)
+        await collections.clancy.ERC.ClancyERC721.setPublicMintStatus(moments, true)
 
         // Deploy the series of ERC-721 tokens representing Euroleague cases.
         const series1cases: ContractContainer = await deploy_series1_case(euroleagueConfig)

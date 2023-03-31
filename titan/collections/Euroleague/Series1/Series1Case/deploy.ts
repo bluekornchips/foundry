@@ -15,10 +15,10 @@ const FILE_DIR = "titan/collections/Euroleague/Series1/Series1Case";
  * @returns The deployed contract object.
  * @throws If the contract could not be deployed.
  */
-const deploy = async (name: string, symbol: string, max_supply: number, uri: string): Promise<ethers.Contract> => {
+const deploy = async (name: string, symbol: string, max_supply: number, uri: string, odoo_token_id: number): Promise<ethers.Contract> => {
     const artifact = artifact_finder(VALID_CONTRACTS.Series1Case, "Series1/Series1/");
     try {
-        const contract = await collections.clancy.ERC.ClancyERC721.deploy(name, symbol, max_supply, uri, artifact); // Deploy the ClancyERC721 contract using the specified arguments and retrieved artifact.
+        const contract = await collections.clancy.ERC.ClancyERC721.deploy(name, symbol, max_supply, uri, odoo_token_id, artifact); // Deploy the ClancyERC721 contract using the specified arguments and retrieved artifact.
         return contract;
     } catch (error: any) {
         const message = `Could not deploy ${name}: ${error.message}`;

@@ -28,7 +28,7 @@ const deploy = async (name: string): Promise<ethers.Contract> => {
         Ducky.Debug(FILE_DIR, "deploy", `${name} deployed to ${contract_address}`);
 
         // Add the contract to PostgreSQL.
-        const upsertResponse = await pgsql.contracts.upsert(name, contract as ethers.Contract, artifact);
+        const upsertResponse = await pgsql.contracts.upsert(name, contract as ethers.Contract, 0, artifact);
         if (!upsertResponse) {
             const message = `Could not add ${name} to PostgreSQL`;
             Ducky.Error(FILE_DIR, "deploy", message);

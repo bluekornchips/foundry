@@ -4,7 +4,7 @@
 	"description": "",
 	"scripts": {
 		"deploy": "npx ts-node titan/forge/main.ts",
-		"prisma": "npx ts-node titan/prisma/prisma.ts",
+		"prisma": "npx ts-node titan/prisma/scripts/index.ts",
 		"docker": "docker run --rm -it -v ${PWD}:/my_local trailofbits/eth-security-toolbox"
 	},
 	"author": "Tristan",

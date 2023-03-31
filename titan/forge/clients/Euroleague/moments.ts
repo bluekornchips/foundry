@@ -20,7 +20,7 @@ const deploy_moments = async (config: IEuroleagueConfig): Promise<ethers.Contrac
 
     try {
         // Deploy the Euroleague Moments ERC-721 token and return the contract object.
-        const moments = await collections.euroleague.series1.moments.deploy(name, symbol, max_supply, uri)
+        const moments = await collections.euroleague.series1.moments.deploy(name, symbol, max_supply, uri, 0)
         return moments
     } catch (error: any) {
         // Log an error message if the deployment fails and re-throw the error.

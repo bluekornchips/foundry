@@ -1,9 +1,9 @@
-import { contracts, PrismaClient } from "@prisma/client";
 import { ethers } from "ethers";
 import Ducky from "../../utility/logging/ducky";
+import { activeClient } from "../../prisma/prismaClient";
+import { contracts } from "@prisma/client";
 
 const FILE_DIR = "titan/pgsql/contracts";
-const prisma = new PrismaClient();
 
 /**
  * Upserts a contract to the PostgreSQL database.
@@ -13,16 +13,17 @@ const prisma = new PrismaClient();
  * @param artifact The contract artifact.
  * 
  * @returns A Promise that resolves to the upserted contract.
- */
-const upsert = async (contract_name: string, contract: ethers.Contract, artifact: any): Promise<contracts> => {
+*/
+const upsert = async (contract_name: string, contract: ethers.Contract, odoo_token_id: number, artifact: any): Promise<contracts> => {
     const contract_address = await contract.getAddress();
+    const prisma = activeClient;
     try {
         const contract_response: contracts = await prisma.contracts.upsert({
             create: {
                 contract_name: contract_name,
                 contract_address: contract_address,
                 contract_artifact: JSON.stringify(artifact),
-                odoo_token_id: 0,
+                odoo_token_id: odoo_token_id,
                 created_at: new Date(),
                 updated_at: new Date(),
             },
@@ -33,6 +34,8 @@ const upsert = async (contract_name: string, contract: ethers.Contract, artifact
                 contract_name: contract_name,
                 contract_address: contract_address,
                 contract_artifact: JSON.stringify(artifact),
+                odoo_token_id: odoo_token_id,
+                updated_at: new Date(),
             },
         });
         Ducky.Debug(FILE_DIR, "upsert", `Upserted ${contract_name} to PostgreSQL`);

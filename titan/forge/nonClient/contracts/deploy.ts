@@ -50,15 +50,15 @@ const deploy_contract = async (contract_name: string): Promise<ethers.Contract> 
             case VALID_CONTRACTS.ClancyERC721:
                 const clancyERC721Args = contract_configs.Clancy.ERC.ClancyERC721.cargs;
                 const artifact = utility.artifactFinder(VALID_CONTRACTS.ClancyERC721);
-                const erc721: ethers.Contract = await collections.clancy.ERC.ClancyERC721.deploy(clancyERC721Args.name, clancyERC721Args.symbol, clancyERC721Args.max_supply, clancyERC721Args.uri, artifact);
+                const erc721: ethers.Contract = await collections.clancy.ERC.ClancyERC721.deploy(clancyERC721Args.name, clancyERC721Args.symbol, clancyERC721Args.max_supply, clancyERC721Args.uri, 0, artifact);
                 return erc721;
             case VALID_CONTRACTS.Moments:
                 const momentsArgs = contract_configs.Euroleague.ERC.Moments.cargs;
-                const moments = await collections.euroleague.series1.moments.deploy(momentsArgs.name, momentsArgs.symbol, momentsArgs.max_supply, momentsArgs.uri)
+                const moments = await collections.euroleague.series1.moments.deploy(momentsArgs.name, momentsArgs.symbol, momentsArgs.max_supply, momentsArgs.uri, 0)
                 return moments;
             case VALID_CONTRACTS.Series1Case:
                 const series1CaseArgs = contract_configs.Euroleague.ERC.Series1Cases[0].cargs;
-                const series1Case = await collections.euroleague.series1.series1case.deploy(series1CaseArgs.name, series1CaseArgs.symbol, series1CaseArgs.max_supply, series1CaseArgs.uri)
+                const series1Case = await collections.euroleague.series1.series1case.deploy(series1CaseArgs.name, series1CaseArgs.symbol, series1CaseArgs.max_supply, series1CaseArgs.uri, 0)
                 return series1Case;
             default:
                 const message = `Contract ${contract_name} not found`;

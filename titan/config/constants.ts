@@ -2,7 +2,13 @@ require("dotenv").config();
 
 // # Project
 export const ENV = process.env.ENV || 'DEV';
-
+export const DATABASE_URL = {
+    EUROLEAGUE: {
+        DEV: process.env.DATABASE_URL_DEV_EUROLEAGUE || "",
+        QA: process.env.DATABASE_URL_QA_EUROLEAGUE || "",
+        UAT: process.env.DATABASE_URL_UAT_EUROLEAGUE || "",
+    }
+}
 
 // # Blockchain
 export const RPC = {
@@ -22,7 +28,7 @@ export const VALID_CONTRACTS = {
 }
 
 export const VALID_CLIENTS = {
-    Euroleague: "Euroleague",
+    euroleague: "euroleague",
 }
 
 // # Titan

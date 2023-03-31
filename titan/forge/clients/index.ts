@@ -7,7 +7,7 @@ const clancyClients = async (input_args: string) => {
     //Allow user to read the console
     await new Promise((resolve) => setTimeout(resolve, 5000));
     switch (input_args) {
-        case VALID_CLIENTS.Euroleague:
+        case VALID_CLIENTS.euroleague:
             await Euroleague.deploy();
             break;
         default:

@@ -2,6 +2,7 @@ import collections from "../../../collections"
 import { IEuroleagueConfig } from "../../../interfaces"
 import { ContractContainer } from "../../../types"
 import Ducky from "../../../utility/logging/ducky"
+import getActiveEnv from "../../env"
 
 const FILE_DIR = "forge/clients/Euroleague"
 
@@ -21,14 +22,18 @@ const deploy_series1_case = async (config: IEuroleagueConfig): Promise<ContractC
     // Loop through each configuration and deploy the corresponding ERC-721 token.
     for (const series1case of series1cases_configs) {
         try {
-            // Get the name of the ERC-721 token to be deployed.
-            const series1caseName = series1case.cargs.name
-
             // Create an object with the arguments needed to deploy the ERC-721 token.
             const { name, symbol, max_supply, uri } = series1case.cargs
 
+            // Get the odoo token id for the ERC-721 token.
+            const odoo_token_ids = getActiveEnv().euroleague.odoo_token_ids
+            const odoo_token_id = odoo_token_ids[name.toLocaleUpperCase()]
+            if (!odoo_token_id) {
+                throw new Error(`No odoo token id found for ${name}`)
+            }
             // Deploy the ERC-721 token and store it in the object of deployed tokens.
-            const series1case_contract = await collections.euroleague.series1.series1case.deploy(name, symbol, max_supply, uri)
+            const series1case_contract = await collections.euroleague.series1.series1case.deploy(name, symbol, max_supply, uri, odoo_token_id)
+            await collections.clancy.ERC.ClancyERC721.setPublicMintStatus(series1case_contract, true)
             series1case_contracts[name] = series1case_contract
         } catch (error: any) {
             // Log an error message if the deployment fails and re-throw the error.

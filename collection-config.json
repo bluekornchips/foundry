@@ -45,7 +45,7 @@
 						"uri": "https://clancy.com/api/"
 					},
 					"publicMintStatus": true,
-					"publicBurnStatus": false,
+					"publicBurnStatus": true,
 					"momentsPerCase": 3
 				},
 				{
@@ -58,7 +58,7 @@
 						"uri": "https://clancy.com/api/"
 					},
 					"publicMintStatus": true,
-					"publicBurnStatus": false,
+					"publicBurnStatus": true,
 					"momentsPerCase": 3
 				},
 				{
@@ -71,7 +71,7 @@
 						"uri": "https://clancy.com/api/"
 					},
 					"publicMintStatus": true,
-					"publicBurnStatus": false,
+					"publicBurnStatus": true,
 					"momentsPerCase": 5
 				},
 				{
@@ -84,7 +84,7 @@
 						"uri": "https://clancy.com/api/"
 					},
 					"publicMintStatus": true,
-					"publicBurnStatus": false,
+					"publicBurnStatus": true,
 					"momentsPerCase": 3
 				},
 				{
@@ -97,7 +97,7 @@
 						"uri": "https://clancy.com/api/"
 					},
 					"publicMintStatus": true,
-					"publicBurnStatus": false,
+					"publicBurnStatus": true,
 					"momentsPerCase": 3
 				}
 			]

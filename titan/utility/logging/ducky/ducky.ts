@@ -1,7 +1,6 @@
 import { log_history } from "@prisma/client";
 
 import { DuckyTypeEnum } from "./enum";
-import handler from "../../../handler";
 import dateHelper from "./dateHelper";
 import cwd from "./cwd";
 
@@ -14,19 +13,16 @@ class Ducky {
     public static Critical(class_name: string, method_name: string, details: string, quack: boolean = false) {
         class_name = cwd(class_name)
         Ducky.Print(`[${this.printTypeAsString(DuckyTypeEnum.CRITICAL)}] >>> [${class_name} > ${method_name}] >> ${details} `, DuckyTypeEnum.ERROR);
-        if (quack) this.Quack(class_name, method_name, details, DuckyTypeEnum.ERROR);
     }
 
     public static Error(class_name: string, method_name: string, details: string, quack: boolean = false) {
         class_name = cwd(class_name)
         Ducky.Print(`[${this.printTypeAsString(DuckyTypeEnum.ERROR)}] >>> [${class_name} > ${method_name}] >> ${details} `, DuckyTypeEnum.ERROR);
-        if (quack) this.Quack(class_name, method_name, details, DuckyTypeEnum.ERROR);
     }
 
     public static Debug(class_name: string, method_name: string, details: string, quack: boolean = false) {
         class_name = cwd(class_name)
         Ducky.Print(`[${this.printTypeAsString(DuckyTypeEnum.DEBUG)}] >>> [${class_name} > ${method_name}] >> ${details} `, DuckyTypeEnum.DEBUG);
-        if (quack) this.Quack(class_name, method_name, details, DuckyTypeEnum.DEBUG);
     }
 
     public static Info(details: any) {
@@ -37,25 +33,6 @@ class Ducky {
         // Replace all back slashes with forward slashes.
         message = message.replace(/\\/g, "/");
         if (severity <= this._logLevel) console.log(`[${dateHelper()}] >>>>> ${message}`);
-    }
-
-    private static async Quack(class_name_: string, method_name_: string, description_: string, severity_: DuckyTypeEnum) {
-        if (!this._quackEnabled) return;
-
-        const log_entry: log_history = {
-            id: undefined,
-            severity: severity_,
-            class_name: class_name_,
-            method_name: method_name_,
-            description: description_,
-            created_at: new Date(),
-        }
-
-        const log_result = await handler.pgsql.log.add(log_entry)
-
-        if (!log_result) {
-            Ducky.Print(`[${dateHelper()}] [${this.printTypeAsString(DuckyTypeEnum.CRITICAL)}] >>> [${class_name_}.${method_name_}] >> ${description_} `, DuckyTypeEnum.ERROR);
-        }
     }
 
     private static printTypeAsString(type: DuckyTypeEnum) {

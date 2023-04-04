@@ -1,10 +1,9 @@
+import { ethers } from "ethers"
+
 import artifact_finder from "../../../../utility/artifactFinder"
 import collections from "../../.."
-import { ethers } from "ethers"
-import { VALID_CONTRACTS } from "../../../../config/constants"
 import Ducky from "../../../../utility/logging/ducky";
-
-
+import { VALID_CONTRACTS } from "../../../../config/constants"
 
 /**
  * Deploys a ClancyERC721 contract for Moments with the specified name, symbol, max supply, and URI.

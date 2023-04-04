@@ -2,8 +2,6 @@ import { ethers } from "ethers";
 import getPublicMintStatus from "./getPublicMintStatus";
 import Ducky from "../../../../utility/logging/ducky";
 
-
-
 /**
  * Sets the public mint status of a contract to the specified value.
  * @param contract The contract object to set the status for.

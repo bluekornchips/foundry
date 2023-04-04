@@ -2,6 +2,12 @@ require("dotenv").config();
 
 // # Project
 export const ENV = process.env.ENV || 'DEV';
+export const PROJECT_NAME = process.env.PROJECT_NAME || "foundry"
+export const VALID_ENVS = {
+    dev: "dev",
+    qa: "qa",
+    uat: "uat",
+}
 export const DATABASE_URL = {
     EUROLEAGUE: {
         DEV: process.env.DATABASE_URL_DEV_EUROLEAGUE || "",

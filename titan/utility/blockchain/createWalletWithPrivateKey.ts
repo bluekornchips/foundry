@@ -1,8 +1,7 @@
 import { ethers } from "ethers";
+
 import getProvider from "./getProvider";
 import Ducky from "../logging/ducky";
-
-const FILE_DIR = "titan/utility/blockchain";
 
 /**
  * @dev Creates an ethers wallet instance with the specified private key and the configured provider
@@ -14,7 +13,7 @@ const createWalletWithPrivateKey = (private_key: string): ethers.Wallet => {
     try {
         return new ethers.Wallet(private_key, getProvider());
     } catch (error: any) {
-        Ducky.Critical(FILE_DIR, "createWalletWithPrivateKey", error.message)
+        Ducky.Critical(__filename, "createWalletWithPrivateKey", error.message)
         throw new Error(error.message);
     }
 }

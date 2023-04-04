@@ -24,7 +24,11 @@ export const VALID_CONTRACTS = {
     ClancyERC721: "ClancyERC721",
     MarketplaceERC721Escrow_v1: "MarketplaceERC721Escrow_v1",
     Moments: "Moments",
-    Series1Case: "Series1Case",
+    Clutch: "Clutch",
+    CrunchTime: "CrunchTime",
+    HeatinUp: "HeatinUp",
+    SlamPacked: "SlamPacked",
+    Swishin: "Swishin",
 }
 
 export const VALID_CLIENTS = {

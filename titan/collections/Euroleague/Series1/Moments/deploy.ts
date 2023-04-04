@@ -4,7 +4,7 @@ import { ethers } from "ethers"
 import { VALID_CONTRACTS } from "../../../../config/constants"
 import Ducky from "../../../../utility/logging/ducky";
 
-const FILE_DIR = "titan/collections/Euroleague/Series1/Moments";
+
 
 /**
  * Deploys a ClancyERC721 contract for Moments with the specified name, symbol, max supply, and URI.
@@ -22,7 +22,7 @@ const deploy = async (name: string, symbol: string, max_supply: number, uri: str
         return contract;
     } catch (error: any) {
         const message = `Could not deploy ${name}: ${error.message}`;
-        Ducky.Error(FILE_DIR, "deploy", message);
+        Ducky.Error(__filename, "deploy", message);
         throw new Error(message);
     }
 };

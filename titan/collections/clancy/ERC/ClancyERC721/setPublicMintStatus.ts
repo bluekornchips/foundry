@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import getPublicMintStatus from "./getPublicMintStatus";
 import Ducky from "../../../../utility/logging/ducky";
 
-const FILE_DIR = "titan/collections/clancy/ERC/ClancyERC721";
+
 
 /**
  * Sets the public mint status of a contract to the specified value.
@@ -14,16 +14,16 @@ const setPublicMintStatus = async (contract: ethers.Contract, status: boolean) =
     try {
         const isPublicMintingEnabled: boolean = await getPublicMintStatus(contract); // Retrieve the current public mint status of the contract.
         if (isPublicMintingEnabled === status) {
-            Ducky.Debug(FILE_DIR, "setPublicMintStatus", `Public mint status for ${await contract.name()} is already ${status}`);
+            Ducky.Debug(__filename, "setPublicMintStatus", `Public mint status for ${await contract.name()} is already ${status}`);
             return;
         }
-        Ducky.Debug(FILE_DIR, "setPublicMintStatus", `Setting public mint status for ${await contract.name()} to ${status}`);
+        Ducky.Debug(__filename, "setPublicMintStatus", `Setting public mint status for ${await contract.name()} to ${status}`);
         const setPublicMintStatusTx = await contract.setPublicMintStatus(status); // Set the public mint status of the contract to the desired value.
         await setPublicMintStatusTx.wait(); // Wait for the transaction to be confirmed.
-        Ducky.Debug(FILE_DIR, "setPublicMintStatus", `Set public mint status for ${await contract.name()} to ${status}`);
+        Ducky.Debug(__filename, "setPublicMintStatus", `Set public mint status for ${await contract.name()} to ${await getPublicMintStatus(contract)}`);
     } catch (error: any) {
         const message = `Could not setPublicMintStatus for contract at address ${contract.address}`;
-        Ducky.Error(FILE_DIR, "setPublicMintStatus", message);
+        Ducky.Error(__filename, "setPublicMintStatus", message);
         throw new Error(message);
     }
 }

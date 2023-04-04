@@ -5,7 +5,8 @@
 	"scripts": {
 		"deploy": "npx ts-node titan/forge/main.ts",
 		"prisma": "npx ts-node titan/prisma/scripts/index.ts",
-		"docker": "docker run --rm -it -v ${PWD}:/my_local trailofbits/eth-security-toolbox"
+		"docker": "docker run --rm -it -v ${PWD}:/my_local trailofbits/eth-security-toolbox",
+		"remixd": "remixd -s ./ -u https://remix.ethereum.org"
 	},
 	"author": "Tristan",
 	"license": "ISC",
@@ -15,6 +16,7 @@
 		"@types/yargs": "^17.0.23",
 		"dotenv": "^16.0.3",
 		"ethers": "^6.2.2",
+		"@remix-project/remixd": "^0.6.8",
 		"yargs": "^17.7.1"
 	},
 	"devDependencies": {

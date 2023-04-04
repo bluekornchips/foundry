@@ -1,10 +1,8 @@
 import collections from "../../../collections"
-import { IEuroleagueConfig } from "../../../interfaces"
-import { ContractContainer } from "../../../types"
 import Ducky from "../../../utility/logging/ducky"
 import getActiveEnv from "../../env"
-
-const FILE_DIR = "forge/clients/Euroleague"
+import { ContractContainer } from "../../../types"
+import { IEuroleagueConfig } from "../../../interfaces"
 
 /**
  * Deploy a series of ERC-721 tokens representing Euroleague cases, based on the configurations in the provided IEuroleagueConfig object.
@@ -37,7 +35,7 @@ const deploy_series1_case = async (config: IEuroleagueConfig): Promise<ContractC
             series1case_contracts[name] = series1case_contract
         } catch (error: any) {
             // Log an error message if the deployment fails and re-throw the error.
-            Ducky.Error(FILE_DIR, "series1case", `Failed to deploy ${series1case.name}: ${error.message}`);
+            Ducky.Error(__filename, "series1case", `Failed to deploy ${series1case.name}: ${error.message}`);
             throw new Error(`Failed to deploy ${series1case.name}: ${error.message}`);
         }
     }

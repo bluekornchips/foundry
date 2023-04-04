@@ -4,7 +4,7 @@ import pgsql from "../../../../pgsql";
 import createWalletWithPrivateKey from "../../../../utility/blockchain/createWalletWithPrivateKey";
 import Ducky from "../../../../utility/logging/ducky";
 
-const FILE_DIR = "titan/collections/clancy/ERC/ClancyERC721"
+
 
 /**
  * Deploys a new instance of a contract with the specified parameters to the blockchain and adds it to a PostgreSQL database.
@@ -17,7 +17,7 @@ const FILE_DIR = "titan/collections/clancy/ERC/ClancyERC721"
  * @throws If the contract deployment or addition to PostgreSQL fails.
  */
 const deploy = async (name: string, symbol: string, max_supply: number, uri: string, odoo_token_id: number, artifact: any): Promise<ethers.Contract> => {
-    Ducky.Debug(FILE_DIR, "deploy", `Deploying ${name} to ${RPC.NAME}`);
+    Ducky.Debug(__filename, "deploy", `Deploying ClancyERC721: ${name} to ${RPC.NAME}`);
     const deployedContract = await deployToBlockchain(name, symbol, max_supply, uri, artifact);
     await addToPostgres(name, deployedContract, odoo_token_id, artifact); // Add the deployed contract and its artifact to PostgreSQL.
     return deployedContract;
@@ -29,11 +29,11 @@ const deployToBlockchain = async (contractName: string, contractSymbol: string, 
         const deployedContract = await contractFactory.deploy(contractName, contractSymbol, maxSupply, metadataURI)
         await deployedContract.waitForDeployment(); // Wait for the contract deployment to complete.
 
-        Ducky.Debug(FILE_DIR, "deployToBlockchain", `${contractName} deployed to ${await deployedContract.getAddress()}`);
+        Ducky.Debug(__filename, "deployToBlockchain", `${contractName} deployed to ${await deployedContract.getAddress()}`);
 
         return deployedContract as ethers.Contract; // Return the deployed contract instance.
     } catch (error: any) {
-        Ducky.Error(FILE_DIR, "deployToBlockchain", error.message)
+        Ducky.Error(__filename, "deployToBlockchain", error.message)
         throw error;
     }
 }
@@ -44,12 +44,12 @@ const addToPostgres = async (name: string, contract: ethers.Contract, odoo_token
         const upsertResult = await pgsql.contracts.upsert(name, contract, odoo_token_id, artifact);
         if (!upsertResult) {
             const message = `Could not add ${name} to PostgreSQL.`;
-            Ducky.Error(FILE_DIR, "addToPostgres", message);
+            Ducky.Error(__filename, "addToPostgres", message);
             throw new Error(message);
         }
     } catch (error: any) {
         const message = `Could not add ${name} to PostgreSQL: ${error.message}`;
-        Ducky.Error(FILE_DIR, "addToPostgres", message);
+        Ducky.Error(__filename, "addToPostgres", message);
         throw error;
     }
 }

@@ -1,9 +1,8 @@
 import { ethers } from "ethers"
-import collections from "../../../collections"
-import { IEuroleagueConfig } from "../../../interfaces"
-import Ducky from "../../../utility/logging/ducky"
 
-const FILE_DIR = "titan/forge/clients/Euroleague"
+import collections from "../../../collections"
+import Ducky from "../../../utility/logging/ducky"
+import { IEuroleagueConfig } from "../../../interfaces"
 
 /**
  * Deploy the Euroleague Moments ERC-721 token based on the configuration in the provided IEuroleagueConfig object.
@@ -24,7 +23,7 @@ const deploy_moments = async (config: IEuroleagueConfig): Promise<ethers.Contrac
         return moments
     } catch (error: any) {
         // Log an error message if the deployment fails and re-throw the error.
-        Ducky.Error(FILE_DIR, "moments", `Failed to deploy ${name}: ${error.message}`);
+        Ducky.Error(__filename, "moments", `Failed to deploy ${name}: ${error.message}`);
         throw new Error(`Failed to deploy ${name}: ${error.message}`);
     }
 }

@@ -1,3 +1,5 @@
 import Ducky from "./ducky"
 
-export default Ducky
+const ducky = Ducky
+
+export default ducky

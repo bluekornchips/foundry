@@ -1,9 +1,9 @@
-import { contracts } from "@prisma/client";
 import { ethers } from "ethers";
+
+import { contracts } from "@prisma/client";
+
 import getProvider from "./getProvider";
 import Ducky from "../logging/ducky";
-
-const FILE_DIR = "titan/utility/blockchain";
 
 const createEthersContractFromDB = async (contract: contracts, wallet: any = undefined): Promise<ethers.Contract> => {
 
@@ -14,7 +14,7 @@ const createEthersContractFromDB = async (contract: contracts, wallet: any = und
         else return new ethers.Contract(contract.contract_address, artifact.abi, wallet)
     }
     catch {
-        Ducky.Error(FILE_DIR, `createEthersContractFromDB`, `Error creating ${contract.contract_name} contract instance.`)
+        Ducky.Error(__filename, `createEthersContractFromDB`, `Error creating ${contract.contract_name} contract instance.`)
         throw new Error(`Error creating ${contract.contract_name} contract instance.`)
     }
 }

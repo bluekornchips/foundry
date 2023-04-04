@@ -3,7 +3,7 @@ import Ducky from "../../utility/logging/ducky";
 import { activeClient } from "../../prisma/prismaClient";
 import { contracts } from "@prisma/client";
 
-const FILE_DIR = "titan/pgsql/contracts";
+
 
 /**
  * Upserts a contract to the PostgreSQL database.
@@ -38,10 +38,10 @@ const upsert = async (contract_name: string, contract: ethers.Contract, odoo_tok
                 updated_at: new Date(),
             },
         });
-        Ducky.Debug(FILE_DIR, "upsert", `Upserted ${contract_name} to PostgreSQL`);
+        Ducky.Debug(__filename, "upsert", `Upserted ${contract_name} to PostgreSQL`);
         return contract_response;
     } catch (error: any) {
-        Ducky.Error(FILE_DIR, "upsert", error.message);
+        Ducky.Error(__filename, "upsert", error.message);
         throw new Error(error.message);
     }
 }

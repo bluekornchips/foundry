@@ -1,12 +1,12 @@
 import { ethers } from "ethers";
+
+import Ducky from "../../../utility/logging/ducky";
 import collections from "../../../collections";
-import { VALID_CONTRACTS } from "../../../config/constants";
 import utility from "../../../utility";
 import { ContractContainer } from "../../../types";
 import { ICollectionConfigs } from "../../../interfaces";
-import Ducky from "../../../utility/logging/ducky";
+import { VALID_CONTRACTS } from "../../../config/constants";
 
-const FILE_DIR = "titan/forge/contracts"
 /**
  * Deploys the specified contracts and returns a container object with the deployed contracts.
  *
@@ -21,12 +21,12 @@ const deploy = async (contract_names: string[]): Promise<ContractContainer> => {
     for (const contract_name of contract_names) {
         try {
             console.log()
-            Ducky.Debug(FILE_DIR, "deploy", `Deploying ${contract_name}...`);
+            Ducky.Debug(__filename, "deploy", `Deploying ${contract_name}...`);
             const contract = await deploy_contract(contract_name);
             contracts[contract_name] = contract;
-            Ducky.Debug(FILE_DIR, "deploy", `${contract_name} deployed at ${await contract.getAddress()}`);
+            Ducky.Debug(__filename, "deploy", `${contract_name} deployed at ${await contract.getAddress()}`);
         } catch (error: any) {
-            Ducky.Error(FILE_DIR, "deploy", `Failed to deploy ${contract_name}: ${error.message}`);
+            Ducky.Error(__filename, "deploy", `Failed to deploy ${contract_name}: ${error.message}`);
             throw new Error(error.message);
         }
     }
@@ -56,17 +56,13 @@ const deploy_contract = async (contract_name: string): Promise<ethers.Contract> 
                 const momentsArgs = contract_configs.Euroleague.ERC.Moments.cargs;
                 const moments = await collections.euroleague.series1.moments.deploy(momentsArgs.name, momentsArgs.symbol, momentsArgs.max_supply, momentsArgs.uri, 0)
                 return moments;
-            case VALID_CONTRACTS.Series1Case:
-                const series1CaseArgs = contract_configs.Euroleague.ERC.Series1Cases[0].cargs;
-                const series1Case = await collections.euroleague.series1.series1case.deploy(series1CaseArgs.name, series1CaseArgs.symbol, series1CaseArgs.max_supply, series1CaseArgs.uri, 0)
-                return series1Case;
             default:
                 const message = `Contract ${contract_name} not found`;
-                Ducky.Error(FILE_DIR, "deploy_contract", message);
+                Ducky.Error(__filename, "deploy_contract", message);
                 throw new Error(message);
         }
     } catch (error: any) {
-        Ducky.Error(FILE_DIR, "deploy_contract", `Failed to deploy ${contract_name}: ${error.message}`);
+        Ducky.Error(__filename, "deploy_contract", `Failed to deploy ${contract_name}: ${error.message}`);
         throw new Error(error.message);
     }
 }

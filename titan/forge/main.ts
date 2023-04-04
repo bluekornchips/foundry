@@ -1,7 +1,8 @@
 import yargs from 'yargs';
-import { COLLECTION_CONFIG_FILE_NAME, VALID_CLIENTS, VALID_CONTRACTS } from '../config/constants';
+
 import clancyClients from './clients';
 import nonClient from './nonClient';
+import { COLLECTION_CONFIG_FILE_NAME, VALID_CLIENTS, VALID_CONTRACTS } from '../config/constants';
 import { setActiveEnv } from './env';
 import { setPrismaClient } from '../prisma/prismaClient';
 
@@ -42,7 +43,7 @@ const argv = yargs.options({
         type: 'string',
         demandOption: false,
         requiresArg: true,
-        conflicts: ['deploy', 'coordinator', 'marketplace'],
+        conflicts: ['deploy', 'coordinator'],
         choices: Object.keys(VALID_CLIENTS)
     },
     client_env: {
@@ -51,7 +52,7 @@ const argv = yargs.options({
         type: 'string',
         demandOption: true,
         requiresArg: true,
-        conflicts: ['deploy', 'coordinator', 'marketplace'],
+        conflicts: ['coordinator'],
         choices: ['dev', 'qa', 'uat'],
         when: 'client'
     },
@@ -66,9 +67,12 @@ const main = async () => {
         setPrismaClient(input_args.client, input_args.client_env)
         await clancyClients(input_args.client)
     }
-    else await nonClient(input_args)
+    else {
+        setActiveEnv("euroleague", input_args.client_env)
+        setPrismaClient("euroleague", input_args.client_env)
+        await nonClient(input_args)
+    }
 }
-
 
 main().catch((error) => {
     console.error(error);

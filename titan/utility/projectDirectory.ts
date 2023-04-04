@@ -1,7 +1,7 @@
 import Ducky from "./logging/ducky";
 
 const dir = process.cwd()
-const FILE_DIR = "titan/utility"
+
 const PROJECT_NAME = "foundry";
 
 /**
@@ -20,7 +20,7 @@ const projectDirectory = (): string => {
         return matching_dir.concat(`${PROJECT_NAME}/`);
     }
     else {
-        Ducky.Error(FILE_DIR, "projectDirectory", `Could not find ${FILE_DIR} directory`);
+        Ducky.Error(__filename, "projectDirectory", `Could not find ${__filename} directory`);
         process.exit(1);
     }
 }

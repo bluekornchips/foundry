@@ -8,32 +8,32 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {IClancyERC721} from "clancy/ERC/IClancyERC721.sol";
 
 import {Series1Case} from "euroleague/series1/Series1Case.sol";
-import {IMoments, Moments} from "euroleague/series1/Moments.sol";
+import {IReels, Reels} from "euroleague/series1/Reels.sol";
 
 import {ClancyERC721TestHelpers} from "clancy-test/helpers/ClancyERC721TestHelpers.sol";
 import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
 
-contract Moments_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
+contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     using Strings for uint256;
 
-    Moments public moments;
+    Reels public reels;
     Series1Case public series1Case;
 
     function setUp() public {
-        moments = new Moments(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
+        reels = new Reels(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
         series1Case = new Series1Case(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
-        series1Case.setMomentsContract(address(moments));
+        series1Case.setReelsContract(address(reels));
     }
 
     //#region isCaseContract
     function test_isCaseContract() public {
-        bool isCaseContract = moments.isCaseContract(address(series1Case));
+        bool isCaseContract = reels.isCaseContract(address(series1Case));
         assertEq(isCaseContract, false);
     }
 
     function test_isCaseContract_whenCaseContract() public {
-        moments.setCaseContract(address(series1Case), true);
-        bool isCaseContract = moments.isCaseContract(address(series1Case));
+        reels.setCaseContract(address(series1Case), true);
+        bool isCaseContract = reels.isCaseContract(address(series1Case));
         assertEq(isCaseContract, true);
     }
 
@@ -43,33 +43,33 @@ contract Moments_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     function test_setCaseContract() public {
         // vm.expectEmit(true, true, false, false);
         // emit CaseContractSet(address(series1Case), true);
-        moments.setCaseContract(address(series1Case), true);
-        bool isCaseContract = moments.isCaseContract(address(series1Case));
+        reels.setCaseContract(address(series1Case), true);
+        bool isCaseContract = reels.isCaseContract(address(series1Case));
         assertEq(isCaseContract, true);
     }
 
     function test_setCaseContractAsNonOwner_ShouldRevert() public {
         vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert("Ownable: caller is not the owner");
-        moments.setCaseContract(address(series1Case), true);
+        reels.setCaseContract(address(series1Case), true);
     }
 
     function test_setCaseContract_AsZeroAddress_ShouldRevert() public {
-        vm.expectRevert(IMoments.CaseContractInvalid.selector);
-        moments.setCaseContract(address(0), true);
+        vm.expectRevert(IReels.CaseContractInvalid.selector);
+        reels.setCaseContract(address(0), true);
     }
 
     function test_setCaseContract_AsEOA_ShouldRevert() public {
-        vm.expectRevert(IMoments.CaseContractInvalid.selector);
-        moments.setCaseContract(TEST_WALLET_MAIN, true);
+        vm.expectRevert(IReels.CaseContractInvalid.selector);
+        reels.setCaseContract(TEST_WALLET_MAIN, true);
     }
 
     function test_setCaseContract_setExisingTrueToFalse_ShouldPass() public {
-        moments.setCaseContract(address(series1Case), true);
-        bool isCaseContract = moments.isCaseContract(address(series1Case));
+        reels.setCaseContract(address(series1Case), true);
+        bool isCaseContract = reels.isCaseContract(address(series1Case));
         assertEq(isCaseContract, true);
-        moments.setCaseContract(address(series1Case), false);
-        isCaseContract = moments.isCaseContract(address(series1Case));
+        reels.setCaseContract(address(series1Case), false);
+        isCaseContract = reels.isCaseContract(address(series1Case));
         assertEq(isCaseContract, false);
     }
 
@@ -79,113 +79,113 @@ contract Moments_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     function test_mint_whenPublicMintIsDisabledAndNotPaused_ShouldPass()
         public
     {
-        moments.setCaseContract(address(series1Case), true);
+        reels.setCaseContract(address(series1Case), true);
 
         vm.prank(address(series1Case));
         vm.expectRevert(
             abi.encodeWithSelector(IClancyERC721.PublicMintDisabled.selector)
         );
-        moments.mint();
+        reels.mint();
     }
 
     function test_mint_whenPublicMintIsEnabledAndPaused_ShouldRevert() public {
-        moments.pause();
-        moments.setPublicMintStatus(true);
-        moments.setCaseContract(address(series1Case), true);
+        reels.pause();
+        reels.setPublicMintStatus(true);
+        reels.setCaseContract(address(series1Case), true);
 
         vm.prank(address(series1Case));
         vm.expectRevert("Pausable: paused");
-        moments.mint();
+        reels.mint();
     }
 
     function test_mint_fromNonCaseContract_ShouldRevert() public {
-        moments.setPublicMintStatus(true);
+        reels.setPublicMintStatus(true);
         vm.expectRevert(
-            abi.encodeWithSelector(IMoments.NotCaseContract.selector)
+            abi.encodeWithSelector(IReels.NotCaseContract.selector)
         );
-        moments.mint();
+        reels.mint();
     }
 
     function test_mint_1() public {
-        moments.setCaseContract(address(series1Case), true);
-        moments.setPublicMintStatus(true);
+        reels.setCaseContract(address(series1Case), true);
+        reels.setPublicMintStatus(true);
 
         vm.prank(address(series1Case));
-        uint256 tokenId = moments.mint();
+        uint256 tokenId = reels.mint();
         assertEq(tokenId, 1);
     }
 
     function test_mint_100() public {
-        moments.setCaseContract(address(series1Case), true);
-        moments.setPublicMintStatus(true);
-        uint256 totalSupply = moments.totalSupply();
+        reels.setCaseContract(address(series1Case), true);
+        reels.setPublicMintStatus(true);
+        uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
         for (uint256 i = 0; i < 100; i++) {
             vm.prank(address(series1Case));
-            moments.mint();
-            uint256 tokenId = moments.getTokenIdCounter();
-            string memory tokenURI = moments.tokenURI(i + 1);
+            reels.mint();
+            uint256 tokenId = reels.getTokenIdCounter();
+            string memory tokenURI = reels.tokenURI(i + 1);
             string memory expectedTokenURI = string(
                 abi.encodePacked(BASE_URI, tokenId.toString())
             );
             assertEq(tokenURI, expectedTokenURI);
         }
-        totalSupply = moments.totalSupply();
+        totalSupply = reels.totalSupply();
         assertEq(totalSupply, 100);
     }
 
     function test_mint_101() public {
-        moments.setCaseContract(address(series1Case), true);
-        moments.setPublicMintStatus(true);
-        uint256 totalSupply = moments.totalSupply();
+        reels.setCaseContract(address(series1Case), true);
+        reels.setPublicMintStatus(true);
+        uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
         for (uint256 i = 0; i < 100; i++) {
             vm.prank(address(series1Case));
-            moments.mint();
+            reels.mint();
         }
-        totalSupply = moments.totalSupply();
+        totalSupply = reels.totalSupply();
         assertEq(totalSupply, 100);
         vm.expectRevert(
             abi.encodeWithSelector(IClancyERC721.MaxSupply_Reached.selector)
         );
         vm.prank(address(series1Case));
-        moments.mint();
+        reels.mint();
     }
 
     // function test_mint_supplyCeiling() public {
-    //     moments.setCaseContract(address(series1Case), true);
-    //     moments.setPublicMintStatus(true);
-    //     uint256 ceiling = moments.SUPPLY_CEILING();
-    //     moments.setMaxSupply(uint256(ceiling));
+    //     reels.setCaseContract(address(series1Case), true);
+    //     reels.setPublicMintStatus(true);
+    //     uint256 ceiling = reels.SUPPLY_CEILING();
+    //     reels.setMaxSupply(uint256(ceiling));
     //     assertEq(ceiling, 1_000_000);
     //     for (uint256 i = 0; i < ceiling; i++) {
     //         vm.prank(address(series1Case));
-    //         moments.mint();
+    //         reels.mint();
     //     }
-    //     uint256 totalSupply = moments.totalSupply();
+    //     uint256 totalSupply = reels.totalSupply();
     //     assertEq(totalSupply, ceiling);
     //     vm.expectRevert("ClancyERC721: Max supply reached.");
     //     vm.prank(address(series1Case));
-    //     moments.mint();
+    //     reels.mint();
     // }
 
     function testFuzz_mint(uint256 seed) public {
         vm.assume(seed < MAX_SUPPLY);
-        moments.setCaseContract(address(series1Case), true);
-        moments.setPublicMintStatus(true);
-        uint256 totalSupply = moments.totalSupply();
+        reels.setCaseContract(address(series1Case), true);
+        reels.setPublicMintStatus(true);
+        uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
         for (uint256 i = 0; i < seed; i++) {
             vm.prank(address(series1Case));
-            moments.mint();
-            uint256 tokenId = moments.getTokenIdCounter();
-            string memory tokenURI = moments.tokenURI(i + 1);
+            reels.mint();
+            uint256 tokenId = reels.getTokenIdCounter();
+            string memory tokenURI = reels.tokenURI(i + 1);
             string memory expectedTokenURI = string(
                 abi.encodePacked(BASE_URI, tokenId.toString())
             );
             assertEq(tokenURI, expectedTokenURI);
         }
-        totalSupply = moments.totalSupply();
+        totalSupply = reels.totalSupply();
         assertEq(totalSupply, seed);
     }
     //#endregion

@@ -1,9 +1,9 @@
 import series1case from "./Series1Case"
-import moments from "./Moments"
+import reels from "./Reels"
 
 const series1 = {
     series1case,
-    moments
+    reels
 }
 
 export default series1

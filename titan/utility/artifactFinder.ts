@@ -1,8 +1,6 @@
 import Ducky from "./logging/ducky";
 import projectDirectory from "./projectDirectory";
 
-
-
 /**
  * @dev Finds the artifact for the specified contract in the out directory and returns it
  * @param contract_name The name of the contract to find the artifact for

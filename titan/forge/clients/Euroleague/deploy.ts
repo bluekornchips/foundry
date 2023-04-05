@@ -4,7 +4,7 @@ import { contracts } from "@prisma/client";
 
 import collections from "../../../collections";
 import createEthersContractFromDB from "../../../utility/blockchain/createEthersContractFromDB";
-import deploy_moments from "./moments";
+import deploy_reels from "./reels";
 import deploy_series1_case from "./series1case";
 import Ducky from "../../../utility/logging/ducky";
 import getActiveEnv from "../../env";
@@ -13,7 +13,6 @@ import utility from "../../../utility";
 import { ContractContainer } from "../../../types";
 import { EOAS, VALID_CONTRACTS } from "../../../config/constants";
 import createWalletWithPrivateKey from "../../../utility/blockchain/createWalletWithPrivateKey";
-import nonClient from "../../nonClient";
 
 /**
  * Deploy the Euroleague collection of ERC-721 tokens.
@@ -34,20 +33,20 @@ const deploy = async () => {
     const euroleagueConfig = utility.getCollectionConfigs().Euroleague
 
     try {
-        // Deploy the Euroleague Moments ERC-721 token.
-        const moments = await deploy_moments(euroleagueConfig)
-        await collections.clancy.ERC.ClancyERC721.setPublicMintStatus(moments, true)
-        await collections.clancy.marketplace.escrow.MarketplaceERC721Escrow_v1.setAllowedContract(marketplace, moments, true)
+        // Deploy the Euroleague Reels ERC-721 token.
+        const reels = await deploy_reels(euroleagueConfig)
+        await collections.clancy.ERC.ClancyERC721.setPublicMintStatus(reels, true)
+        await collections.clancy.marketplace.escrow.MarketplaceERC721Escrow_v1.setAllowedContract(marketplace, reels, true)
 
         // Deploy the series of ERC721 tokens representing Euroleague cases.
         const series1cases: ContractContainer = await deploy_series1_case(euroleagueConfig)
 
-        // For each series1case contract, set the moments contract and the case contract.
+        // For each series1case contract, set the reels contract and the case contract.
         let count = 1;
         for (const series1case of Object.values(series1cases)) {
-            Ducky.Debug(__filename, "deploy", `Setting moments contract for series1case #${count++}.`)
-            await collections.euroleague.series1.series1case.setMomentsContract(series1case, await moments.getAddress())
-            await collections.euroleague.series1.moments.setCaseContract(moments, await series1case.getAddress(), true)
+            Ducky.Debug(__filename, "deploy", `Setting reels contract for series1case #${count++}.`)
+            await collections.euroleague.series1.series1case.setReelsContract(series1case, await reels.getAddress())
+            await collections.euroleague.series1.reels.setCaseContract(reels, await series1case.getAddress(), true)
             await collections.clancy.marketplace.escrow.MarketplaceERC721Escrow_v1.setAllowedContract(marketplace, series1case, true)
         }
 

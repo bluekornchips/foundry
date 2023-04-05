@@ -1,9 +1,9 @@
 import deploy from "./deploy"
-import setMomentsContract from "./setMomentsContract"
+import setReelsContract from "./setReelsContract"
 
 const series1case = {
     deploy,
-    setMomentsContract
+    setReelsContract
 }
 
 export default series1case

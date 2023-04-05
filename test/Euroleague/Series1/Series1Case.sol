@@ -8,7 +8,7 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {IClancyERC721} from "clancy/ERC/IClancyERC721.sol";
 
 import {ISeries1Case, Series1Case} from "euroleague/series1/Series1Case.sol";
-import {Moments} from "euroleague/series1/Moments.sol";
+import {Reels} from "euroleague/series1/Reels.sol";
 
 import {ClancyERC721TestHelpers} from "clancy-test/helpers/ClancyERC721TestHelpers.sol";
 import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
@@ -17,77 +17,77 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     using Strings for uint256;
 
     Series1Case public series1Case;
-    Moments public moments;
+    Reels public reels;
 
     function setUp() public {
         series1Case = new Series1Case(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
-        moments = new Moments(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
+        reels = new Reels(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
     }
 
-    //#region getMomentsPerCase
-    function test_getMomentsPerCase() public {
-        uint256 momentsPerCase = series1Case.getMomentsPerCase();
-        assertEq(momentsPerCase, 3);
+    //#region getReelsPerCase
+    function test_getReelsPerCase() public {
+        uint256 reelsPerCase = series1Case.getReelsPerCase();
+        assertEq(reelsPerCase, 3);
     }
 
     //#endregion
 
-    //#region setMomentPerCase
-    function test_setMomentsPerCase() public {
-        series1Case.setMomentsPerCase(5);
-        uint256 momentsPerCase = series1Case.getMomentsPerCase();
-        assertEq(momentsPerCase, 5);
+    //#region setReelPerCase
+    function test_setReelsPerCase() public {
+        series1Case.setReelsPerCase(5);
+        uint256 reelsPerCase = series1Case.getReelsPerCase();
+        assertEq(reelsPerCase, 5);
     }
 
-    function test_setMomentsPerCaseAsNonOwner_ShouldRevert() public {
+    function test_setReelsPerCaseAsNonOwner_ShouldRevert() public {
         vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert("Ownable: caller is not the owner");
-        series1Case.setMomentsPerCase(5);
+        series1Case.setReelsPerCase(5);
     }
 
-    function testFuzz_setMomentsPerCase(uint8 momentsPerCase) public {
-        vm.assume(momentsPerCase > 0);
-        series1Case.setMomentsPerCase(uint8(momentsPerCase));
-        assertEq(series1Case.getMomentsPerCase(), uint256(momentsPerCase));
+    function testFuzz_setReelsPerCase(uint8 reelsPerCase) public {
+        vm.assume(reelsPerCase > 0);
+        series1Case.setReelsPerCase(uint8(reelsPerCase));
+        assertEq(series1Case.getReelsPerCase(), uint256(reelsPerCase));
     }
 
-    function testFuzz_setMomentsPerCaseLTEZero_ShouldRevert(
-        uint8 momentsPerCase
+    function testFuzz_setReelsPerCaseLTEZero_ShouldRevert(
+        uint8 reelsPerCase
     ) public {
-        vm.assume(momentsPerCase <= 0);
+        vm.assume(reelsPerCase <= 0);
         vm.expectRevert(
-            abi.encodeWithSelector(ISeries1Case.MomentsPerCaseNotValid.selector)
+            abi.encodeWithSelector(ISeries1Case.ReelsPerCaseNotValid.selector)
         );
-        series1Case.setMomentsPerCase(uint8(momentsPerCase));
+        series1Case.setReelsPerCase(uint8(reelsPerCase));
     }
 
     //#endregion
 
-    //#region getMomentsContract
-    function test_getMomentsContract() public {
-        Moments momentsContract = series1Case.getMomentsContract();
-        assertEq(address(momentsContract), address(0));
+    //#region getReelsContract
+    function test_getReelsContract() public {
+        Reels reelsContract = series1Case.getReelsContract();
+        assertEq(address(reelsContract), address(0));
     }
 
     //#endregion
 
-    //#region setMomentsContract
-    function test_setMomentsContract() public {
-        Moments momentsContract = new Moments(
+    //#region setReelsContract
+    function test_setReelsContract() public {
+        Reels reelsContract = new Reels(
             NAME,
             SYMBOL,
             MAX_SUPPLY,
             BASE_URI
         );
-        series1Case.setMomentsContract(address(momentsContract));
+        series1Case.setReelsContract(address(reelsContract));
         assertEq(
-            address(series1Case.getMomentsContract()),
-            address(momentsContract)
+            address(series1Case.getReelsContract()),
+            address(reelsContract)
         );
     }
 
-    function test_setMomentsContractAsNonOwner_ShouldRevert() public {
-        Moments momentsContract = new Moments(
+    function test_setReelsContractAsNonOwner_ShouldRevert() public {
+        Reels reelsContract = new Reels(
             NAME,
             SYMBOL,
             MAX_SUPPLY,
@@ -96,53 +96,53 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
 
         vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert("Ownable: caller is not the owner");
-        series1Case.setMomentsContract(address(momentsContract));
+        series1Case.setReelsContract(address(reelsContract));
     }
 
-    function test_setMomentsContract_ZeroAddress_ShouldRevert() public {
+    function test_setReelsContract_ZeroAddress_ShouldRevert() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISeries1Case.MomentsContractNotValid.selector
+                ISeries1Case.ReelsContractNotValid.selector
             )
         );
-        series1Case.setMomentsContract(address(0));
+        series1Case.setReelsContract(address(0));
     }
 
-    function test_setMomentsContract_ToEOA_ShouldRevert() public {
+    function test_setReelsContract_ToEOA_ShouldRevert() public {
         vm.expectRevert(
             abi.encodeWithSelector(
-                ISeries1Case.MomentsContractNotValid.selector
+                ISeries1Case.ReelsContractNotValid.selector
             )
         );
-        series1Case.setMomentsContract(TEST_WALLET_MAIN);
+        series1Case.setReelsContract(TEST_WALLET_MAIN);
     }
 
     //#endregion
 
     //#region openCase
-    function momentsSetup() public {
-        if (address(moments) == address(0)) {
+    function reelsSetup() public {
+        if (address(reels) == address(0)) {
             return;
         }
-        Moments momentsContract = new Moments(
+        Reels reelsContract = new Reels(
             NAME,
             SYMBOL,
             MAX_SUPPLY,
             BASE_URI
         );
-        series1Case.setMomentsContract(address(momentsContract));
-        moments = momentsContract;
-        moments.setCaseContract(address(series1Case), true);
+        series1Case.setReelsContract(address(reelsContract));
+        reels = reelsContract;
+        reels.setCaseContract(address(series1Case), true);
         series1Case.setPublicMintStatus(true);
         series1Case.setBurnStatus(true);
-        moments.setPublicMintStatus(true);
+        reels.setPublicMintStatus(true);
     }
 
     function test_openCase() public {
-        momentsSetup();
+        reelsSetup();
 
-        uint256 momentsPerCase = series1Case.getMomentsPerCase();
-        uint256 momentsBalanceBefore = moments.balanceOf(TEST_WALLET_MAIN);
+        uint256 reelsPerCase = series1Case.getReelsPerCase();
+        uint256 reelsBalanceBefore = reels.balanceOf(TEST_WALLET_MAIN);
 
         vm.prank(TEST_WALLET_MAIN);
         uint256 tokenId = series1Case.mint();
@@ -150,13 +150,13 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         vm.prank(TEST_WALLET_MAIN);
         series1Case.openCase(tokenId);
 
-        uint256 momentsBalanceAfter = moments.balanceOf(TEST_WALLET_MAIN);
-        assertEq(momentsBalanceAfter, momentsBalanceBefore + momentsPerCase);
-        assertEq(momentsBalanceAfter, 3);
+        uint256 reelsBalanceAfter = reels.balanceOf(TEST_WALLET_MAIN);
+        assertEq(reelsBalanceAfter, reelsBalanceBefore + reelsPerCase);
+        assertEq(reelsBalanceAfter, 3);
     }
 
     function test_openCase_AsNonOwner_ShouldRevert() public {
-        momentsSetup();
+        reelsSetup();
 
         uint256 tokenId = series1Case.mint();
 
@@ -168,7 +168,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     }
 
     function test_openCase_AsApproved_ShouldSucceed() public {
-        momentsSetup();
+        reelsSetup();
 
         vm.prank(TEST_WALLET_MAIN);
         uint256 tokenId = series1Case.mint();
@@ -176,9 +176,9 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         vm.prank(TEST_WALLET_MAIN);
         series1Case.approve(address(this), tokenId);
         series1Case.openCase(tokenId);
-        uint256 momentsBalance = moments.balanceOf(TEST_WALLET_MAIN);
+        uint256 reelsBalance = reels.balanceOf(TEST_WALLET_MAIN);
         uint256 series1CaseBalance = series1Case.balanceOf(TEST_WALLET_MAIN);
-        assertEq(momentsBalance, 3);
+        assertEq(reelsBalance, 3);
         assertEq(series1CaseBalance, 0);
     }
 }

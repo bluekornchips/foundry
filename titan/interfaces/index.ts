@@ -3,23 +3,23 @@
 
 //#region Euroleague
 /**
- * Defines the configuration options for Euroleague moments that extend the ClancyERC721 contract configuration options.
+ * Defines the configuration options for Euroleague reels that extend the ClancyERC721 contract configuration options.
  */
-export interface IEuroleagueMomentConfig extends IClancyERC721ContractConfig { }
+export interface IEuroleagueReelConfig extends IClancyERC721ContractConfig { }
 
 /**
  * Defines the configuration options for the Euroleague Series 1 collection.
  */
 export interface EuroleagueSeries1Config {
     Series1Cases: IClancyERC721ContractConfig[]; // Naming required because of reserved word "case".
-    Moments: IEuroleagueMomentConfig;
+    Reels: IEuroleagueReelConfig;
 }
 
 /**
  * Defines the configuration options for a Series 1 case that extend the ClancyERC721 contract configuration options.
  */
 export interface ISeries1CaseConfig extends IClancyERC721ContractConfig {
-    momentsPerCase: number;
+    reelsPerCase: number;
 }
 
 /**

@@ -22,11 +22,11 @@
 	},
 	"Euroleague": {
 		"ERC": {
-			"Moments": {
-				"name": "Moments",
+			"Reels": {
+				"name": "Reels",
 				"validForSale": true,
 				"cargs": {
-					"name": "Moments",
+					"name": "Reels",
 					"symbol": "MOM",
 					"max_supply": 100,
 					"uri": "https://clancy.com/api/"
@@ -46,7 +46,7 @@
 					},
 					"publicMintStatus": true,
 					"publicBurnStatus": true,
-					"momentsPerCase": 3
+					"reelsPerCase": 3
 				},
 				{
 					"name": "Series1Case",
@@ -59,7 +59,7 @@
 					},
 					"publicMintStatus": true,
 					"publicBurnStatus": true,
-					"momentsPerCase": 3
+					"reelsPerCase": 3
 				},
 				{
 					"name": "Series1Case",
@@ -72,7 +72,7 @@
 					},
 					"publicMintStatus": true,
 					"publicBurnStatus": true,
-					"momentsPerCase": 5
+					"reelsPerCase": 5
 				},
 				{
 					"name": "Series1Case",
@@ -85,7 +85,7 @@
 					},
 					"publicMintStatus": true,
 					"publicBurnStatus": true,
-					"momentsPerCase": 3
+					"reelsPerCase": 3
 				},
 				{
 					"name": "Series1Case",
@@ -98,7 +98,7 @@
 					},
 					"publicMintStatus": true,
 					"publicBurnStatus": true,
-					"momentsPerCase": 3
+					"reelsPerCase": 3
 				}
 			]
 		}

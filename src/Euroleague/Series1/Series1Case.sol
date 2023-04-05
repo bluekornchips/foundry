@@ -5,14 +5,14 @@ import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
 
 import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
 
-import {Moments} from "./Moments.sol";
+import {Reels} from "./Reels.sol";
 import {ISeries1Case} from "./ISeries1Case.sol";
 
 contract Series1Case is ISeries1Case, ClancyERC721 {
     using Address for address;
 
-    Moments private _momentsContract;
-    uint8 private _momentsPerCase = 3;
+    Reels private _reelsContract;
+    uint8 private _reelsPerCase = 3;
 
     constructor(
         string memory name_,
@@ -28,7 +28,7 @@ contract Series1Case is ISeries1Case, ClancyERC721 {
      *
      * Requirements:
      * - The contract must not be paused.
-     * - The Moments contract must be set.
+     * - The Reels contract must be set.
      * - The caller must own the specified token.
      * - The token must exist.
      * - Burning of the token must be enabled.
@@ -36,78 +36,78 @@ contract Series1Case is ISeries1Case, ClancyERC721 {
      * Emits a {CaseOpened} event.
      *
      * @param tokenId The ID of the token to open.
-     * @return An array of the IDs of the moments that were minted.
+     * @return An array of the IDs of the reels that were minted.
      */
     function openCase(
         uint256 tokenId
     ) public whenNotPaused returns (uint256[] memory) {
-        if (_momentsContract == Moments(payable(address(0))))
-            revert MomentsContractNotSet();
+        if (_reelsContract == Reels(payable(address(0))))
+            revert ReelsContractNotSet();
 
         address ownerOfToken = this.ownerOf(tokenId);
 
         burn(tokenId);
 
-        uint256[] memory minted_moments = new uint256[](_momentsPerCase);
-        for (uint256 i = 0; i < _momentsPerCase; i++) {
-            minted_moments[i] = _momentsContract.mint();
-            _momentsContract.safeTransferFrom(
+        uint256[] memory minted_reels = new uint256[](_reelsPerCase);
+        for (uint256 i = 0; i < _reelsPerCase; i++) {
+            minted_reels[i] = _reelsContract.mint();
+            _reelsContract.safeTransferFrom(
                 address(this),
                 ownerOfToken,
-                minted_moments[i]
+                minted_reels[i]
             );
         }
 
         emit CaseOpened(tokenId, _msgSender());
 
-        return minted_moments;
+        return minted_reels;
     }
 
     /**
-     * @dev Sets the Moments contract instance.
+     * @dev Sets the Reels contract instance.
      *
      * Requirements:
-     * - The Moments contract address cannot be the zero address.
+     * - The Reels contract address cannot be the zero address.
      * - The address provided must be a contract address.
      * - Can only be called by the owner of the contract.
      *
-     * @param momentsContract The address of the Moments contract.
+     * @param reelsContract The address of the Reels contract.
      */
-    function setMomentsContract(address momentsContract) public onlyOwner {
-        if (momentsContract == address(0)) revert MomentsContractNotValid();
-        if (!momentsContract.isContract()) revert MomentsContractNotValid();
-        _momentsContract = Moments(payable(momentsContract));
+    function setReelsContract(address reelsContract) public onlyOwner {
+        if (reelsContract == address(0)) revert ReelsContractNotValid();
+        if (!reelsContract.isContract()) revert ReelsContractNotValid();
+        _reelsContract = Reels(payable(reelsContract));
     }
 
     /**
-     * @dev Sets the number of moments in a case.
+     * @dev Sets the number of reels in a case.
      *
      * Requirements:
-     * - The number of moments per case must be greater than zero.
+     * - The number of reels per case must be greater than zero.
      * - Can only be called by the owner of the contract.
      *
-     * @param momentsPerCase The number of moments to set per case.
+     * @param reelsPerCase The number of reels to set per case.
      */
-    function setMomentsPerCase(uint8 momentsPerCase) public onlyOwner {
-        if (momentsPerCase <= 0) revert MomentsPerCaseNotValid();
-        _momentsPerCase = momentsPerCase;
+    function setReelsPerCase(uint8 reelsPerCase) public onlyOwner {
+        if (reelsPerCase <= 0) revert ReelsPerCaseNotValid();
+        _reelsPerCase = reelsPerCase;
     }
 
     /**
-     * @dev Returns the Moments contract.
+     * @dev Returns the Reels contract.
      *
-     * @return A Moments contract instance.
+     * @return A Reels contract instance.
      */
-    function getMomentsContract() public view returns (Moments) {
-        return _momentsContract;
+    function getReelsContract() public view returns (Reels) {
+        return _reelsContract;
     }
 
     /**
-     * @dev Returns the number of moments in a case.
+     * @dev Returns the number of reels in a case.
      *
-     * @return A number representing the number of moments in a case.
+     * @return A number representing the number of reels in a case.
      */
-    function getMomentsPerCase() public view returns (uint8) {
-        return _momentsPerCase;
+    function getReelsPerCase() public view returns (uint8) {
+        return _reelsPerCase;
     }
 }

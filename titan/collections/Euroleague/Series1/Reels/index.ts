@@ -1,10 +1,10 @@
 import deploy from "./deploy"
 import setCaseContract from "./setCaseContract"
 
-const moments = {
+const Reels = {
     deploy,
     setCaseContract
 }
 
 
-export default moments
+export default Reels

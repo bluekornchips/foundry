@@ -13,6 +13,7 @@ import utility from "../../../utility";
 import { ContractContainer } from "../../../types";
 import { EOAS, VALID_CONTRACTS } from "../../../config/constants";
 import createWalletWithPrivateKey from "../../../utility/blockchain/createWalletWithPrivateKey";
+import nonClient from "../../nonClient";
 
 /**
  * Deploy the Euroleague collection of ERC-721 tokens.
@@ -20,7 +21,13 @@ import createWalletWithPrivateKey from "../../../utility/blockchain/createWallet
 const deploy = async () => {
     utility.printFancy(`Euroleague - ${getActiveEnv().env}`, true);
 
-    const marketplace_db: contracts = await pgsql.contracts.get(VALID_CONTRACTS.MarketplaceERC721Escrow_v1)
+    let marketplace_db: contracts = await pgsql.contracts.get(VALID_CONTRACTS.MarketplaceERC721Escrow_v1)
+    if (!marketplace_db) {
+        Ducky.Debug(__filename, "deploy", `Failed to find ${VALID_CONTRACTS.MarketplaceERC721Escrow_v1} in the database.`)
+        Ducky.Debug(__filename, "deploy", `Attempting to deploy ${VALID_CONTRACTS.MarketplaceERC721Escrow_v1}...`)
+        await collections.clancy.marketplace.escrow.MarketplaceERC721Escrow_v1.deploy(VALID_CONTRACTS.MarketplaceERC721Escrow_v1)
+        marketplace_db = await pgsql.contracts.get(VALID_CONTRACTS.MarketplaceERC721Escrow_v1)
+    }
     const marketplace: ethers.Contract = await createEthersContractFromDB(marketplace_db, createWalletWithPrivateKey(EOAS.DEPLOYMENT_KEY))
 
     // Get the configuration for the Euroleague collection.

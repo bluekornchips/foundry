@@ -18,11 +18,11 @@ contract MarketplaceERC721Escrow_v1_Test is
     uint256 public marketplace_max_items;
 
     function setUp() public {
-        clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
-        clancyERC721.setPublicMintStatus(true);
-
         marketplace = new MarketplaceERC721Escrow_v1();
         marketplace_max_items = marketplace.MAX_ITEMS();
+
+        clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
+        clancyERC721.setPublicMintStatus(true);
     }
 
     //#region setAllowedContract
@@ -105,7 +105,11 @@ contract MarketplaceERC721Escrow_v1_Test is
             address(clancyERC721),
             tokenId
         );
-
+        uint256 activeListingCount = marketplace.getActiveListingCount();
+        uint256 activeListingsCountForContract = marketplace
+            .getActiveListingCount(address(clancyERC721));
+        assertEq(activeListingCount, 1);
+        assertEq(activeListingsCountForContract, 1);
         assertEq(clancyERC721.ownerOf(tokenId), address(marketplace));
         assertEq(clancyERC721.balanceOf(address(marketplace)), 1);
         assertEq(clancyERC721.balanceOf(address(this)), 0);
@@ -128,7 +132,10 @@ contract MarketplaceERC721Escrow_v1_Test is
             marketplace.createItem(address(clancyERC721), tokenId);
         }
 
-        assertEq(clancyERC721.balanceOf(address(marketplace)), 10);
+        assertEq(
+            clancyERC721.balanceOf(address(marketplace)),
+            marketplace_max_items
+        );
         assertEq(clancyERC721.balanceOf(address(this)), 0);
 
         console.log("Created", marketplace.getItemIdCounter(), "items.");
@@ -138,14 +145,17 @@ contract MarketplaceERC721Escrow_v1_Test is
         marketplaceSetup();
 
         uint256 tokenId = 0;
+
         for (uint256 i = 0; i < marketplace_max_items; i++) {
             tokenId = clancyERC721.mint();
             clancyERC721.approve(address(marketplace), tokenId);
             marketplace.createItem(address(clancyERC721), tokenId);
         }
-
+        // console.log(
+        //     "Active listing count: %s",
+        //     marketplace.getActiveListingCount()
+        // );
         tokenId = clancyERC721.mint();
-
         clancyERC721.approve(address(marketplace), tokenId);
 
         vm.expectRevert(
@@ -482,9 +492,153 @@ contract MarketplaceERC721Escrow_v1_Test is
     //#endregion
 
     //#endregion
+
+    //#region getActiveListingCount
+
+    function test_getActiveListingCount_ShouldPass() public {
+        marketplaceSetup();
+
+        uint256 tokenId = mintAndApprove();
+
+        uint256 itemId = marketplace.createItem(address(clancyERC721), tokenId);
+        console.log("Created item with ID: %s", itemId);
+
+        marketplace.createPurchase(
+            address(clancyERC721),
+            tokenId,
+            address(TEST_WALLET_MAIN)
+        );
+
+        assertEq(marketplace.getActiveListingCount(), 1);
+    }
+
+    function test_getActiveListingCount_ForMaxListings_ShouldPass() public {
+        marketplaceSetup();
+
+        for (uint256 i = 0; i < marketplace_max_items; i++) {
+            uint256 tokenId = mintAndApprove();
+            uint256 itemId = marketplace.createItem(
+                address(clancyERC721),
+                tokenId
+            );
+            console.log("Created item with ID: %s", itemId);
+
+            marketplace.createPurchase(
+                address(clancyERC721),
+                tokenId,
+                address(TEST_WALLET_MAIN)
+            );
+        }
+
+        assertEq(marketplace.getActiveListingCount(), marketplace_max_items);
+    }
+
+    function getActiveListingCount_ForCollection_ShouldPass() public {
+        marketplaceSetup();
+
+        uint256 tokenId = mintAndApprove();
+
+        uint256 itemId = marketplace.createItem(address(clancyERC721), tokenId);
+        console.log("Created item with ID: %s", itemId);
+
+        marketplace.createPurchase(
+            address(clancyERC721),
+            tokenId,
+            address(TEST_WALLET_MAIN)
+        );
+
+        assertEq(marketplace.getActiveListingCount(address(clancyERC721)), 1);
+    }
+
+    function getActiveListingCount_ForCollection_DoesNotExist_ShouldPass()
+        public
+    {
+        marketplaceSetup();
+
+        uint256 tokenId = mintAndApprove();
+
+        uint256 itemId = marketplace.createItem(address(clancyERC721), tokenId);
+        console.log("Created item with ID: %s", itemId);
+
+        marketplace.createPurchase(
+            address(clancyERC721),
+            tokenId,
+            address(TEST_WALLET_MAIN)
+        );
+
+        assertEq(
+            marketplace.getActiveListingCount(address(TEST_WALLET_MAIN)),
+            0
+        );
+    }
+
+    //List 100 items, check count is 100, cancel 50, check count is 50, list 200, check count is 250
+    function getActiveListingCount_ForCollection_MaxListings_ShouldPass()
+        public
+    {
+        marketplaceSetup();
+
+        for (uint256 i = 0; i < marketplace_max_items; i++) {
+            uint256 tokenId = mintAndApprove();
+            uint256 itemId = marketplace.createItem(
+                address(clancyERC721),
+                tokenId
+            );
+            console.log("Created item with ID: %s", itemId);
+
+            marketplace.createPurchase(
+                address(clancyERC721),
+                tokenId,
+                address(TEST_WALLET_MAIN)
+            );
+        }
+
+        assertEq(marketplace.getActiveListingCount(address(clancyERC721)), 100);
+
+        for (uint256 i = 0; i < marketplace_max_items / 2; i++) {
+            uint256 tokenId = mintAndApprove();
+            uint256 itemId = marketplace.createItem(
+                address(clancyERC721),
+                tokenId
+            );
+            console.log("Created item with ID: %s", itemId);
+
+            marketplace.createPurchase(
+                address(clancyERC721),
+                tokenId,
+                address(TEST_WALLET_MAIN)
+            );
+        }
+
+        assertEq(marketplace.getActiveListingCount(address(clancyERC721)), 50);
+
+        for (uint256 i = 0; i < marketplace_max_items; i++) {
+            uint256 tokenId = mintAndApprove();
+            uint256 itemId = marketplace.createItem(
+                address(clancyERC721),
+                tokenId
+            );
+            console.log("Created item with ID: %s", itemId);
+
+            marketplace.createPurchase(
+                address(clancyERC721),
+                tokenId,
+                address(TEST_WALLET_MAIN)
+            );
+        }
+
+        assertEq(marketplace.getActiveListingCount(address(clancyERC721)), 250);
+    }
+
+    //#endregion
     //#region Helpers
     function marketplaceSetup() internal {
-        clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
+        clancyERC721 = new ClancyERC721(
+            NAME,
+            SYMBOL,
+            marketplace_max_items + 1,
+            BASE_URI
+        );
         clancyERC721.setPublicMintStatus(true);
 
         marketplace = new MarketplaceERC721Escrow_v1();

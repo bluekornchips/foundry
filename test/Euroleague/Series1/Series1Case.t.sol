@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import {Test} from "forge-std/Test.sol";
+import "forge-std/Test.sol";
 
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
@@ -73,12 +73,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
 
     //#region setReelsContract
     function test_setReelsContract() public {
-        Reels reelsContract = new Reels(
-            NAME,
-            SYMBOL,
-            MAX_SUPPLY,
-            BASE_URI
-        );
+        Reels reelsContract = new Reels(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
         series1Case.setReelsContract(address(reelsContract));
         assertEq(
             address(series1Case.getReelsContract()),
@@ -87,12 +82,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     }
 
     function test_setReelsContractAsNonOwner_ShouldRevert() public {
-        Reels reelsContract = new Reels(
-            NAME,
-            SYMBOL,
-            MAX_SUPPLY,
-            BASE_URI
-        );
+        Reels reelsContract = new Reels(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
 
         vm.prank(TEST_WALLET_MAIN);
         vm.expectRevert("Ownable: caller is not the owner");
@@ -101,18 +91,14 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
 
     function test_setReelsContract_ZeroAddress_ShouldRevert() public {
         vm.expectRevert(
-            abi.encodeWithSelector(
-                ISeries1Case.ReelsContractNotValid.selector
-            )
+            abi.encodeWithSelector(ISeries1Case.ReelsContractNotValid.selector)
         );
         series1Case.setReelsContract(address(0));
     }
 
     function test_setReelsContract_ToEOA_ShouldRevert() public {
         vm.expectRevert(
-            abi.encodeWithSelector(
-                ISeries1Case.ReelsContractNotValid.selector
-            )
+            abi.encodeWithSelector(ISeries1Case.ReelsContractNotValid.selector)
         );
         series1Case.setReelsContract(TEST_WALLET_MAIN);
     }
@@ -124,12 +110,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         if (address(reels) == address(0)) {
             return;
         }
-        Reels reelsContract = new Reels(
-            NAME,
-            SYMBOL,
-            MAX_SUPPLY,
-            BASE_URI
-        );
+        Reels reelsContract = new Reels(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
         series1Case.setReelsContract(address(reelsContract));
         reels = reelsContract;
         reels.setCaseContract(address(series1Case), true);
@@ -138,19 +119,22 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         reels.setPublicMintStatus(true);
     }
 
-    function test_openCase() public {
+    function test_openCase_shouldPass() public {
         reelsSetup();
 
         uint256 reelsPerCase = series1Case.getReelsPerCase();
         uint256 reelsBalanceBefore = reels.balanceOf(TEST_WALLET_MAIN);
+        console.log("reelsBalanceBefore: ", reelsBalanceBefore.toString());
 
-        vm.prank(TEST_WALLET_MAIN);
+        vm.startPrank(TEST_WALLET_MAIN);
+
         uint256 tokenId = series1Case.mint();
-
-        vm.prank(TEST_WALLET_MAIN);
         series1Case.openCase(tokenId);
 
+        vm.stopPrank();
+
         uint256 reelsBalanceAfter = reels.balanceOf(TEST_WALLET_MAIN);
+        console.log("reelsBalanceAfter: ", reelsBalanceAfter.toString());
         assertEq(reelsBalanceAfter, reelsBalanceBefore + reelsPerCase);
         assertEq(reelsBalanceAfter, 3);
     }

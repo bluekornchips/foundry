@@ -80,8 +80,6 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         public
     {
         reels.setCaseContract(address(series1Case), true);
-
-        vm.prank(address(series1Case));
         vm.expectRevert(
             abi.encodeWithSelector(IClancyERC721.PublicMintDisabled.selector)
         );
@@ -98,30 +96,27 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         reels.mint();
     }
 
-    function test_mint_fromNonCaseContract_ShouldRevert() public {
+    function test_mint_fromNonOwner_ShouldRevert() public {
         reels.setPublicMintStatus(true);
-        vm.expectRevert(
-            abi.encodeWithSelector(IReels.NotCaseContract.selector)
-        );
+        vm.prank(TEST_WALLET_MAIN);
+        vm.expectRevert("Ownable: caller is not the owner");
         reels.mint();
     }
 
-    function test_mint_1() public {
+    function test_mint_1_AsOwner_ShouldPass() public {
         reels.setCaseContract(address(series1Case), true);
         reels.setPublicMintStatus(true);
 
-        vm.prank(address(series1Case));
         uint256 tokenId = reels.mint();
         assertEq(tokenId, 1);
     }
 
-    function test_mint_100() public {
+    function test_mint_100_AsOwner_ShouldPass() public {
         reels.setCaseContract(address(series1Case), true);
         reels.setPublicMintStatus(true);
         uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
         for (uint256 i = 0; i < 100; i++) {
-            vm.prank(address(series1Case));
             reels.mint();
             uint256 tokenId = reels.getTokenIdCounter();
             string memory tokenURI = reels.tokenURI(i + 1);
@@ -134,13 +129,12 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         assertEq(totalSupply, 100);
     }
 
-    function test_mint_101() public {
+    function test_mint_101_AsOwner_ShouldPass() public {
         reels.setCaseContract(address(series1Case), true);
         reels.setPublicMintStatus(true);
         uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
         for (uint256 i = 0; i < 100; i++) {
-            vm.prank(address(series1Case));
             reels.mint();
         }
         totalSupply = reels.totalSupply();
@@ -148,7 +142,6 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         vm.expectRevert(
             abi.encodeWithSelector(IClancyERC721.MaxSupply_Reached.selector)
         );
-        vm.prank(address(series1Case));
         reels.mint();
     }
 
@@ -171,12 +164,13 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
 
     function testFuzz_mint(uint256 seed) public {
         vm.assume(seed < MAX_SUPPLY);
+
         reels.setCaseContract(address(series1Case), true);
         reels.setPublicMintStatus(true);
+
         uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
         for (uint256 i = 0; i < seed; i++) {
-            vm.prank(address(series1Case));
             reels.mint();
             uint256 tokenId = reels.getTokenIdCounter();
             string memory tokenURI = reels.tokenURI(i + 1);

@@ -67,16 +67,22 @@ contract Reels is IReels, ClancyERC721 {
      * Requirements:
      * - The contract must not be paused.
      * - The function can only be called by the Case contract.
-     *
+     * - Is NOT user callable. This is for owner intervention.
      * @return The ID of the token that was minted.
      */
-    function mint()
-        public
-        override
-        whenNotPaused
-        onlyCaseContract
-        returns (uint256)
-    {
-        return super.mint();
+    function mint() public override whenNotPaused onlyOwner returns (uint256) {
+        return super.mint();    
+    }
+
+    /**
+     * @notice Mints a new ERC721 token to the specified `to` address
+     * @dev Can only be called when contract is not paused and by the case contract
+     * @param to The address to mint the token to
+     * @return tokenId The ID of the newly minted token
+     */
+    function mintTo(
+        address to
+    ) public whenNotPaused onlyCaseContract returns (uint256) {
+        return clancyMint(to);
     }
 }

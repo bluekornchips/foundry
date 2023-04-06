@@ -24,10 +24,11 @@ contract MarketplaceERC721Escrow_v1 is
     using Counters for Counters.Counter;
     using Address for address;
 
-    uint32 public constant MAX_ITEMS = 10;
-    uint32 private activeListings = 0;
+    uint32 public constant MAX_ITEMS = 1_000;
+    Counters.Counter private _activeListings;
     mapping(address => bool) private _contracts;
     mapping(address => mapping(uint256 => MarketplaceItem)) private _items;
+    mapping(address => Counters.Counter) private _itemCount;
     Counters.Counter private _itemIdCounter;
 
     /**
@@ -55,7 +56,7 @@ contract MarketplaceERC721Escrow_v1 is
         address tokenContract,
         uint256 tokenId
     ) public whenNotPaused nonReentrant returns (uint256) {
-        if (activeListings >= MAX_ITEMS) revert MarketplaceFull();
+        if (_activeListings.current() >= MAX_ITEMS) revert MarketplaceFull();
         if (!getAllowedContract(tokenContract)) revert InputContractInvalid();
         if (IERC721(tokenContract).ownerOf(tokenId) != _msgSender())
             revert NotTokenOwner();
@@ -68,15 +69,18 @@ contract MarketplaceERC721Escrow_v1 is
             tokenId
         );
 
+        _activeListings.increment();
         _itemIdCounter.increment();
+
         uint256 itemId = _itemIdCounter.current();
-        ++activeListings;
 
         _items[tokenContract][tokenId] = MarketplaceItem({
             itemId: itemId,
             seller: _msgSender(),
             buyer: address(0)
         });
+
+        _itemCount[tokenContract].increment();
 
         emit MarketplaceItemCreated({
             tokenContract: tokenContract,
@@ -122,7 +126,9 @@ contract MarketplaceERC721Escrow_v1 is
         });
 
         delete _items[tokenContract][tokenId];
-        --activeListings;
+
+        _itemCount[tokenContract].decrement();
+        _activeListings.decrement();
 
         IERC721(tokenContract).safeTransferFrom(
             address(this),
@@ -194,7 +200,9 @@ contract MarketplaceERC721Escrow_v1 is
         });
 
         delete _items[tokenContract][tokenId];
-        --activeListings;
+
+        _itemCount[tokenContract].decrement();
+        _activeListings.decrement();
 
         IERC721(tokenContract).safeTransferFrom(
             address(this),
@@ -249,6 +257,25 @@ contract MarketplaceERC721Escrow_v1 is
      */
     function getItemIdCounter() public view returns (uint256) {
         return _itemIdCounter.current();
+    }
+
+    /**
+     * @notice Returns the total count of active listings
+     * @return The count of active listings
+     */
+    function getActiveListingCount() public view returns (uint256) {
+        return _activeListings.current();
+    }
+
+    /**
+     * @notice Returns the count of active listings for a specific token contract
+     * @param tokenContract The address of the token contract for which to retrieve the count
+     * @return The count of active listings for the specified token contract
+     */
+    function getActiveListingCount(
+        address tokenContract
+    ) public view returns (uint256) {
+        return _itemCount[tokenContract].current();
     }
 
     /**

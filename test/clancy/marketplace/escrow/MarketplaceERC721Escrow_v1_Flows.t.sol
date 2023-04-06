@@ -21,15 +21,25 @@ contract MarketplaceERC721Escrow_v1_Test is
     uint256 public marketplace_max_items;
 
     function setUp() public {
-        //tokensOne
-        tokensOne = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
-        tokensOne.setPublicMintStatus(true);
-        //tokensTwo
-        tokensTwo = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
-        tokensTwo.setPublicMintStatus(true);
-
         marketplace = new MarketplaceERC721Escrow_v1();
         marketplace_max_items = marketplace.MAX_ITEMS();
+        //tokensOne
+        tokensOne = new ClancyERC721(
+            NAME,
+            SYMBOL,
+            marketplace_max_items,
+            BASE_URI
+        );
+        tokensOne.setPublicMintStatus(true);
+        //tokensTwo
+        tokensTwo = new ClancyERC721(
+            NAME,
+            SYMBOL,
+            marketplace_max_items,
+            BASE_URI
+        );
+        tokensTwo.setPublicMintStatus(true);
+
         marketplace.setAllowedContract(address(tokensOne), true);
         marketplace.setAllowedContract(address(tokensTwo), true);
     }
@@ -123,6 +133,38 @@ contract MarketplaceERC721Escrow_v1_Test is
         }
     }
 
+    function test_getActiveListingCount_ForBothCollectionsAndOverall_ShouldPass()
+        public
+    {
+        uint256 tokenId = mintAndApprove();
+
+        uint256 itemId = marketplace.createItem(address(tokensOne), tokenId);
+        assertEq(marketplace.getActiveListingCount(), 1);
+        assertEq(marketplace.getActiveListingCount(address(tokensOne)), 1);
+        assertEq(marketplace.getActiveListingCount(address(tokensTwo)), 0);
+
+        marketplace.createPurchase(
+            address(tokensOne),
+            tokenId,
+            address(TEST_WALLET_MAIN)
+        );
+
+        vm.prank(address(TEST_WALLET_MAIN));
+        marketplace.claimItem(address(tokensOne), tokenId);
+        assertEq(marketplace.getActiveListingCount(), 0);
+        assertEq(marketplace.getActiveListingCount(address(tokensOne)), 0);
+        assertEq(marketplace.getActiveListingCount(address(tokensTwo)), 0);
+
+        vm.prank(address(TEST_WALLET_MAIN));
+        tokensOne.approve(address(marketplace), tokenId);
+
+        vm.prank(address(TEST_WALLET_MAIN));
+        itemId = marketplace.createItem(address(tokensOne), tokenId);
+        assertEq(marketplace.getActiveListingCount(), 1);
+        assertEq(marketplace.getActiveListingCount(address(tokensOne)), 1);
+        assertEq(marketplace.getActiveListingCount(address(tokensTwo)), 0);
+    }
+
     //#endregion
 
     //#region Multiple Contracts Tests
@@ -195,8 +237,8 @@ contract MarketplaceERC721Escrow_v1_Test is
     }
 
     //#endregion
-    //#region Helpers
 
+    //#region Helpers
     function mintAndApprove() internal returns (uint256) {
         uint256 tokenId = tokensOne.mint();
         tokensOne.approve(address(marketplace), tokenId);

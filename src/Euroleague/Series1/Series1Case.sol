@@ -43,19 +43,16 @@ contract Series1Case is ISeries1Case, ClancyERC721 {
     ) public whenNotPaused returns (uint256[] memory) {
         if (_reelsContract == Reels(payable(address(0))))
             revert ReelsContractNotSet();
+        if (!_isApprovedOrOwner(_msgSender(), tokenId))
+            revert NotApprovedOrOwner();
 
-        address ownerOfToken = this.ownerOf(tokenId);
+        address tokenOwner = ownerOf(tokenId); // Always mint to the owner, not the caller.
 
         burn(tokenId);
 
         uint256[] memory minted_reels = new uint256[](_reelsPerCase);
         for (uint256 i = 0; i < _reelsPerCase; i++) {
-            minted_reels[i] = _reelsContract.mint();
-            _reelsContract.safeTransferFrom(
-                address(this),
-                ownerOfToken,
-                minted_reels[i]
-            );
+            minted_reels[i] = _reelsContract.mintTo(tokenOwner);
         }
 
         emit CaseOpened(tokenId, _msgSender());

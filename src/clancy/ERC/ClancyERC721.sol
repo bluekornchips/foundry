@@ -6,12 +6,12 @@ import {Pausable} from "openzeppelin-contracts/contracts/security/Pausable.sol";
 import {IERC721Receiver} from "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import {ERC721, ERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
-import {ClancyPayable} from "clancy/utils/ClancyPayable.sol";
+import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 
 import {IClancyERC721} from "./IClancyERC721.sol";
 
 contract ClancyERC721 is
-    ClancyPayable,
+    Ownable,
     ERC721Enumerable,
     Pausable,
     IClancyERC721,

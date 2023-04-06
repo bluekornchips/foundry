@@ -383,5 +383,15 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         vm.expectRevert("ERC721: caller is not token owner or approved");
         clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 2);
     }
+
     //#endregion
+
+    // //#region clancyMint
+    // function test_clancyMint_ShouldPass() public {
+    //     clancyERC721.setPublicMintStatus(true);
+    //     clancyERC721.clancyMint(TEST_WALLET_MAIN);
+    //     uint256 balance = clancyERC721.balanceOf(TEST_WALLET_MAIN);
+    //     assertEq(balance, 1);
+    // }
+    // //#endregion
 }

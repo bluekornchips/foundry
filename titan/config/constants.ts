@@ -8,6 +8,8 @@ export const VALID_ENVS = {
     qa: "qa",
     uat: "uat",
 }
+export const DATABASE_READONLY = false;
+
 export const DATABASE_URL = {
     EUROLEAGUE: {
         DEV: process.env.DATABASE_URL_DEV_EUROLEAGUE || "",

@@ -1,11 +1,11 @@
+
 import { ethers } from "ethers"
-import { EOAS, RPC } from "../../../../../config/constants";
-import pgsql from "../../../../../pgsql";
+
+import Ducky from "../../../../../utility/logging/ducky";
 import artifact_finder from "../../../../../utility/artifactFinder";
 import createWalletWithPrivateKey from "../../../../../utility/blockchain/createWalletWithPrivateKey";
-import Ducky from "../../../../../utility/logging/ducky";
-
-
+import pgsql from "../../../../../pgsql";
+import { EOAS, RPC } from "../../../../../config/constants";
 
 /**
  * Deploys a contract with the specified name and adds it to PostgreSQL.

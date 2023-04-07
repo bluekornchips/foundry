@@ -1,7 +1,6 @@
 import { ethers } from "ethers"
+
 import Ducky from "../../../../../utility/logging/ducky";
-
-
 
 /**
  * Sets the allowed state of a token contract on a MarketplaceERC721Escrow_V1 contract.

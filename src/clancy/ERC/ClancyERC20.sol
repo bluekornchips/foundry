@@ -88,6 +88,9 @@ contract ClancyERC20 is
         _mint(to, amount);
     }
 
+    /**
+     * @dev See {ERC20-_mint}.
+     */
     function _mint(
         address to,
         uint256 amount

@@ -10,8 +10,8 @@ import {IClancyERC721} from "clancy/ERC/IClancyERC721.sol";
 import {ISeries1Case, Series1Case} from "euroleague/series1/Series1Case.sol";
 import {Reels} from "euroleague/series1/Reels.sol";
 
-import {ClancyERC721TestHelpers} from "clancy-test/helpers/ClancyERC721TestHelpers.sol";
-import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
+import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
+import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
 
 contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     using Strings for uint256;

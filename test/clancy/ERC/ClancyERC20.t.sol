@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 
 import {ClancyERC20} from "clancy/ERC/ClancyERC20.sol";
 
-import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
+import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
 
 contract ClancyERC20_Test is Test, TEST_CONSTANTS {
     ClancyERC20 clancyERC20;

@@ -1,4 +1,5 @@
 openzeppelin-contracts/=lib/openzeppelin-contracts/
 euroleague=src/euroleague/
 clancy/=src/clancy/
-clancy-test=test/clancy/
+test-helpers/=test/helpers/
+misc/=src/misc/

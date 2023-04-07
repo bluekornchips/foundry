@@ -6,8 +6,8 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
 import {IClancyERC721, ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
 
-import {ClancyERC721TestHelpers} from "clancy-test/helpers/ClancyERC721TestHelpers.sol";
-import {TEST_CONSTANTS} from "clancy-test/helpers/TEST_CONSTANTS.sol";
+import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
+import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
 
 contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     using Strings for uint256;

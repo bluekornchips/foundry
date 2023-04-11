@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import {Test} from "forge-std/Test.sol";
+import "forge-std/Test.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
 import {IClancyERC721, ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
@@ -332,6 +332,17 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
 
     //#endregion
 
+    //#region delegate calls
+
+    function test_delegateCall() public {
+        (bool success, bytes memory result) = address(clancyERC721)
+            .delegatecall(abi.encodeWithSignature("getBurnStatus()"));
+        require(success, "Delegate call failed");
+        bool myResult = abi.decode(result, (bool));
+        console.log("myResult %s", myResult);
+    }
+
+    //#endregion
     //#region safeTransferFrom
 
     function test_safeTransferFrom() public {
@@ -385,13 +396,4 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     }
 
     //#endregion
-
-    // //#region clancyMint
-    // function test_clancyMint_ShouldPass() public {
-    //     clancyERC721.setPublicMintStatus(true);
-    //     clancyERC721.clancyMint(TEST_WALLET_MAIN);
-    //     uint256 balance = clancyERC721.balanceOf(TEST_WALLET_MAIN);
-    //     assertEq(balance, 1);
-    // }
-    // //#endregion
 }

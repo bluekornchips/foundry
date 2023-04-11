@@ -12,9 +12,21 @@ contract Bank {
         require(balances[msg.sender] >= amount, "Insufficient funds.");
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Transfer failed.");
+
+        /*
+         * https://ethereum.stackexchange.com/questions/142029/reentrancy-attack-fail
+         */
+        // Option 1
         if (balances[msg.sender] > 0) {
             balances[msg.sender] -= amount;
         }
+        // // Option 2
+        // unchecked {
+        //     balances[msg.sender] -= amount;
+        // }
+
+        // // Option 3
+        // Will not work because of underflow.
         // balances[msg.sender] -= amount;
     }
 

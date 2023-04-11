@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
 import {Pausable} from "openzeppelin-contracts/contracts/security/Pausable.sol";
+import {ReentrancyGuard} from "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 import {IERC721Receiver} from "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import {ERC721, ERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
@@ -15,6 +16,7 @@ contract ClancyERC721 is
     ERC721Enumerable,
     Pausable,
     IClancyERC721,
+    ReentrancyGuard,
     IERC721Receiver
 {
     using Counters for Counters.Counter;
@@ -119,7 +121,7 @@ contract ClancyERC721 is
      *
      * @param tokenId The ID of the token to be burned.
      */
-    function burn(uint256 tokenId) public virtual whenNotPaused {
+    function burn(uint256 tokenId) public virtual whenNotPaused nonReentrant {
         if (!_burnEnabled) revert BurnDisabled();
         if (!_isApprovedOrOwner(_msgSender(), tokenId))
             revert NotApprovedOrOwner();
@@ -240,7 +242,7 @@ contract ClancyERC721 is
      */
     function clancyMint(
         address to
-    ) internal whenNotPaused returns (uint256 tokenId) {
+    ) internal whenNotPaused nonReentrant returns (uint256 tokenId) {
         if (_tokenIdCounter.current() >= _maxSupply) revert MaxSupply_Reached();
         _tokenIdCounter.increment();
         tokenId = _tokenIdCounter.current();

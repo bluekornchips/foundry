@@ -27,7 +27,7 @@
 				"validForSale": true,
 				"cargs": {
 					"name": "Reels",
-					"symbol": "MOM",
+					"symbol": "RLS",
 					"max_supply": 100,
 					"uri": "https://clancy.com/api/"
 				},

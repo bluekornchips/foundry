@@ -1,27 +1,26 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.19;
 
-interface IMarketplaceERC721Escrow_v1 {
-    error InputContractInvalid();
+interface IEscrowERC721_v1 {
     error NotTokenOwner();
     error NotTokenSeller();
     error NotTokenBuyer();
-    error MarketplaceFull();
-    error ItemIsSold();
-    error ItemIsNotSold();
-    error ItemDoesNotExist();
-    error ItemBuyerCannotBeSeller();
-    error ItemAlreadyForSale();
-    error ItemSellerCannotBeZeroAddress();
+    error EscrowFull();
+    error EscrowItemIsSold();
+    error EscrowItemIsNotSold();
+    error EscrowItemDoesNotExist();
+    error EscrowItemBuyerCannotBeSeller();
+    error EscrowItemAlreadyForSale();
+    error EscrowItemSellerCannotBeZeroAddress();
 
-    event MarketplaceItemCreated(
+    event EscrowItemCreated(
         uint256 indexed itemId,
         address indexed tokenContract,
         uint256 indexed tokenId,
         address seller
     );
 
-    event MarketplaceItemPurchaseCreated(
+    event EscrowItemPurchaseCreated(
         uint256 indexed itemId,
         address indexed tokenContract,
         uint256 indexed tokenId,
@@ -29,19 +28,19 @@ interface IMarketplaceERC721Escrow_v1 {
         address buyer
     );
 
-    event MarketplaceItemCancelled(
+    event EscrowItemCancelled(
         uint256 indexed itemId,
         address indexed tokenContract,
         uint256 indexed tokenId
     );
 
-    event MarketplaceItemClaimed(
+    event EscrowItemClaimed(
         uint256 indexed itemId,
         address indexed tokenContract,
         uint256 indexed tokenId
     );
 
-    struct MarketplaceItem {
+    struct EscrowItem {
         uint256 itemId;
         address seller;
         address buyer;
@@ -50,5 +49,5 @@ interface IMarketplaceERC721Escrow_v1 {
     function getItem(
         address tokenContract,
         uint256 itemId
-    ) external view returns (MarketplaceItem memory);
+    ) external view returns (EscrowItem memory);
 }

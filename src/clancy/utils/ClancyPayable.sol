@@ -10,6 +10,6 @@ contract ClancyPayable is Ownable {
 
     function withdraw() external onlyOwner {
         emit Withdrawn(msg.sender, address(this).balance);
-        payable(msg.sender).transfer(address(this).balance);
+        msg.sender.call{value: address(this).balance}("");
     }
 }

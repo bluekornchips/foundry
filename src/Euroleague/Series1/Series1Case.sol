@@ -3,12 +3,12 @@ pragma solidity ^0.8.19;
 
 import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
 
-import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+import {ClancyERC721Airdroppable} from "clancy/ERC/extensions/ClancyERC721Airdroppable.sol";
 
 import {Reels} from "./Reels.sol";
 import {ISeries1Case} from "./ISeries1Case.sol";
 
-contract Series1Case is ISeries1Case, ClancyERC721 {
+contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
     using Address for address;
 
     Reels private _reelsContract;
@@ -19,7 +19,7 @@ contract Series1Case is ISeries1Case, ClancyERC721 {
         string memory symbol_,
         uint256 maxSupply,
         string memory base_uri_
-    ) ClancyERC721(name_, symbol_, maxSupply, base_uri_) {}
+    ) ClancyERC721Airdroppable(name_, symbol_, maxSupply, base_uri_) {}
 
     /**
      * @dev Opens a Series 1 case.

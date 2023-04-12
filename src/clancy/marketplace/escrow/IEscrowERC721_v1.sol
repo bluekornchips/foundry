@@ -2,7 +2,6 @@
 pragma solidity ^0.8.19;
 
 interface IEscrowERC721_v1 {
-    error NotTokenOwner();
     error NotTokenSeller();
     error NotTokenBuyer();
     error EscrowFull();

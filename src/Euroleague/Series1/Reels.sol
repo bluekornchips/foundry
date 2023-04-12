@@ -3,11 +3,11 @@ pragma solidity ^0.8.19;
 
 import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
 
-import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+import {ClancyERC721Airdroppable} from "clancy/ERC/extensions/ClancyERC721Airdroppable.sol";
 
 import {IReels} from "./IReels.sol";
 
-contract Reels is IReels, ClancyERC721 {
+contract Reels is IReels, ClancyERC721Airdroppable {
     using Address for address;
 
     mapping(address => bool) internal _caseContracts;
@@ -28,7 +28,7 @@ contract Reels is IReels, ClancyERC721 {
         string memory symbol_,
         uint256 max_supply_,
         string memory base_uri_
-    ) ClancyERC721(name_, symbol_, max_supply_, base_uri_) {}
+    ) ClancyERC721Airdroppable(name_, symbol_, max_supply_, base_uri_) {}
 
     /**
      * @dev Sets the validity of a Case contract.
@@ -71,7 +71,7 @@ contract Reels is IReels, ClancyERC721 {
      * @return The ID of the token that was minted.
      */
     function mint() public override whenNotPaused onlyOwner returns (uint256) {
-        return super.mint();    
+        return super.mint();
     }
 
     /**

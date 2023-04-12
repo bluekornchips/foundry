@@ -19,7 +19,6 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
     uint32 public constant MAX_ITEMS = 1_000;
     Counters.Counter private _activeListings;
     mapping(address => mapping(uint256 => EscrowItem)) private _items;
-    Counters.Counter private _itemIdCounter;
 
     /**
      * @dev Creates a new EscrowItem and places it in escrow.
@@ -184,14 +183,6 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
             _msgSender(),
             tokenId
         );
-    }
-
-    /**
-     * @dev Retrieves the current value of the item ID counter.
-     * @return Returns the current value of the item ID counter as a uint256.
-     */
-    function getItemIdCounter() public view returns (uint256) {
-        return _itemIdCounter.current();
     }
 
     /**

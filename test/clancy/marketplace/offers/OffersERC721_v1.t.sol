@@ -141,7 +141,6 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
             tokenId
         );
         vm.stopPrank();
-
         assertEq(offer.itemId, 0);
     }
 

@@ -5,8 +5,8 @@ import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
 import {ClancyPayable} from "clancy/utils/ClancyPayable.sol";
-import {ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";
 import {IOffersERC721_v1} from "clancy/marketplace/offers/IOffersERC721_v1.sol";
+import {ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";
 
 contract OffersERC721_v1 is
     ClancyMarketplaceERC721_v1,
@@ -18,6 +18,9 @@ contract OffersERC721_v1 is
      */
     using Counters for Counters.Counter;
 
+    /**
+     * @dev Mapping of token contract addresses to token IDs to OfferItem structs, representing offers
+     */
     mapping(address => mapping(uint256 => OfferItem)) private _items;
 
     /**
@@ -56,6 +59,12 @@ contract OffersERC721_v1 is
         });
     }
 
+    /**
+     * @notice Cancels an offer made by the caller for a specific token in a specific contract
+     * @dev Can only be called when contract is not paused and is non-reentrant
+     * @param contractAddress_ The address of the token contract
+     * @param tokenId The ID of the token for which to cancel the offer
+     */
     function cancelOffer(
         address contractAddress_,
         uint256 tokenId
@@ -83,6 +92,12 @@ contract OffersERC721_v1 is
         });
     }
 
+    /**
+     * @notice Retrieves the offer details for a specific token in a specific contract
+     * @param contractAddress_ The address of the token contract
+     * @param tokenId The ID of the token for which to retrieve the offer details
+     * @return The OfferItem struct containing the offer details
+     */
     function getOffer(
         address contractAddress_,
         uint256 tokenId

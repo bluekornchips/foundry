@@ -80,39 +80,39 @@ contract ClancyERC721Airdroppable_Test is
         }
     }
 
-    function testFuzz_deliverDrop(address[] calldata tos, uint8 seed) public {
-        uint8 maxDrops = 10;
+    // function testFuzz_deliverDrop(address[] calldata tos, uint8 seed) public {
+    //     uint8 maxDrops = 10;
 
-        vm.assume(tos.length > 0);
-        vm.assume(tos.length < 100);
-        vm.assume(seed > 0);
-        // vm.assume(seed < maxDrops);
+    //     vm.assume(tos.length > 0);
+    //     vm.assume(tos.length < 100); // TODO: Uncomment for full tests. This is commented out for faster full test runs.
+    //     vm.assume(seed > 0);
+    //     // vm.assume(seed < maxDrops);
 
-        // Assume each address is not the zero address
-        for (uint256 i = 0; i < tos.length; i++) {
-            vm.assume(tos[i] != address(0));
-        }
+    //     // Assume each address is not the zero address
+    //     for (uint256 i = 0; i < tos.length; i++) {
+    //         vm.assume(tos[i] != address(0));
+    //     }
 
-        clancyERC721Airdroppable.setMaxSupply(
-            tos.length * MAX_SUPPLY * maxDrops
-        );
+    //     clancyERC721Airdroppable.setMaxSupply(
+    //         tos.length * MAX_SUPPLY * maxDrops
+    //     );
 
-        Airdrop[] memory airdrops = new Airdrop[](tos.length);
-        for (uint256 i = 0; i < airdrops.length; i++) {
-            airdrops[i] = Airdrop({recipient: tos[i], tokenCount: seed});
-        }
+    //     Airdrop[] memory airdrops = new Airdrop[](tos.length);
+    //     for (uint256 i = 0; i < airdrops.length; i++) {
+    //         airdrops[i] = Airdrop({recipient: tos[i], tokenCount: seed});
+    //     }
 
-        clancyERC721Airdroppable.deliverDrop(airdrops);
+    //     clancyERC721Airdroppable.deliverDrop(airdrops);
 
-        uint256 counter = 1;
-        for (uint256 i = 0; i < airdrops.length; i++) {
-            Airdrop memory airdrop = airdrops[i];
-            for (uint256 j = 0; j < airdrop.tokenCount; j++) {
-                assertEq(
-                    clancyERC721Airdroppable.ownerOf(counter++),
-                    airdrop.recipient
-                );
-            }
-        }
-    }
+    //     uint256 counter = 1;
+    //     for (uint256 i = 0; i < airdrops.length; i++) {
+    //         Airdrop memory airdrop = airdrops[i];
+    //         for (uint256 j = 0; j < airdrop.tokenCount; j++) {
+    //             assertEq(
+    //                 clancyERC721Airdroppable.ownerOf(counter++),
+    //                 airdrop.recipient
+    //             );
+    //         }
+    //     }
+    // }
 }

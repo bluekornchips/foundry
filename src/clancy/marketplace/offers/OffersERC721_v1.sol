@@ -24,10 +24,10 @@ contract OffersERC721_v1 is
     mapping(address => mapping(uint256 => OfferItem)) private _items;
 
     /**
-     * @notice Creates a new offer for a specific token in a specific contract with the sent ether value
-     * @dev Can only be called when contract is not paused
+     * @notice Creates a new offer or outbids an existing offer for a specific token in a specific contract
+     * @dev This function is public and can only be called when the contract is not paused
      * @param contractAddress_ The address of the token contract
-     * @param tokenId The ID of the token for which to create the offer
+     * @param tokenId The ID of the token for which to create or outbid the offer
      */
     function createOffer(
         address contractAddress_,
@@ -40,8 +40,135 @@ contract OffersERC721_v1 is
         if (!getAllowedContract(contractAddress_)) {
             revert InputContractInvalid();
         }
+        if (msg.sender == address(0)) {
+            revert OfferorCannotBeZeroAddress();
+        }
         address ownerOfToken = IERC721(contractAddress_).ownerOf(tokenId); // Will revert if token does not exist
+        if (ownerOfToken == msg.sender) {
+            revert OfferorCannotBeTokenOwner();
+        }
+        OfferItem storage existingItem = _items[contractAddress_][tokenId];
 
+        if (existingItem.offeror != address(0)) {
+            if (value <= existingItem.offerAmount) {
+                revert OfferMustBeGTExistingOffer();
+            }
+            outbidOffer(contractAddress_, tokenId, msg.sender, value);
+        } else {
+            newOffer(contractAddress_, tokenId, ownerOfToken, value);
+        }
+    }
+
+    /**
+     * @notice Accepts an existing offer for a specific token in a specific contract
+     * @dev This function is public and can only be called by the token owner
+     * @param contractAddress_ The address of the token contract
+     * @param tokenId The ID of the token for which to accept the offer
+     */
+    function acceptOffer(
+        address contractAddress_,
+        uint256 tokenId
+    ) public whenNotPaused {
+        OfferItem storage item = _items[contractAddress_][tokenId];
+        if (item.itemId <= 0) {
+            revert OfferDoesNotExist();
+        }
+        if (IERC721(contractAddress_).ownerOf(tokenId) != msg.sender) {
+            revert NotTokenOwner();
+        }
+        if (address(this).balance < item.offerAmount) {
+            revert InsufficientContractBalance();
+        }
+
+        uint256 offerAmount = item.offerAmount;
+        address offeror = item.offeror;
+        uint256 itemId = item.itemId;
+
+        delete _items[contractAddress_][tokenId];
+
+        (bool success, ) = msg.sender.call{value: offerAmount}("");
+        if (!success) {
+            revert TransferFailed(
+                "OffersERC721_v1: Offer amount failed to transfer."
+            );
+        }
+
+        IERC721(contractAddress_).safeTransferFrom(
+            msg.sender,
+            offeror,
+            tokenId
+        );
+
+        emit OfferAccepted({
+            itemId: itemId,
+            contractAddress: contractAddress_,
+            tokenId: tokenId,
+            offeror: offeror,
+            tokenOwner: msg.sender
+        });
+    }
+
+    /**
+     * @notice Cancels an offer made by the caller for a specific token in a specific contract
+     * @dev Can only be called by the owner of the contract
+     * @param contractAddress_ The address of the token contract
+     * @param tokenId The ID of the token for which to cancel the offer
+     */
+    function cancelOffer(
+        address contractAddress_,
+        uint256 tokenId
+    ) public onlyOwner {
+        OfferItem storage item = _items[contractAddress_][tokenId];
+
+        if (address(this).balance < item.offerAmount) {
+            revert InsufficientContractBalance();
+        }
+
+        uint256 offerAmount = item.offerAmount;
+        (bool success, ) = item.offeror.call{value: offerAmount}("");
+        if (!success) {
+            revert TransferFailed(
+                "OffersERC721_v1: Cancelled Offer refund failed."
+            );
+        }
+
+        emit OfferCancelled({
+            itemId: item.itemId,
+            contractAddress: contractAddress_,
+            tokenId: tokenId,
+            offeror: item.offeror
+        });
+
+        delete _items[contractAddress_][tokenId];
+    }
+
+    /**
+     * @notice Retrieves the offer details for a specific token in a specific contract
+     * @param contractAddress_ The address of the token contract
+     * @param tokenId The ID of the token for which to retrieve the offer details
+     * @return The OfferItem struct containing the offer details
+     */
+    function getOffer(
+        address contractAddress_,
+        uint256 tokenId
+    ) public view returns (OfferItem memory) {
+        return _items[contractAddress_][tokenId];
+    }
+
+    /**
+     * @notice Creates a new offer for a specific token in a specific contract
+     * @dev This function is private and non-reentrant
+     * @param contractAddress_ The address of the token contract
+     * @param tokenId The ID of the token for which to create the offer
+     * @param ownerOfToken The address of the owner of the token
+     * @param value The offer amount
+     */
+    function newOffer(
+        address contractAddress_,
+        uint256 tokenId,
+        address ownerOfToken,
+        uint256 value
+    ) private nonReentrant {
         _itemIdCounter.increment();
 
         _items[contractAddress_][tokenId] = OfferItem({
@@ -60,48 +187,37 @@ contract OffersERC721_v1 is
     }
 
     /**
-     * @notice Cancels an offer made by the caller for a specific token in a specific contract
-     * @dev Can only be called when contract is not paused and is non-reentrant
+     * @notice Outbids an existing offer for a specific token in a specific contract
+     * @dev This function is private and non-reentrant
      * @param contractAddress_ The address of the token contract
-     * @param tokenId The ID of the token for which to cancel the offer
+     * @param tokenId The ID of the token for which to outbid the offer
+     * @param newOfferor The address of the new offeror
+     * @param value The new offer amount
      */
-    function cancelOffer(
+    function outbidOffer(
         address contractAddress_,
-        uint256 tokenId
-    ) public whenNotPaused nonReentrant {
-        OfferItem storage item = _items[contractAddress_][tokenId];
+        uint256 tokenId,
+        address newOfferor,
+        uint256 value
+    ) private nonReentrant {
+        OfferItem storage existingItem = _items[contractAddress_][tokenId];
 
-        if (item.offeror != msg.sender) {
-            revert NotOfferor();
+        address existingOfferor = existingItem.offeror;
+        uint256 existingOfferAmount = existingItem.offerAmount;
+
+        existingItem.offerAmount = value;
+        existingItem.offeror = newOfferor;
+
+        (bool success, ) = existingOfferor.call{value: existingOfferAmount}("");
+        if (!success) {
+            revert TransferFailed("OffersERC721_v1: Outbid refund failed.");
         }
-        if (address(this).balance < item.offerAmount) {
-            revert InsufficientContractBalance();
-        }
 
-        uint256 offerAmount = item.offerAmount;
-        (bool success, ) = msg.sender.call{value: offerAmount}("");
-        require(success, "Transfer failed.");
-
-        delete _items[contractAddress_][tokenId];
-
-        emit OfferCancelled({
-            itemId: item.itemId,
+        emit OfferOutbid({
+            itemId: existingItem.itemId,
             contractAddress: contractAddress_,
             tokenId: tokenId,
-            offeror: msg.sender
+            offeror: newOfferor
         });
-    }
-
-    /**
-     * @notice Retrieves the offer details for a specific token in a specific contract
-     * @param contractAddress_ The address of the token contract
-     * @param tokenId The ID of the token for which to retrieve the offer details
-     * @return The OfferItem struct containing the offer details
-     */
-    function getOffer(
-        address contractAddress_,
-        uint256 tokenId
-    ) public view returns (OfferItem memory) {
-        return _items[contractAddress_][tokenId];
     }
 }

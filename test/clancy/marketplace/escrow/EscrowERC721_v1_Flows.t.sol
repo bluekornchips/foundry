@@ -10,7 +10,7 @@ import {IClancyERC721, ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
 
 import {IEscrowERC721_v1_Test} from "./IEscrowERC721_v1.t.sol";
 
-contract EscrowERC721Escrow_v1_Test is IEscrowERC721_v1_Test, Test {
+contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
     ClancyERC721 tokensOne;
     ClancyERC721 tokensTwo;
     EscrowERC721_v1 escrow;

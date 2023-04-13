@@ -5,9 +5,20 @@ interface IOffersERC721_v1 {
     error OfferCannotBeLTEZero();
     error OfferDoesNotExist();
     error NotOfferor();
+    error OfferMustBeGTExistingOffer();
     error InsufficientContractBalance();
+    error OfferorCannotBeZeroAddress();
+    error OfferorCannotBeTokenOwner();
+    error TransferFailed(string);
 
     event OfferCreated(
+        uint256 indexed itemId,
+        address indexed contractAddress,
+        uint256 indexed tokenId,
+        address offeror
+    );
+
+    event OfferOutbid(
         uint256 indexed itemId,
         address indexed contractAddress,
         uint256 indexed tokenId,
@@ -19,6 +30,14 @@ interface IOffersERC721_v1 {
         address indexed contractAddress,
         uint256 indexed tokenId,
         address offeror
+    );
+
+    event OfferAccepted(
+        uint256 indexed itemId,
+        address indexed contractAddress,
+        uint256 indexed tokenId,
+        address offeror,
+        address tokenOwner
     );
 
     struct OfferItem {

@@ -1,5 +1,6 @@
-import coordinate from "./coordinate";
+import marketplace from "./marketplace";
 
-const coordinator = coordinate
-
+const coordinator = {
+    marketplace
+}
 export default coordinator;

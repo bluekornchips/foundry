@@ -15,8 +15,11 @@
 			}
 		},
 		"Marketplace": {
-			"MarketplaceERC721Escrow": {
-				"name": "MarketplaceERC721Escrow_v1"
+			"Escrow": {
+				"name": "EscrowERC721_v1"
+			},
+			"Offers": {
+				"name": "OffersERC721_v1"
 			}
 		}
 	},

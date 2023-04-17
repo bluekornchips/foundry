@@ -60,10 +60,14 @@ export interface IClancyERC721Config {
     ClancyERC721: IClancyERC721ContractConfig;
 }
 
+
+export interface IOffersERC721Config extends IClancyMarketplaceERC721EscrowConfig { }
+export interface IEscrowERC721Config extends IClancyMarketplaceERC721EscrowConfig { }
+
 /**
  * Defines the configuration options for the MarketplaceERC721Escrow contract.
  */
-export interface IMarketplaceERC721EscrowConfig {
+export interface IClancyMarketplaceERC721EscrowConfig {
     name: string;
 }
 
@@ -71,7 +75,8 @@ export interface IMarketplaceERC721EscrowConfig {
  * Defines the configuration options for the Clancy marketplace contract.
  */
 export interface IClancyMarketplaceConfig {
-    MarketplaceERC721Escrow: IMarketplaceERC721EscrowConfig;
+    Escrow: IEscrowERC721Config;
+    Offers: IOffersERC721Config
 }
 
 /**

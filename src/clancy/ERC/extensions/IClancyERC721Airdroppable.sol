@@ -15,5 +15,5 @@ contract IClancyERC721Airdroppable {
         uint64[] tokenIds;
     }
 
-    event AirdropDelivered(Airdropped[] indexed);
+    event AirdropDelivered(uint8 indexed, Airdropped[]);
 }

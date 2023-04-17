@@ -36,3 +36,6 @@ yarn.lock
 
 #remixd
 compiler_config.json
+
+#env
+.env

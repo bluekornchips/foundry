@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import {Test} from "forge-std/Test.sol";
+import "forge-std/Test.sol";
 
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
-import {ClancyERC721Airdroppable} from "clancy/ERC/extensions/ClancyERC721Airdroppable.sol";
-import {IClancyERC721Airdroppable} from "clancy/ERC/extensions/IClancyERC721Airdroppable.sol";
+import {ClancyERC721Airdroppable, IClancyERC721Airdroppable} from "clancy/ERC/extensions/ClancyERC721Airdroppable.sol";
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
 
 import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
@@ -38,6 +37,8 @@ contract ClancyERC721Airdroppable_Test is
             recipient: TEST_WALLET_MAIN,
             tokenCount: tokenCount
         });
+        // console.log("airdrop: %s", airdrops[0]);
+
         airdrops[1] = Airdrop({
             recipient: TEST_WALLET_1,
             tokenCount: tokenCount
@@ -46,7 +47,6 @@ contract ClancyERC721Airdroppable_Test is
             recipient: address(this),
             tokenCount: tokenCount
         });
-
         Airdropped[] memory airdropped = new Airdropped[](airdrops.length);
         airdropped[0] = Airdropped({
             recipient: TEST_WALLET_MAIN,
@@ -63,9 +63,9 @@ contract ClancyERC721Airdroppable_Test is
             tokenIds: new uint64[](tokenCount)
         });
         airdropped[2].tokenIds[0] = 3;
-
+        uint8 airDropCounter = clancyERC721Airdroppable.getAirdropCount();
         vm.expectEmit(true, false, false, false);
-        emit AirdropDelivered(airdropped);
+        emit AirdropDelivered(airDropCounter + 1, airdropped);
         clancyERC721Airdroppable.deliverDrop(airdrops);
 
         uint256 counter = 1;

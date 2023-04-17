@@ -27,16 +27,6 @@ const argv = yargs.options({
             return arr.filter((item: any) => typeof item === 'string');
         },
     },
-    marketplace: {
-        alias: 'm',
-        description: 'Add the contracts to the marketplace',
-        type: 'array',
-        demandOption: false,
-        choices: Object.keys(VALID_CONTRACTS),
-        coerce: (arr) => {
-            return arr.filter((item: any) => typeof item === 'string');
-        },
-    },
     client: {
         alias: 'c',
         description: 'The clients packages to be built',
@@ -66,7 +56,7 @@ const main = async () => {
         setActiveEnv(input_args.client, input_args.client_env)
         setPrismaClient(input_args.client, input_args.client_env)
         if (input_args.deploy !== undefined) {
-            await nonClient(input_args)
+            await nonClient.main(input_args)
         } else {
             await clancyClients(input_args.client)
         }

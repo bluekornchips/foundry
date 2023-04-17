@@ -2,7 +2,7 @@ import collections from "../../../collections"
 import Ducky from "../../../utility/logging/ducky"
 import getActiveEnv from "../../env"
 import { ContractContainer } from "../../../types"
-import { IClancyERC721ContractConfig, IEuroleagueConfig, ISeries1CaseConfig } from "../../../interfaces"
+import { IClancyERC721ContractConfig, IEuroleagueConfig } from "../../../interfaces"
 
 /**
  * Deploy a series of ERC-721 tokens representing Euroleague cases, based on the configurations in the provided IEuroleagueConfig object.
@@ -10,7 +10,7 @@ import { IClancyERC721ContractConfig, IEuroleagueConfig, ISeries1CaseConfig } fr
  * @param config The IEuroleagueConfig object containing configurations for the ERC-721 tokens to be deployed.
  * @returns An object containing the deployed ERC-721 tokens.
  */
-const deploy_series1_case = async (config: IEuroleagueConfig): Promise<ContractContainer> => {
+const series1Case = async (config: IEuroleagueConfig): Promise<ContractContainer> => {
     // Get the configurations for the ERC-721 tokens to be deployed.
     const series1cases_configs: IClancyERC721ContractConfig[] = config.ERC.Series1Cases
     // Create an empty object to hold the deployed ERC-721 tokens.
@@ -50,4 +50,4 @@ const deploy_series1_case = async (config: IEuroleagueConfig): Promise<ContractC
     return series1case_contracts
 }
 
-export default deploy_series1_case
+export default series1Case

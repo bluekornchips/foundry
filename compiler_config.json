@@ -29,7 +29,8 @@
 			"openzeppelin-contracts/=lib/openzeppelin-contracts/",
 			"euroleague=src/euroleague/",
 			"clancy/=src/clancy/",
-			"clancy-test=test/clancy/"
+			"clancy-test=test/clancy/",
+			"ethernaut/=src/ethernaut/"
 		]
 	}
 }

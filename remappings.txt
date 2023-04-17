@@ -3,3 +3,4 @@ euroleague=src/euroleague/
 clancy/=src/clancy/
 test-helpers/=test/helpers/
 misc/=src/misc/
+ethernaut/=src/ethernaut/

@@ -7,6 +7,11 @@ import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
 import {IClancyERC721Airdroppable} from "./IClancyERC721Airdroppable.sol";
 
 contract ClancyERC721Airdroppable is IClancyERC721Airdroppable, ClancyERC721 {
+    using Counters for Counters.Counter;
+
+    /// @dev A counter for tracking the token ID
+    Counters.Counter internal _airDropCounter;
+
     /**
      * @notice Constructor to initialize the ClancyERC721Airdroppable contract
      * @param name_ The name of the ERC721 token
@@ -26,7 +31,7 @@ contract ClancyERC721Airdroppable is IClancyERC721Airdroppable, ClancyERC721 {
      * @dev Can only be called by the owner of the contract
      * @param airdrops_ An array of Airdrop structs containing the recipient address and token count
      */
-    function deliverDrop(Airdrop[] memory airdrops_) external onlyOwner {
+    function deliverDrop(Airdrop[] memory airdrops_) public onlyOwner {
         // Check that the amount of tokens to be minted is not greater than the max supply
         uint256 tokenCount = 0;
         for (uint256 i = 0; i < airdrops_.length; i++) {
@@ -50,7 +55,11 @@ contract ClancyERC721Airdroppable is IClancyERC721Airdroppable, ClancyERC721 {
                 airdropped[i].tokenIds[j] = (uint64(tokenId));
             }
         }
+        _airDropCounter.increment();
+        emit AirdropDelivered(uint8(_airDropCounter.current()), airdropped);
+    }
 
-        emit AirdropDelivered(airdropped);
+    function getAirdropCount() public view returns (uint8) {
+        return uint8(_airDropCounter.current());
     }
 }

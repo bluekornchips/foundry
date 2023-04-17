@@ -1,7 +1,7 @@
-import MarketplaceERC721Escrow_v1 from "./MarketplaceERC721Escrow_v1";
+import EscrowERC721_v1 from "./EscrowERC721_v1"
 
 const escrow = {
-    MarketplaceERC721Escrow_v1
+    EscrowERC721_v1
 }
 
 export default escrow

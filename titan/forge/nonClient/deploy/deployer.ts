@@ -6,6 +6,7 @@ import utility from "../../../utility";
 import { ContractContainer } from "../../../types";
 import { ICollectionConfigs } from "../../../interfaces";
 import { VALID_CONTRACTS } from "../../../config/constants";
+import marketplace from "./marketplace";
 
 /**
  * Deploys the specified contracts and returns a container object with the deployed contracts.
@@ -14,8 +15,8 @@ import { VALID_CONTRACTS } from "../../../config/constants";
  * @returns A container object with the deployed contracts.
  * @throws An error if the deployment of one of the contracts fails.
  */
-const deploy = async (contract_names: string[]): Promise<ContractContainer> => {
-    utility.printFancy("Contract Deployment", true, 1)
+const deployer = async (contract_names: string[]): Promise<ContractContainer> => {
+    utility.printFancy(`Contract Deployment - ${contract_names.length} Contracts`, true, 1)
 
     const contracts: ContractContainer = {}
     for (const contract_name of contract_names) {
@@ -43,10 +44,22 @@ const deploy_contract = async (contract_name: string): Promise<ethers.Contract> 
     const contract_configs: ICollectionConfigs = utility.getCollectionConfigs();
     try {
         switch (contract_name) {
-            case VALID_CONTRACTS.MarketplaceERC721Escrow_v1:
-                const name: string = contract_configs.Clancy.Marketplace.MarketplaceERC721Escrow.name;
-                const marketplace: ethers.Contract = await collections.clancy.marketplace.escrow.MarketplaceERC721Escrow_v1.deploy(name);
-                return marketplace;
+            /**
+             * Marketplace
+             */
+            // Escrow
+            case VALID_CONTRACTS.EscrowERC721_v1:
+                const escrowERC721_name: string = contract_configs.Clancy.Marketplace.Escrow.name;
+                const marketplaceContract: ethers.Contract = await collections.clancy.marketplace.escrow.EscrowERC721_v1.deploy(escrowERC721_name);
+                return marketplaceContract;
+            // Offers
+            case VALID_CONTRACTS.OffersERC721_v1:
+                const offersERC721_v1 = await marketplace.OffersERC721_v1();
+                return offersERC721_v1;
+
+            /**
+             * ERC721
+             */
             case VALID_CONTRACTS.ClancyERC721:
                 const clancyERC721Args = contract_configs.Clancy.ERC.ClancyERC721.cargs;
                 const artifact = utility.artifactFinder(VALID_CONTRACTS.ClancyERC721);
@@ -67,4 +80,5 @@ const deploy_contract = async (contract_name: string): Promise<ethers.Contract> 
     }
 }
 
-export default deploy;
+
+export default deployer;

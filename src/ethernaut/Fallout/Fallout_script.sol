@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "ethernaut/Fallout.sol";
 import "forge-std/Test.sol";
-import "./EthernautTestHelpers.sol";
 
-contract Fallout_Test is Test, EthernautTestHelpers {
+import "ethernaut/Fallout/Fallout.sol";
+import "ethernaut/EthernautTestHelpers.sol";
+
+contract Fallout_script is Test, EthernautTestHelpers {
     Fallout instance;
     uint256 PKEY;
 

@@ -49,9 +49,8 @@ const deploy_contract = async (contract_name: string): Promise<ethers.Contract> 
              */
             // Escrow
             case VALID_CONTRACTS.EscrowERC721_v1:
-                const escrowERC721_name: string = contract_configs.Clancy.Marketplace.Escrow.name;
-                const marketplaceContract: ethers.Contract = await collections.clancy.marketplace.escrow.EscrowERC721_v1.deploy(escrowERC721_name);
-                return marketplaceContract;
+                const escrowERC721_v1 = await marketplace.EscrowERC721_v1();
+                return escrowERC721_v1;
             // Offers
             case VALID_CONTRACTS.OffersERC721_v1:
                 const offersERC721_v1 = await marketplace.OffersERC721_v1();
@@ -65,10 +64,6 @@ const deploy_contract = async (contract_name: string): Promise<ethers.Contract> 
                 const artifact = utility.artifactFinder(VALID_CONTRACTS.ClancyERC721);
                 const erc721: ethers.Contract = await collections.clancy.ERC.ClancyERC721.deploy(clancyERC721Args.name, clancyERC721Args.symbol, clancyERC721Args.max_supply, clancyERC721Args.uri, 0, artifact);
                 return erc721;
-            case VALID_CONTRACTS.Reels:
-                const reelsArgs = contract_configs.Euroleague.ERC.Reels.cargs;
-                const reels = await collections.euroleague.series1.reels.deploy(reelsArgs.name, reelsArgs.symbol, reelsArgs.max_supply, reelsArgs.uri, 0)
-                return reels;
             default:
                 const message = `Contract ${contract_name} not found`;
                 Ducky.Error(__filename, "deploy_contract", message);

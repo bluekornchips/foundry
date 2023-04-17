@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "ethernaut/Token/Token.sol";
 import "forge-std/Test.sol";
-import "./EthernautTestHelpers.sol";
 
-contract Telephone_Test is Test, EthernautTestHelpers {
+import "ethernaut/EthernautTestHelpers.sol";
+import "ethernaut/Token/Token.sol";
+
+contract Token_script is Test, EthernautTestHelpers {
     function run() public {
         uint256 PKEY = vm.envUint("DEPLOYMENT_KEY");
         vm.startBroadcast(PKEY);

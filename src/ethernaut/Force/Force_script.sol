@@ -4,9 +4,9 @@ pragma solidity ^0.8.17;
 import "ethernaut/Force/ForceAttack.sol";
 import "ethernaut/Force/Force.sol";
 import "forge-std/Test.sol";
-import "./EthernautTestHelpers.sol";
+import "ethernaut/EthernautTestHelpers.sol";
 
-contract Telephone_Test is Test, EthernautTestHelpers {
+contract Force_script is Test, EthernautTestHelpers {
     function run() public {
         uint256 PKEY = vm.envUint("DEPLOYMENT_KEY");
         vm.startBroadcast(PKEY);

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "ethernaut/Vault/Vault.sol";
 import "forge-std/Test.sol";
-import "./EthernautTestHelpers.sol";
+
+import "ethernaut/Vault/Vault.sol";
+import "ethernaut/EthernautTestHelpers.sol";
 
 contract Telephone_Test is Test, EthernautTestHelpers {
     function run() public {

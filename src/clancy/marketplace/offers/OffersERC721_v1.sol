@@ -99,12 +99,14 @@ contract OffersERC721_v1 is
             tokenId
         );
 
-        emit OfferAccepted({
+        emit OfferEvent({
+            offerType: "Accept",
             itemId: itemId,
             contractAddress: contractAddress_,
             tokenId: tokenId,
+            tokenOwner: msg.sender,
             offeror: offeror,
-            tokenOwner: msg.sender
+            value: offerAmount
         });
     }
 
@@ -132,11 +134,14 @@ contract OffersERC721_v1 is
             );
         }
 
-        emit OfferCancelled({
+        emit OfferEvent({
+            offerType: "Cancel",
             itemId: item.itemId,
             contractAddress: contractAddress_,
             tokenId: tokenId,
-            offeror: item.offeror
+            tokenOwner: IERC721(contractAddress_).ownerOf(tokenId),
+            offeror: item.offeror,
+            value: item.offerAmount
         });
 
         delete _items[contractAddress_][tokenId];
@@ -174,15 +179,17 @@ contract OffersERC721_v1 is
         _items[contractAddress_][tokenId] = OfferItem({
             itemId: _itemIdCounter.current(),
             offerAmount: value,
-            offeror: msg.sender,
-            tokenOwner: ownerOfToken
+            offeror: msg.sender
         });
 
-        emit OfferCreated({
+        emit OfferEvent({
+            offerType: "New",
             itemId: _itemIdCounter.current(),
             contractAddress: contractAddress_,
             tokenId: tokenId,
-            offeror: msg.sender
+            tokenOwner: ownerOfToken,
+            offeror: msg.sender,
+            value: value
         });
     }
 
@@ -213,11 +220,14 @@ contract OffersERC721_v1 is
             revert TransferFailed("OffersERC721_v1: Outbid refund failed.");
         }
 
-        emit OfferOutbid({
+        emit OfferEvent({
+            offerType: "Outbid",
             itemId: existingItem.itemId,
             contractAddress: contractAddress_,
             tokenId: tokenId,
-            offeror: newOfferor
+            tokenOwner: IERC721(contractAddress_).ownerOf(tokenId),
+            offeror: newOfferor,
+            value: value
         });
     }
 }

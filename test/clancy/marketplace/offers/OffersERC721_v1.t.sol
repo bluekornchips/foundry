@@ -73,12 +73,15 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.stopPrank();
 
-        vm.expectEmit(true, true, true, false, address(offers));
-        emit OfferCreated({
+        vm.expectEmit(true, true, true, true, address(offers));
+        emit OfferEvent({
+            offerType: "New",
             itemId: itemId + 1,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
-            offeror: address(this)
+            tokenOwner: TEST_WALLET_MAIN,
+            offeror: address(this),
+            value: 1 ether
         });
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
     }
@@ -115,12 +118,15 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.startPrank(TEST_WALLET_1);
 
-        vm.expectEmit(true, true, true, false, address(offers));
-        emit OfferOutbid({
+        vm.expectEmit(true, true, true, true, address(offers));
+        emit OfferEvent({
+            offerType: "Outbid",
             itemId: itemId,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
-            offeror: TEST_WALLET_1
+            tokenOwner: TEST_WALLET_MAIN,
+            offeror: TEST_WALLET_1,
+            value: 2 ether
         });
         offers.createOffer{value: 2 ether}(address(clancyERC721), tokenId);
 
@@ -192,13 +198,15 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         IERC721(clancyERC721).approve(address(offers), tokenId);
 
-        vm.expectEmit(true, true, true, false, address(offers));
-        emit OfferAccepted({
+        vm.expectEmit(true, true, true, true, address(offers));
+        emit OfferEvent({
+            offerType: "Accept",
             itemId: itemId,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
+            tokenOwner: TEST_WALLET_MAIN,
             offeror: TEST_WALLET_1,
-            tokenOwner: TEST_WALLET_MAIN
+            value: 1 ether
         });
         offers.acceptOffer(address(clancyERC721), tokenId);
         console.log("sellerBalanceAfter", TEST_WALLET_MAIN.balance);
@@ -214,7 +222,6 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         assertEq(offerItem.itemId, 0);
         assertEq(offerItem.offeror, address(0));
         assertEq(offerItem.offerAmount, 0);
-        assertEq(offerItem.tokenOwner, address(0));
     }
 
     //#endregion acceptOffer
@@ -285,12 +292,15 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         vm.stopPrank();
 
         uint256 itemId = offers.getItemIdCounter();
-        vm.expectEmit(true, true, true, false, address(offers));
-        emit OfferCancelled({
+        vm.expectEmit(true, true, true, true, address(offers));
+        emit OfferEvent({
+            offerType: "Cancel",
             itemId: itemId,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
-            offeror: TEST_WALLET_1
+            tokenOwner: TEST_WALLET_MAIN,
+            offeror: TEST_WALLET_1,
+            value: 1 ether
         });
         offers.cancelOffer(address(clancyERC721), tokenId);
 
@@ -332,7 +342,6 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         assertEq(offer.itemId, itemId);
         assertEq(offer.offerAmount, 1 ether);
         assertEq(offer.offeror, address(this));
-        assertEq(offer.tokenOwner, address(TEST_WALLET_MAIN));
     }
 
     //#endregion

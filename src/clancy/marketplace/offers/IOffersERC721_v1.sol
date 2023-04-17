@@ -11,39 +11,19 @@ interface IOffersERC721_v1 {
     error OfferorCannotBeTokenOwner();
     error TransferFailed(string);
 
-    event OfferCreated(
+    event OfferEvent(
+        string offerType,
         uint256 indexed itemId,
         address indexed contractAddress,
         uint256 indexed tokenId,
-        address offeror
-    );
-
-    event OfferOutbid(
-        uint256 indexed itemId,
-        address indexed contractAddress,
-        uint256 indexed tokenId,
-        address offeror
-    );
-
-    event OfferCancelled(
-        uint256 indexed itemId,
-        address indexed contractAddress,
-        uint256 indexed tokenId,
-        address offeror
-    );
-
-    event OfferAccepted(
-        uint256 indexed itemId,
-        address indexed contractAddress,
-        uint256 indexed tokenId,
+        address tokenOwner,
         address offeror,
-        address tokenOwner
+        uint256 value
     );
 
     struct OfferItem {
         uint256 itemId;
         uint256 offerAmount;
         address offeror;
-        address tokenOwner;
     }
 }

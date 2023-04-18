@@ -1,7 +1,8 @@
-import { execSync } from 'child_process';
 import yargs from 'yargs';
-import pull from './pull';
+
 import generate from './generate';
+import pull from './pull';
+import { execSync } from 'child_process';
 import { VALID_CLIENTS } from '../../config/constants';
 
 const argv = yargs.options({
@@ -20,14 +21,6 @@ const argv = yargs.options({
         demandOption: true,
         requiresArg: true,
     },
-    env: {
-        alias: 'e',
-        description: 'The environment to be used',
-        type: 'string',
-        demandOption: true,
-        requiresArg: true,
-        choices: ['dev', 'qa', 'uat']
-    }
 }).argv;
 
 const execute_command = (command: string) => {
@@ -42,8 +35,8 @@ const execute_command = (command: string) => {
 const main = async () => {
     const input_args = await argv
     let command = ""
-    if (input_args.prisma === 'pull') command = pull(input_args.env, input_args.schema);
-    if (input_args.prisma === 'generate') command = generate(input_args.env, input_args.schema);
+    if (input_args.prisma === 'pull') command = pull(input_args.schema);
+    if (input_args.prisma === 'generate') command = generate(input_args.schema);
     execute_command(command);
 }
 

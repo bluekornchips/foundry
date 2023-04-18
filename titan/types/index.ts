@@ -1,3 +1,7 @@
+import { contracts_db } from './prisma';
+
+export * from './prisma'
+
 import { ethers } from "ethers"
 
 /**

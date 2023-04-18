@@ -1,6 +1,6 @@
-import { contracts, PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import getActiveEnv from "../../forge/env";
+import { activeClient } from "../../prisma/prismaClient";
+import { contracts_db } from "../../types";
 
 /**
  * @dev Retrieves the specified contract from the contracts table in PostgreSQL
@@ -8,8 +8,8 @@ const prisma = new PrismaClient();
  * @return A Promise resolving to the retrieved contract
  * @throws If the contract cannot be found in PostgreSQL
  */
-const get = async (contract_name: string): Promise<contracts> => {
-    const contract_response = await prisma.contracts.findUnique({
+const get = async (contract_name: string): Promise<contracts_db> => {
+    const contract_response = await activeClient[`${getActiveEnv().env}_contracts`].findUnique({
         where: {
             contract_name: contract_name
         }

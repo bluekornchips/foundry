@@ -1,24 +1,21 @@
 import { ethers } from "ethers";
+
 import Ducky from "../../utility/logging/ducky";
+import getActiveEnv from "../../forge/env";
 import { activeClient } from "../../prisma/prismaClient";
-import { contracts } from "@prisma/client";
-
-
+import { contracts_db } from "../../types";
 
 /**
  * Upserts a contract to the PostgreSQL database.
- * 
  * @param contract_name The name of the contract.
- * @param contract The ethers.js contract instance.
- * @param artifact The contract artifact.
- * 
- * @returns A Promise that resolves to the upserted contract.
+ * @param contract      The ethers.js contract instance.
+ * @param artifact      The contract artifact.
+ * @returns             A Promise that resolves to the upserted contract.
 */
-const upsert = async (contract_name: string, contract: ethers.Contract, odoo_token_id: number, artifact: any): Promise<contracts> => {
+const upsert = async (contract_name: string, contract: ethers.Contract, odoo_token_id: number, artifact: any): Promise<contracts_db> => {
     const contract_address = await contract.getAddress();
-    const prisma = activeClient;
     try {
-        const contract_response: contracts = await prisma.contracts.upsert({
+        const contract_response: contracts_db = await activeClient[`${getActiveEnv().env}_contracts`].upsert({
             create: {
                 contract_name: contract_name,
                 contract_address: contract_address,
@@ -45,6 +42,5 @@ const upsert = async (contract_name: string, contract: ethers.Contract, odoo_tok
         throw new Error(error.message);
     }
 }
-
 
 export default upsert;

@@ -54,7 +54,7 @@ const main = async () => {
     const input_args = await argv
     if (input_args.client !== undefined) {
         setActiveEnv(input_args.client, input_args.client_env)
-        setPrismaClient(input_args.client, input_args.client_env)
+        setPrismaClient(input_args.client)
         if (input_args.deploy !== undefined) {
             await nonClient.main(input_args)
         } else {

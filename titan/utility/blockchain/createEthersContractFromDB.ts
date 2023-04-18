@@ -1,12 +1,10 @@
 import { ethers } from "ethers";
 
-import { contracts } from "@prisma/client";
-
 import getProvider from "./getProvider";
 import Ducky from "../logging/ducky";
+import { contracts_db } from "../../types";
 
-const createEthersContractFromDB = async (contract: contracts, wallet: any = undefined): Promise<ethers.Contract> => {
-
+const createEthersContractFromDB = async (contract: contracts_db, wallet: any = undefined): Promise<ethers.Contract> => {
     let artifact: any = JSON.parse(contract.contract_artifact)
 
     try {

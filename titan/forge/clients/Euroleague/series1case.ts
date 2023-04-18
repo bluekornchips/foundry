@@ -28,7 +28,7 @@ const series1Case = async (config: IEuroleagueConfig): Promise<ContractContainer
             }
 
             // Get the odoo token id for the ERC-721 token.
-            const odoo_token_ids = getActiveEnv().euroleague.odoo_token_ids
+            const odoo_token_ids = getActiveEnv().odoo_token_ids
             const odoo_token_id = odoo_token_ids[name.toLocaleUpperCase()]
             if (!odoo_token_id) {
                 throw new Error(`No odoo token id found for ${name}`)

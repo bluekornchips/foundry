@@ -12,11 +12,12 @@
 	"license": "ISC",
 	"dependencies": {
 		"@prisma/client": "^4.9.0",
+		"@remix-project/remixd": "^0.6.8",
 		"@types/node": "^18.15.10",
 		"@types/yargs": "^17.0.23",
 		"dotenv": "^16.0.3",
 		"ethers": "^6.2.2",
-		"@remix-project/remixd": "^0.6.8",
+		"papaparse": "^5.4.1",
 		"yargs": "^17.7.1"
 	},
 	"devDependencies": {

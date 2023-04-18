@@ -1,31 +1,34 @@
-import { PrismaClient } from '@prisma/client'
-import Ducky from '../utility/logging/ducky'
-import getActiveEnv from '../forge/env'
+import { PrismaClient } from '@prisma/client';
+import Ducky from '../utility/logging/ducky/ducky';
+import getActiveEnv from '../forge/env';
 
 
+let activeClient: PrismaClient;
+let prismaEuroleague: PrismaClient;
 
-let activeClient: PrismaClient
-let prismaEuroleague: PrismaClient
-
-const setPrismaClient = (db: string, env: string) => {
-    const envVarName = `DATABASE_URL_${env.toLocaleUpperCase()}_${db.toUpperCase()}`
+/**
+ * Defines a Prisma client for a given database and environment and exports it.
+ * @param db The name of the database to connect to.
+ * @returns The Prisma client object for the specified database and environment.
+ */
+const setPrismaClient = (db: string) => {
+    const envVarName = `DATABASE_URL_${db.toUpperCase()}`;
 
     if (!process.env[envVarName]) {
-        Ducky.Critical(__filename, `setPrismaClient`, `No database url found for ${db}`)
-    }
-    else if (db === 'euroleague') {
+        Ducky.Critical(__filename, `setPrismaClient`, `No database URL found for ${db}`);
+    } else if (db === 'euroleague') {
         if (!prismaEuroleague) {
             prismaEuroleague = new PrismaClient({
                 datasources: {
                     db: {
-                        url: getActiveEnv().euroleague.database_url
-                    }
-                }
-            })
+                        url: getActiveEnv().database_url,
+                    },
+                },
+            });
         }
-        Ducky.Debug(__filename, `setPrismaClient`, `Set prisma client for ${db}`)
-        activeClient = prismaEuroleague
+        activeClient = prismaEuroleague;
     }
-}
 
-export { activeClient, setPrismaClient }
+};
+
+export { activeClient, setPrismaClient };

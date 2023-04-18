@@ -7,6 +7,7 @@ export const VALID_ENVS = {
     dev: "dev",
     qa: "qa",
     uat: "uat",
+    prod: "prod",
 }
 export const DATABASE_READONLY = false;
 
@@ -15,6 +16,9 @@ export const DATABASE_URL = {
         DEV: process.env.DATABASE_URL_DEV_EUROLEAGUE || "",
         QA: process.env.DATABASE_URL_QA_EUROLEAGUE || "",
         UAT: process.env.DATABASE_URL_UAT_EUROLEAGUE || "",
+    },
+    BENFICA: {
+        PROD: process.env.DATABASE_URL_PROD_BENFICA || "",
     }
 }
 
@@ -42,6 +46,7 @@ export const VALID_CONTRACTS = {
 
 export const VALID_CLIENTS = {
     euroleague: "euroleague",
+    benfica: "benfica",
 }
 
 // # Titan
@@ -49,25 +54,33 @@ export const COLLECTION_CONFIG_FILE_NAME = "collection-config.json"
 
 // # Odoo
 export const ODOO_PACK_INFO = {
-    DEV: {
-        CLUTCH: 13,
-        CRUNCHTIME: 11,
-        HEATINUP: 9,
-        SLAMPACKED: 1357,
-        SWISHIN: 12,
+    EUROLEAGUE: {
+        DEV: {
+            CLUTCH: 13,
+            CRUNCHTIME: 11,
+            HEATINUP: 9,
+            SLAMPACKED: 1357,
+            SWISHIN: 12,
+        },
+        QA: {
+            CLUTCH: 8953,
+            CRUNCHTIME: 8954,
+            HEATINUP: 8955,
+            SLAMPACKED: 8956,
+            SWISHIN: 8957,
+        },
+        UAT: {
+            CLUTCH: 53,
+            CRUNCHTIME: 54,
+            HEATINUP: 55,
+            SLAMPACKED: 56,
+            SWISHIN: 57,
+        }
     },
-    QA: {
-        CLUTCH: 8953,
-        CRUNCHTIME: 8954,
-        HEATINUP: 8955,
-        SLAMPACKED: 8956,
-        SWISHIN: 8957,
-    },
-    UAT: {
-        CLUTCH: 53,
-        CRUNCHTIME: 54,
-        HEATINUP: 55,
-        SLAMPACKED: 56,
-        SWISHIN: 57,
+    BENFICA: {
+        PROD: {
+            PACKS: 1,
+            REELS: 2
+        }
     }
 }

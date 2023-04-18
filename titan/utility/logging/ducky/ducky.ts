@@ -1,4 +1,4 @@
-import { log_history } from "@prisma/client";
+// import { log_history } from "@prisma/client";
 
 import { DuckyTypeEnum } from "./enum";
 import dateHelper from "./dateHelper";

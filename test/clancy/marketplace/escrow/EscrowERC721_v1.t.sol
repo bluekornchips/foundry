@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 
 import {IEscrowERC721_v1_Test} from "./IEscrowERC721_v1.t.sol";
 
-import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+import {ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
 import {IEscrowERC721_v1, EscrowERC721_v1} from "clancy/marketplace/escrow/EscrowERC721_v1.sol";
 import {IClancyMarketplaceERC721_v1, ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";
 

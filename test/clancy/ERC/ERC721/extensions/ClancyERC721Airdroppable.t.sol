@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
-import {ClancyERC721Airdroppable, IClancyERC721Airdroppable} from "clancy/ERC/extensions/ClancyERC721Airdroppable.sol";
+import {ClancyERC721Airdroppable, IClancyERC721Airdroppable} from "clancy/ERC/ERC721/extensions/ClancyERC721Airdroppable.sol";
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
 
 import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";

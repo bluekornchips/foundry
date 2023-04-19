@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 
-import {ClancyERC721StorageURI} from "clancy/ERC/extensions/ClancyERC721StorageURI.sol";
+import {ClancyERC721StorageURI} from "clancy/ERC/ERC721/extensions/ClancyERC721StorageURI.sol";
 
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
 import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";

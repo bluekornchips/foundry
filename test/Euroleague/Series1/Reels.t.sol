@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
-import {IClancyERC721} from "clancy/ERC/IClancyERC721.sol";
+import {IClancyERC721} from "clancy/ERC/ERC721/IClancyERC721.sol";
 
 import {Series1Case} from "euroleague/series1/Series1Case.sol";
 import {IReels, Reels} from "euroleague/series1/Reels.sol";

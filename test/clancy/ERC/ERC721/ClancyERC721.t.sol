@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import "forge-std/Test.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
-import {IClancyERC721, ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+import {IClancyERC721, ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
 
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
 import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";

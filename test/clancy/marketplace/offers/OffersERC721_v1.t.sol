@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
-import {IClancyERC721, ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+import {IClancyERC721, ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
 import {IOffersERC721_v1, OffersERC721_v1} from "clancy/marketplace/offers/OffersERC721_v1.sol";
 import {IOffersERC721_v1_Test} from "./IOffersERC721_v1.t.sol";
 import {IClancyMarketplaceERC721_v1, ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";

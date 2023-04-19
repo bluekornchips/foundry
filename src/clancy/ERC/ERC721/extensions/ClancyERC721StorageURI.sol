@@ -5,7 +5,7 @@ import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import {ERC721URIStorage} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {ERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
-import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+import {ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
 
 contract ClancyERC721StorageURI is ClancyERC721, ERC721URIStorage {
     constructor(

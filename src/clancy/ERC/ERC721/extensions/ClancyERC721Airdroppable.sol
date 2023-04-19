@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
 
-import {ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+import {ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
 import {IClancyERC721Airdroppable} from "./IClancyERC721Airdroppable.sol";
 
 contract ClancyERC721Airdroppable is IClancyERC721Airdroppable, ClancyERC721 {

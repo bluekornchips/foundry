@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
 
-import {ClancyERC721Airdroppable} from "clancy/ERC/extensions/ClancyERC721Airdroppable.sol";
+import {ClancyERC721Airdroppable} from "clancy/ERC/ERC721/extensions/ClancyERC721Airdroppable.sol";
 
 import {Reels} from "./Reels.sol";
 import {ISeries1Case} from "./ISeries1Case.sol";

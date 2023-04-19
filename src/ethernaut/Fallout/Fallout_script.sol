@@ -17,10 +17,6 @@ contract Fallout_script is Test, EthernautTestHelpers {
     }
 
     function run() public {
-        test_nothing();
-    }
-
-    function test_nothing() public {
         vm.startBroadcast(PKEY);
 
         address ownerOf = payable(instance.owner());

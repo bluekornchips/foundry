@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 
-import {ClancyERC20} from "clancy/ERC/ClancyERC20.sol";
+import {ClancyERC20} from "clancy/ERC/ERC20/ClancyERC20.sol";
 
 import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
 
@@ -163,6 +163,7 @@ contract ClancyERC20_Test is Test, TEST_CONSTANTS {
         vm.startPrank(TEST_WALLET_MAIN);
 
         clancyERC20.mint(SAMPLE_SIZE);
+        clancyERC20.approve(address(this), SAMPLE_SIZE);
         vm.expectRevert();
         clancyERC20.transfer(TEST_WALLET_1, SAMPLE_SIZE * 2);
 

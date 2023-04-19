@@ -7,7 +7,7 @@ import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import {IERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 
-import {IClancyERC721, ClancyERC721} from "clancy/ERC/ClancyERC721.sol";
+import {IClancyERC721, ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
 import {ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";
 
 import {IEscrowERC721_v1} from "./IEscrowERC721_v1.sol";

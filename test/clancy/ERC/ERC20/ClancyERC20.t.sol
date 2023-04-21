@@ -5,9 +5,9 @@ import "forge-std/Test.sol";
 
 import {ClancyERC20} from "clancy/ERC/ERC20/ClancyERC20.sol";
 
-import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
+import {Titan} from "test-helpers/Titan/Titan.sol";
 
-contract ClancyERC20_Test is Test, TEST_CONSTANTS {
+contract ClancyERC20_Test is Test, Titan {
     ClancyERC20 clancyERC20;
     uint256 public constant INITIAL_SUPPLY = 0;
     uint256 public constant CAP = 1_000_000;
@@ -49,65 +49,52 @@ contract ClancyERC20_Test is Test, TEST_CONSTANTS {
     }
 
     function test_Approve() public {
-        assertTrue(clancyERC20.approve(TEST_WALLET_MAIN, SAMPLE_SIZE));
-        assertEq(
-            clancyERC20.allowance(address(this), TEST_WALLET_MAIN),
-            SAMPLE_SIZE
-        );
+        assertTrue(clancyERC20.approve(w_main, SAMPLE_SIZE));
+        assertEq(clancyERC20.allowance(address(this), w_main), SAMPLE_SIZE);
     }
 
     function test_IncreaseAllowance() external {
-        assertEq(clancyERC20.allowance(address(this), TEST_WALLET_MAIN), 0);
-        assertTrue(
-            clancyERC20.increaseAllowance(TEST_WALLET_MAIN, SAMPLE_SIZE)
-        );
-        assertEq(
-            clancyERC20.allowance(address(this), TEST_WALLET_MAIN),
-            SAMPLE_SIZE
-        );
+        assertEq(clancyERC20.allowance(address(this), w_main), 0);
+        assertTrue(clancyERC20.increaseAllowance(w_main, SAMPLE_SIZE));
+        assertEq(clancyERC20.allowance(address(this), w_main), SAMPLE_SIZE);
     }
 
     function test_DecreaseAllowance() external {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         assertTrue(clancyERC20.approve(address(this), SAMPLE_SIZE));
         assertTrue(clancyERC20.decreaseAllowance(address(this), 1));
-        assertEq(
-            clancyERC20.allowance(TEST_WALLET_MAIN, address(this)),
-            SAMPLE_SIZE - 1
-        );
+        assertEq(clancyERC20.allowance(w_main, address(this)), SAMPLE_SIZE - 1);
 
         vm.stopPrank();
     }
 
     function test_Transfer() external {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         clancyERC20.mint(SAMPLE_SIZE);
-        clancyERC20.transfer(TEST_WALLET_1, SAMPLE_SIZE);
-        assertEq(clancyERC20.balanceOf(TEST_WALLET_1), SAMPLE_SIZE);
-        assertEq(clancyERC20.balanceOf(TEST_WALLET_MAIN), 0);
+        clancyERC20.transfer(w_one, SAMPLE_SIZE);
+        assertEq(clancyERC20.balanceOf(w_one), SAMPLE_SIZE);
+        assertEq(clancyERC20.balanceOf(w_main), 0);
 
         vm.stopPrank();
     }
 
     function test_TransferFrom() external {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         clancyERC20.mint(SAMPLE_SIZE);
         clancyERC20.approve(address(this), SAMPLE_SIZE);
 
         vm.stopPrank();
 
-        assertTrue(
-            clancyERC20.transferFrom(TEST_WALLET_MAIN, TEST_WALLET_1, 50)
-        );
+        assertTrue(clancyERC20.transferFrom(w_main, w_one, 50));
         assertEq(
-            clancyERC20.allowance(TEST_WALLET_MAIN, address(this)),
+            clancyERC20.allowance(w_main, address(this)),
             SAMPLE_SIZE - 50
         );
-        assertEq(clancyERC20.balanceOf(TEST_WALLET_MAIN), SAMPLE_SIZE - 50);
-        assertEq(clancyERC20.balanceOf(TEST_WALLET_1), 50);
+        assertEq(clancyERC20.balanceOf(w_main), SAMPLE_SIZE - 50);
+        assertEq(clancyERC20.balanceOf(w_one), 50);
     }
 
     function test_MintToZero_ShouldFail() external {
@@ -123,7 +110,7 @@ contract ClancyERC20_Test is Test, TEST_CONSTANTS {
     }
 
     function test_BurnInsufficientBalance_ShouldFail() external {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         clancyERC20.mint(SAMPLE_SIZE);
         vm.expectRevert("ERC20: burn amount exceeds balance");
@@ -140,11 +127,11 @@ contract ClancyERC20_Test is Test, TEST_CONSTANTS {
     function test_ApproveFromZeroAddress_ShouldFail() external {
         vm.prank(address(0));
         vm.expectRevert();
-        clancyERC20.approve(TEST_WALLET_MAIN, SAMPLE_SIZE);
+        clancyERC20.approve(w_main, SAMPLE_SIZE);
     }
 
     function test_TransferToZeroAddress_ShouldFail() external {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         clancyERC20.mint(SAMPLE_SIZE);
         vm.expectRevert();
@@ -156,33 +143,33 @@ contract ClancyERC20_Test is Test, TEST_CONSTANTS {
     function test_TransferFromZeroAddress_ShouldFail() external {
         vm.prank(address(0));
         vm.expectRevert("ERC20: transfer from the zero address");
-        clancyERC20.transfer(TEST_WALLET_MAIN, SAMPLE_SIZE);
+        clancyERC20.transfer(w_main, SAMPLE_SIZE);
     }
 
     function test_TransferInsufficientBalance_ShouldFail() external {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         clancyERC20.mint(SAMPLE_SIZE);
         clancyERC20.approve(address(this), SAMPLE_SIZE);
         vm.expectRevert();
-        clancyERC20.transfer(TEST_WALLET_1, SAMPLE_SIZE * 2);
+        clancyERC20.transfer(w_one, SAMPLE_SIZE * 2);
 
         vm.stopPrank();
     }
 
     function test_TransferFromInsufficientApprove() external {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         clancyERC20.mint(SAMPLE_SIZE);
         clancyERC20.approve(address(this), 1);
         vm.expectRevert("ERC20: insufficient allowance");
-        clancyERC20.transferFrom(TEST_WALLET_MAIN, TEST_WALLET_1, SAMPLE_SIZE);
+        clancyERC20.transferFrom(w_main, w_one, SAMPLE_SIZE);
 
         vm.stopPrank();
     }
 
     function test_TransferFromInsufficientBalance_ShouldFail() external {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         clancyERC20.mint(SAMPLE_SIZE - 1);
         clancyERC20.approve(address(this), SAMPLE_SIZE);
@@ -190,7 +177,7 @@ contract ClancyERC20_Test is Test, TEST_CONSTANTS {
         vm.stopPrank();
 
         vm.expectRevert("ERC20: transfer amount exceeds balance");
-        clancyERC20.transferFrom(TEST_WALLET_MAIN, TEST_WALLET_1, SAMPLE_SIZE);
+        clancyERC20.transferFrom(w_main, w_one, SAMPLE_SIZE);
     }
 
     function testFuzz_Mint(address to, uint256 amount) external {

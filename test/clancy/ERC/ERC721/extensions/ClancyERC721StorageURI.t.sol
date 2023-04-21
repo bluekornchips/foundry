@@ -6,12 +6,12 @@ import {Test} from "forge-std/Test.sol";
 import {ClancyERC721StorageURI} from "clancy/ERC/ERC721/extensions/ClancyERC721StorageURI.sol";
 
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
-import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
+import {Titan} from "test-helpers/Titan/Titan.sol";
 
 contract ClancyERC721StorageURI_Test is
     Test,
     ClancyERC721TestHelpers,
-    TEST_CONSTANTS
+    Titan
 {
     ClancyERC721StorageURI public clancyERC721StorageURI;
 

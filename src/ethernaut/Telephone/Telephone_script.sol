@@ -16,7 +16,7 @@ contract Telephone_script is Test, EthernautTestHelpers {
         TelephoneWrapper instance = new TelephoneWrapper();
         address ownerOfInstance = telephone.owner();
         console.log("Owner of instance: %s", ownerOfInstance);
-        instance.changeOwner(TEST_WALLET_MAIN);
+        instance.changeOwner(w_main);
         ownerOfInstance = telephone.owner();
         console.log("Owner of instance: %s", telephone.owner());
         vm.stopBroadcast();

@@ -36,20 +36,16 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         uint256 tokenId = mintAndApprove();
 
         uint256 itemId = escrow.createItem(address(tokensOne), tokenId);
-        escrow.createPurchase(
-            address(tokensOne),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(tokensOne), tokenId, address(w_main));
 
-        vm.prank(address(TEST_WALLET_MAIN));
+        vm.prank(address(w_main));
         escrow.claimItem(address(tokensOne), tokenId);
-        assertEq(tokensOne.ownerOf(tokenId), address(TEST_WALLET_MAIN));
+        assertEq(tokensOne.ownerOf(tokenId), address(w_main));
 
-        vm.prank(address(TEST_WALLET_MAIN));
+        vm.prank(address(w_main));
         tokensOne.approve(address(escrow), tokenId);
 
-        vm.prank(address(TEST_WALLET_MAIN));
+        vm.prank(address(w_main));
         itemId = escrow.createItem(address(tokensOne), tokenId);
 
         escrow.createPurchase(address(tokensOne), tokenId, address(this));
@@ -80,21 +76,21 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
             escrow.createPurchase(
                 address(tokensOne),
                 tokenIds[i],
-                address(TEST_WALLET_MAIN)
+                address(w_main)
             );
         }
 
         // Claim escrow_max_items items
         for (uint256 i = 0; i < escrow_max_items; i++) {
-            vm.prank(address(TEST_WALLET_MAIN));
+            vm.prank(address(w_main));
             escrow.claimItem(address(tokensOne), tokenIds[i]);
         }
 
         // List the same escrow_max_items items again
         for (uint256 i = 0; i < escrow_max_items; i++) {
-            vm.prank(address(TEST_WALLET_MAIN));
+            vm.prank(address(w_main));
             tokensOne.approve(address(escrow), tokenIds[i]);
-            vm.prank(address(TEST_WALLET_MAIN));
+            vm.prank(address(w_main));
             itemIds[i] = escrow.createItem(address(tokensOne), tokenIds[i]);
         }
 
@@ -119,25 +115,25 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
     //#region Multiple Contracts Tests
     function test_ListingOneTokenFromEitherContract_ShouldPass() public {
         // console.log("Escrow Address:%s", address(escrow));
-        uint256 tokensOne_tokenId = mintPrank(TEST_WALLET_MAIN, tokensOne);
-        uint256 tokensTwo_tokenId = mintPrank(TEST_WALLET_MAIN, tokensTwo);
+        uint256 tokensOne_tokenId = mintPrank(w_main, tokensOne);
+        uint256 tokensTwo_tokenId = mintPrank(w_main, tokensTwo);
 
         assertEq(
             IERC721(tokensOne).ownerOf(tokensOne_tokenId),
-            address(TEST_WALLET_MAIN)
+            address(w_main)
         );
         assertEq(
             IERC721(tokensTwo).ownerOf(tokensTwo_tokenId),
-            address(TEST_WALLET_MAIN)
+            address(w_main)
         );
 
-        approvePrank(TEST_WALLET_MAIN, tokensOne, tokensOne_tokenId);
-        approvePrank(TEST_WALLET_MAIN, tokensTwo, tokensTwo_tokenId);
+        approvePrank(w_main, tokensOne, tokensOne_tokenId);
+        approvePrank(w_main, tokensTwo, tokensTwo_tokenId);
 
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         escrow.createItem(address(tokensOne), tokensOne_tokenId);
 
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         escrow.createItem(address(tokensTwo), tokensTwo_tokenId);
 
         assertEq(
@@ -149,34 +145,28 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
             address(escrow)
         );
 
-        // Create a purchase for TEST_WALLET_1 for both tokens
+        // Create a purchase for w_one for both tokens
         escrow.createPurchase(
             address(tokensOne),
             tokensOne_tokenId,
-            address(TEST_WALLET_1)
+            address(w_one)
         );
 
         escrow.createPurchase(
             address(tokensTwo),
             tokensTwo_tokenId,
-            address(TEST_WALLET_1)
+            address(w_one)
         );
 
         // Claim both tokens
-        vm.prank(TEST_WALLET_1);
+        vm.prank(w_one);
         escrow.claimItem(address(tokensOne), tokensOne_tokenId);
-        vm.prank(TEST_WALLET_1);
+        vm.prank(w_one);
         escrow.claimItem(address(tokensTwo), tokensTwo_tokenId);
 
-        // Check that both tokens are owned by TEST_WALLET_1
-        assertEq(
-            IERC721(tokensOne).ownerOf(tokensOne_tokenId),
-            address(TEST_WALLET_1)
-        );
-        assertEq(
-            IERC721(tokensTwo).ownerOf(tokensTwo_tokenId),
-            address(TEST_WALLET_1)
-        );
+        // Check that both tokens are owned by w_one
+        assertEq(IERC721(tokensOne).ownerOf(tokensOne_tokenId), address(w_one));
+        assertEq(IERC721(tokensTwo).ownerOf(tokensTwo_tokenId), address(w_one));
     }
 
     //#endregion

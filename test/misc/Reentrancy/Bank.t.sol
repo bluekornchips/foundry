@@ -6,9 +6,9 @@ import "forge-std/Test.sol";
 import {Bank} from "misc/Reentrancy/Bank.sol";
 import {BankAttacker} from "misc/Reentrancy/BankAttacker.sol";
 
-import {TEST_CONSTANTS} from "test-helpers/TEST_CONSTANTS.sol";
+import {Titan} from "test-helpers/Titan/Titan.sol";
 
-contract Bank_Test is Test, TEST_CONSTANTS {
+contract Bank_Test is Test, Titan {
     Bank bank;
     BankAttacker bankAttacker;
 

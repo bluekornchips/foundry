@@ -24,6 +24,8 @@ contract FlashLoan is FlashLoanSimpleReceiverBase, ClancyPayable {
     ) public override returns (bool) {
         uint256 amountOwed = amount + premium;
         address initiator = initiator_;
+
+        // End Steps
         IERC20(asset).approve(address(POOL), amountOwed);
         return true;
     }
@@ -53,5 +55,11 @@ contract FlashLoan is FlashLoanSimpleReceiverBase, ClancyPayable {
 
     function getPriceOracle() public view returns (address) {
         return ADDRESSES_PROVIDER.getPriceOracle();
+    }
+
+    function getMaxFlashLoanAmount(
+        address _token
+    ) public view returns (uint256) {
+        return POOL.FLASHLOAN_PREMIUM_TO_PROTOCOL();
     }
 }

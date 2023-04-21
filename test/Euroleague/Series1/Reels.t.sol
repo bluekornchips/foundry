@@ -11,9 +11,9 @@ import {Series1Case} from "euroleague/series1/Series1Case.sol";
 import {IReels, Reels} from "euroleague/series1/Reels.sol";
 
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
-import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
+import {Titan} from "test-helpers/Titan/Titan.sol";
 
-contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
+contract Reels_Test is Test, ClancyERC721TestHelpers, Titan {
     using Strings for uint256;
 
     Reels public reels;
@@ -49,7 +49,7 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     }
 
     function test_setCaseContractAsNonOwner_ShouldRevert() public {
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         vm.expectRevert("Ownable: caller is not the owner");
         reels.setCaseContract(address(series1Case), true);
     }
@@ -61,7 +61,7 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
 
     function test_setCaseContract_AsEOA_ShouldRevert() public {
         vm.expectRevert(IReels.CaseContractInvalid.selector);
-        reels.setCaseContract(TEST_WALLET_MAIN, true);
+        reels.setCaseContract(w_main, true);
     }
 
     function test_setCaseContract_setExisingTrueToFalse_ShouldPass() public {
@@ -98,7 +98,7 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
 
     function test_mint_fromNonOwner_ShouldRevert() public {
         reels.setPublicMintStatus(true);
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         vm.expectRevert("Ownable: caller is not the owner");
         reels.mint();
     }

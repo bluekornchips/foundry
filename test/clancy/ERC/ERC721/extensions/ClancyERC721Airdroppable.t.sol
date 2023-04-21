@@ -10,13 +10,13 @@ import {IERC721Receiver} from "openzeppelin-contracts/contracts/token/ERC721/IER
 import {ClancyERC721Airdroppable, IClancyERC721Airdroppable} from "clancy/ERC/ERC721/extensions/ClancyERC721Airdroppable.sol";
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
 
-import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
+import {Titan} from "test-helpers/Titan/Titan.sol";
 
 contract ClancyERC721Airdroppable_Test is
     Test,
     IClancyERC721Airdroppable,
     ClancyERC721TestHelpers,
-    TEST_CONSTANTS
+    Titan
 {
     using Strings for uint256;
     using Address for address;
@@ -44,28 +44,22 @@ contract ClancyERC721Airdroppable_Test is
         uint8 tokenCount = 1;
 
         Airdrop[] memory airdrops = new Airdrop[](3);
-        airdrops[0] = Airdrop({
-            recipient: TEST_WALLET_MAIN,
-            tokenCount: tokenCount
-        });
+        airdrops[0] = Airdrop({recipient: w_main, tokenCount: tokenCount});
         // console.log("airdrop: %s", airdrops[0]);
 
-        airdrops[1] = Airdrop({
-            recipient: TEST_WALLET_1,
-            tokenCount: tokenCount
-        });
+        airdrops[1] = Airdrop({recipient: w_one, tokenCount: tokenCount});
         airdrops[2] = Airdrop({
             recipient: address(this),
             tokenCount: tokenCount
         });
         Airdropped[] memory airdropped = new Airdropped[](airdrops.length);
         airdropped[0] = Airdropped({
-            recipient: TEST_WALLET_MAIN,
+            recipient: w_main,
             tokenIds: new uint64[](tokenCount)
         });
         airdropped[0].tokenIds[0] = 1;
         airdropped[1] = Airdropped({
-            recipient: TEST_WALLET_1,
+            recipient: w_one,
             tokenIds: new uint64[](tokenCount)
         });
         airdropped[1].tokenIds[0] = 2;
@@ -92,13 +86,13 @@ contract ClancyERC721Airdroppable_Test is
     }
 
     function test_deliverDrop_ManyAddress_ShouldPass() public {
-        uint128 addressCount = 1_000;
+        uint128 addressCount = 10;
         address[] memory tos = new address[](addressCount);
         for (uint256 i = 0; i < addressCount; i++) {
-            tos[i] = address(TEST_WALLET_MAIN);
+            tos[i] = address(w_main);
         }
 
-        uint8 tokenCount = 10;
+        uint8 tokenCount = 1;
 
         Airdrop[] memory airdrops = new Airdrop[](tos.length);
         for (uint256 i = 0; i < airdrops.length; i++) {

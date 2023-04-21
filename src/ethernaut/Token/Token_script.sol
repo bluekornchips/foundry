@@ -11,11 +11,11 @@ contract Token_script is Test, EthernautTestHelpers {
         uint256 PKEY = vm.envUint("DEPLOYMENT_KEY");
         vm.startBroadcast(PKEY);
         Token token = Token(0x247877eE0Fcd33c127350735f197b6bB891D5494);
-        uint balance = token.balanceOf(TEST_WALLET_MAIN);
+        uint balance = token.balanceOf(w_main);
         console.log("Balance: %s", balance);
 
         token.transfer(address(this), 21);
-        balance = token.balanceOf(TEST_WALLET_MAIN);
+        balance = token.balanceOf(w_main);
         console.log("Balance: %s", balance);
         vm.stopBroadcast();
     }

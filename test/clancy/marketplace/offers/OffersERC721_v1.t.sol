@@ -15,7 +15,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     OffersERC721_v1 offers;
 
     function setUp() public {
-        vm.deal(TEST_WALLET_MAIN, 2 ether);
+        vm.deal(w_main, 2 ether);
 
         // ClancyERC721 Setup
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
@@ -66,7 +66,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     }
 
     function test_createOffer_ValidContract_ShouldPass() public {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
         uint256 itemId = offers.getItemIdCounter();
@@ -79,7 +79,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
             itemId: itemId + 1,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
-            tokenOwner: TEST_WALLET_MAIN,
+            tokenOwner: w_main,
             offeror: address(this),
             value: 1 ether
         });
@@ -91,7 +91,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     //#region outbidOffer
 
     function test_outbidOffer_ValueLTExistingOffer_ShouldFail() public {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
 
@@ -104,8 +104,8 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     }
 
     function test_outbidOffer_ValueGTExistingOffer_ShouldPass() public {
-        vm.deal(TEST_WALLET_1, 3 ether);
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.deal(w_one, 3 ether);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
 
@@ -116,7 +116,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         uint256 balanceBefore = address(this).balance;
         uint256 itemId = offers.getItemIdCounter();
 
-        vm.startPrank(TEST_WALLET_1);
+        vm.startPrank(w_one);
 
         vm.expectEmit(true, true, true, true, address(offers));
         emit OfferEvent({
@@ -124,8 +124,8 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
             itemId: itemId,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
-            tokenOwner: TEST_WALLET_MAIN,
-            offeror: TEST_WALLET_1,
+            tokenOwner: w_main,
+            offeror: w_one,
             value: 2 ether
         });
         offers.createOffer{value: 2 ether}(address(clancyERC721), tokenId);
@@ -134,7 +134,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         uint256 balanceAfter = address(this).balance;
         assertEq(balanceAfter, balanceBefore + 1 ether);
-        assertEq(TEST_WALLET_1.balance, 1 ether);
+        assertEq(w_one.balance, 1 ether);
     }
 
     //#endregion outbidOffer
@@ -149,7 +149,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     }
 
     function test_acceptOffer_NotTokenOwner_ShouldFail() public {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
 
@@ -162,7 +162,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     }
 
     function test_acceptOffer_InsufficientContractBalance_ShouldFail() public {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
 
@@ -171,30 +171,30 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
         offers.withdraw();
 
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
         vm.expectRevert(IOffersERC721_v1.InsufficientContractBalance.selector);
         offers.acceptOffer(address(clancyERC721), 1);
         vm.stopPrank();
     }
 
     function test_acceptOffer_ShouldPass() public {
-        vm.deal(TEST_WALLET_1, 2 ether);
+        vm.deal(w_one, 2 ether);
 
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
-        vm.prank(TEST_WALLET_1);
+        vm.prank(w_one);
 
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
         assertEq(address(offers).balance, 1 ether);
-        uint256 sellerBalanceBefore = TEST_WALLET_MAIN.balance;
+        uint256 sellerBalanceBefore = w_main.balance;
         console.log("sellerBalanceBefore", sellerBalanceBefore);
         uint256 itemId = offers.getItemIdCounter();
 
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         IERC721(clancyERC721).approve(address(offers), tokenId);
 
@@ -204,14 +204,14 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
             itemId: itemId,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
-            tokenOwner: TEST_WALLET_MAIN,
-            offeror: TEST_WALLET_1,
+            tokenOwner: w_main,
+            offeror: w_one,
             value: 1 ether
         });
         offers.acceptOffer(address(clancyERC721), tokenId);
-        console.log("sellerBalanceAfter", TEST_WALLET_MAIN.balance);
-        assertEq(IERC721(clancyERC721).ownerOf(tokenId), TEST_WALLET_1);
-        assertEq(TEST_WALLET_MAIN.balance, sellerBalanceBefore + 1 ether);
+        console.log("sellerBalanceAfter", w_main.balance);
+        assertEq(IERC721(clancyERC721).ownerOf(tokenId), w_one);
+        assertEq(w_main.balance, sellerBalanceBefore + 1 ether);
 
         vm.stopPrank();
 
@@ -228,7 +228,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
     //#region cancelOffer
     function test_cancelOffer_NotOwner_ShouldFail() public {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
 
@@ -236,7 +236,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
 
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         vm.expectRevert("Ownable: caller is not the owner");
         offers.cancelOffer(address(clancyERC721), tokenId);
     }
@@ -259,7 +259,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_cancelOffer_ContractHasInsuffienctBalance_ShouldFail()
         public
     {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
 
@@ -274,19 +274,19 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     }
 
     function test_cancelOffer_ShouldPass() public {
-        vm.deal(TEST_WALLET_1, 1 ether);
+        vm.deal(w_one, 1 ether);
 
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
-        vm.startPrank(TEST_WALLET_1);
+        vm.startPrank(w_one);
 
-        uint256 balanceBefore = TEST_WALLET_1.balance;
+        uint256 balanceBefore = w_one.balance;
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
-        uint256 balanceAfter = TEST_WALLET_1.balance;
+        uint256 balanceAfter = w_one.balance;
         assertEq(balanceAfter, balanceBefore - 1 ether);
 
         vm.stopPrank();
@@ -298,13 +298,13 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
             itemId: itemId,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
-            tokenOwner: TEST_WALLET_MAIN,
-            offeror: TEST_WALLET_1,
+            tokenOwner: w_main,
+            offeror: w_one,
             value: 1 ether
         });
         offers.cancelOffer(address(clancyERC721), tokenId);
 
-        balanceAfter = TEST_WALLET_1.balance;
+        balanceAfter = w_one.balance;
         assertEq(balanceAfter, balanceBefore);
     }
 
@@ -312,7 +312,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
     //#region getOffer
     function test_getOffer_ForNonExistentOffer_ShouldPass() public {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
         uint256 tokenId = mintAndApprove();
         uint256 itemId = offers.getItemIdCounter();
 
@@ -325,7 +325,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     }
 
     function test_getOffer_ForExistentOffer_ShouldPass() public {
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = mintAndApprove();
 

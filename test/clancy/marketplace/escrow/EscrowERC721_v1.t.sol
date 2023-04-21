@@ -25,7 +25,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
 
     //#region setAllowedContract
     function test_setAllowedContract_WhenNotOwner_ShouldRevert() public {
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         vm.expectRevert("Ownable: caller is not the owner");
         escrow.setAllowedContract(address(clancyERC721), true);
     }
@@ -43,7 +43,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         vm.expectRevert(
             IClancyMarketplaceERC721_v1.InputContractInvalid.selector
         );
-        escrow.setAllowedContract(TEST_WALLET_MAIN, true);
+        escrow.setAllowedContract(w_main, true);
     }
 
     function test_setAllowedContract_ShouldSucceed() public {
@@ -211,9 +211,9 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
     function test_cancelItem_ByApprovedNonSeller_ShouldRevert() public {
         escrowSetup();
 
-        uint256 tokenId = mintAndApprovePrank(TEST_WALLET_MAIN);
+        uint256 tokenId = mintAndApprovePrank(w_main);
 
-        vm.prank(address(TEST_WALLET_MAIN));
+        vm.prank(address(w_main));
         escrow.createItem(address(clancyERC721), tokenId);
 
         vm.prank(address(escrow));
@@ -226,9 +226,9 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
     {
         escrowSetup();
 
-        uint256 tokenId = mintAndApprovePrank(TEST_WALLET_MAIN);
+        uint256 tokenId = mintAndApprovePrank(w_main);
 
-        vm.prank(address(TEST_WALLET_MAIN));
+        vm.prank(address(w_main));
         escrow.createItem(address(clancyERC721), tokenId);
 
         string
@@ -265,11 +265,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         uint256 tokenId = mintAndApprove();
 
         escrow.createItem(address(clancyERC721), tokenId);
-        escrow.createPurchase(
-            address(clancyERC721),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
 
         vm.expectRevert(IEscrowERC721_v1.EscrowItemIsSold.selector);
         escrow.cancelItem(address(clancyERC721), tokenId);
@@ -319,11 +315,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         vm.expectRevert(
             IClancyMarketplaceERC721_v1.InputContractInvalid.selector
         );
-        escrow.createPurchase(
-            address(escrow),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(escrow), tokenId, address(w_main));
     }
 
     function test_createPurchase_AsNonOwner_ShouldRevert() public {
@@ -335,11 +327,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
 
         vm.expectRevert("Ownable: caller is not the owner");
         vm.prank(address(clancyERC721));
-        escrow.createPurchase(
-            address(clancyERC721),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
     }
 
     function test_createPurchase_SetBuyerToSeller_ShouldRevert() public {
@@ -362,18 +350,10 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
 
         escrow.createItem(address(clancyERC721), tokenId);
 
-        escrow.createPurchase(
-            address(clancyERC721),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
 
         vm.expectRevert(IEscrowERC721_v1.EscrowItemIsSold.selector);
-        escrow.createPurchase(
-            address(clancyERC721),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
     }
 
     function test_createPurchase_ShouldPass() public {
@@ -389,13 +369,9 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
             address(clancyERC721),
             tokenId,
             address(this),
-            address(TEST_WALLET_MAIN)
+            address(w_main)
         );
-        escrow.createPurchase(
-            address(clancyERC721),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
     }
 
     //#endregion
@@ -418,11 +394,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         uint256 tokenId = mintAndApprove();
 
         escrow.createItem(address(clancyERC721), tokenId);
-        escrow.createPurchase(
-            address(clancyERC721),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
 
         vm.expectRevert(IEscrowERC721_v1.NotTokenBuyer.selector);
         escrow.claimItem(address(clancyERC721), tokenId);
@@ -445,15 +417,11 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         uint256 tokenId = mintAndApprove();
 
         escrow.createItem(address(clancyERC721), tokenId);
-        escrow.createPurchase(
-            address(clancyERC721),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
 
         escrow.pause();
         vm.expectRevert("Pausable: paused");
-        vm.prank(address(TEST_WALLET_MAIN));
+        vm.prank(address(w_main));
         escrow.claimItem(address(clancyERC721), tokenId);
     }
 
@@ -465,18 +433,14 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         uint256 itemId = escrow.createItem(address(clancyERC721), tokenId);
         console.log("Created item with ID: %s", itemId);
 
-        escrow.createPurchase(
-            address(clancyERC721),
-            tokenId,
-            address(TEST_WALLET_MAIN)
-        );
+        escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
 
         vm.expectEmit(true, true, true, false, address(escrow));
         emit EscrowItemClaimed(itemId, address(clancyERC721), tokenId);
 
-        vm.prank(address(TEST_WALLET_MAIN));
+        vm.prank(address(w_main));
         escrow.claimItem(address(clancyERC721), tokenId);
-        assertEq(clancyERC721.ownerOf(tokenId), address(TEST_WALLET_MAIN));
+        assertEq(clancyERC721.ownerOf(tokenId), address(w_main));
     }
 
     //#endregion

@@ -11,9 +11,9 @@ import {ISeries1Case, Series1Case} from "euroleague/series1/Series1Case.sol";
 import {Reels} from "euroleague/series1/Reels.sol";
 
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
-import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
+import {Titan} from "test-helpers/Titan/Titan.sol";
 
-contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
+contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
     using Strings for uint256;
 
     Series1Case public series1Case;
@@ -40,7 +40,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     }
 
     function test_setReelsPerCaseAsNonOwner_ShouldRevert() public {
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         vm.expectRevert("Ownable: caller is not the owner");
         series1Case.setReelsPerCase(5);
     }
@@ -84,7 +84,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     function test_setReelsContractAsNonOwner_ShouldRevert() public {
         Reels reelsContract = new Reels(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
 
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         vm.expectRevert("Ownable: caller is not the owner");
         series1Case.setReelsContract(address(reelsContract));
     }
@@ -100,7 +100,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         vm.expectRevert(
             abi.encodeWithSelector(ISeries1Case.ReelsContractNotValid.selector)
         );
-        series1Case.setReelsContract(TEST_WALLET_MAIN);
+        series1Case.setReelsContract(w_main);
     }
 
     //#endregion
@@ -123,17 +123,17 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         reelsSetup();
 
         uint256 reelsPerCase = series1Case.getReelsPerCase();
-        uint256 reelsBalanceBefore = reels.balanceOf(TEST_WALLET_MAIN);
+        uint256 reelsBalanceBefore = reels.balanceOf(w_main);
         console.log("reelsBalanceBefore: ", reelsBalanceBefore.toString());
 
-        vm.startPrank(TEST_WALLET_MAIN);
+        vm.startPrank(w_main);
 
         uint256 tokenId = series1Case.mint();
         series1Case.openCase(tokenId);
 
         vm.stopPrank();
 
-        uint256 reelsBalanceAfter = reels.balanceOf(TEST_WALLET_MAIN);
+        uint256 reelsBalanceAfter = reels.balanceOf(w_main);
         console.log("reelsBalanceAfter: ", reelsBalanceAfter.toString());
         assertEq(reelsBalanceAfter, reelsBalanceBefore + reelsPerCase);
         assertEq(reelsBalanceAfter, 3);
@@ -144,7 +144,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
 
         uint256 tokenId = series1Case.mint();
 
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         vm.expectRevert(
             abi.encodeWithSelector(IClancyERC721.NotApprovedOrOwner.selector)
         );
@@ -154,14 +154,14 @@ contract Case_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     function test_openCase_AsApproved_ShouldSucceed() public {
         reelsSetup();
 
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         uint256 tokenId = series1Case.mint();
 
-        vm.prank(TEST_WALLET_MAIN);
+        vm.prank(w_main);
         series1Case.approve(address(this), tokenId);
         series1Case.openCase(tokenId);
-        uint256 reelsBalance = reels.balanceOf(TEST_WALLET_MAIN);
-        uint256 series1CaseBalance = series1Case.balanceOf(TEST_WALLET_MAIN);
+        uint256 reelsBalance = reels.balanceOf(w_main);
+        uint256 series1CaseBalance = series1Case.balanceOf(w_main);
         assertEq(reelsBalance, 3);
         assertEq(series1CaseBalance, 0);
     }

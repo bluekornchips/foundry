@@ -15,20 +15,46 @@ contract Ducky is Test {
 
     function ppBig(string memory params) public view {
         console.log(BIG_LINE);
+        console.log("");
         console.log(centeredText(params));
+        console.log("");
         console.log(BIG_LINE);
     }
 
-    function ppIndent(
-        string memory params,
-        uint8 indentAmount,
-        string memory indentChar
-    ) public view {
-        string memory indent = "";
-        for (uint256 i = 0; i < indentAmount; i++) {
-            indent = string(abi.encodePacked(indent, indentChar));
+    // function ppIndent(
+    //     string memory params,
+    //     uint8 indentAmount,
+    //     string memory indentChar
+    // ) public view {
+    //     string memory indent = "";
+    //     for (uint256 i = 0; i < indentAmount; i++) {
+    //         indent = string(abi.encodePacked(indent, indentChar));
+    //     }
+    //     console.log(indent, params);
+    // }
+
+    function ppLines(uint8 lineCount) public view {
+        for (uint256 i = 0; i < lineCount; i++) {
+            console.log("");
         }
-        console.log(indent, params);
+    }
+
+    function ppHeader(
+        string memory line,
+        string memory headerStyle,
+        uint8 width
+    ) public view {
+        ppLine(headerStyle, width);
+        console.log(line);
+        ppLine(headerStyle, width);
+    }
+
+    function ppLine(string memory headerStyle, uint8 width) public view {
+        string memory line = "";
+        for (uint256 i = 0; i < CONSOLE_WIDTH / width; i++) {
+            line = string(abi.encodePacked(line, headerStyle));
+        }
+        console.log(line);
     }
 
     function ppSmall(string memory params) public view {

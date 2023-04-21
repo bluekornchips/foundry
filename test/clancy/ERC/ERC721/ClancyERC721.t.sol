@@ -7,9 +7,9 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {IClancyERC721, ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
 
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
-import {TEST_CONSTANTS} from "test-helpers//TEST_CONSTANTS.sol";
+import {Titan} from "test-helpers/Titan/Titan.sol";
 
-contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
+contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     using Strings for uint256;
 
     ClancyERC721 public clancyERC721;
@@ -325,7 +325,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     function test_balanceOf_afterTransfer() public {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
-        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
+        clancyERC721.safeTransferFrom(address(this), w_main, 1);
         uint256 balance = clancyERC721.balanceOf(address(this));
         assertEq(balance, 0);
     }
@@ -348,8 +348,8 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     function test_safeTransferFrom() public {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
-        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
-        uint256 balance = clancyERC721.balanceOf(TEST_WALLET_MAIN);
+        clancyERC721.safeTransferFrom(address(this), w_main, 1);
+        uint256 balance = clancyERC721.balanceOf(w_main);
         assertEq(balance, 1);
     }
 
@@ -358,28 +358,28 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
     {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
-        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
+        clancyERC721.safeTransferFrom(address(this), w_main, 1);
 
         // Should not transfer
         vm.expectRevert("ERC721: caller is not token owner or approved");
-        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
+        clancyERC721.safeTransferFrom(address(this), w_main, 1);
 
         // Should not transfer as token was already
         vm.expectRevert("ERC721: caller is not token owner or approved");
-        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
+        clancyERC721.safeTransferFrom(address(this), w_main, 1);
 
         // Connect as a non-owner, should not be able to transfer
         vm.prank(address(0x1));
         vm.expectRevert("ERC721: caller is not token owner or approved");
-        clancyERC721.safeTransferFrom(TEST_WALLET_MAIN, address(this), 1);
+        clancyERC721.safeTransferFrom(w_main, address(this), 1);
     }
 
     function test_safeTransferFrom_asApprovedOrOwner() public {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
-        clancyERC721.approve(TEST_WALLET_MAIN, 1);
-        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 1);
-        uint256 balance = clancyERC721.balanceOf(TEST_WALLET_MAIN);
+        clancyERC721.approve(w_main, 1);
+        clancyERC721.safeTransferFrom(address(this), w_main, 1);
+        uint256 balance = clancyERC721.balanceOf(w_main);
         assertEq(balance, 1);
     }
 
@@ -389,10 +389,10 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, TEST_CONSTANTS {
         clancyERC721.setPublicMintStatus(true);
         clancyERC721.mint();
         clancyERC721.mint();
-        clancyERC721.approve(TEST_WALLET_MAIN, 1);
-        vm.prank(TEST_WALLET_MAIN);
+        clancyERC721.approve(w_main, 1);
+        vm.prank(w_main);
         vm.expectRevert("ERC721: caller is not token owner or approved");
-        clancyERC721.safeTransferFrom(address(this), TEST_WALLET_MAIN, 2);
+        clancyERC721.safeTransferFrom(address(this), w_main, 2);
     }
 
     //#endregion

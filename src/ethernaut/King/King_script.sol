@@ -17,9 +17,9 @@ contract King_script is Test, EthernautTestHelpers {
         uint activePrize = instance.prize();
         console.log("activePrize", activePrize);
 
-        KingTrapper trapper = new KingTrapper{
-            value: activePrize + 0.000001 ether
-        }();
+        // KingTrapper trapper = new KingTrapper{
+        //     value: activePrize + 0.000001 ether
+        // }();
         king = instance._king();
         console.log("king", king);
         activePrize = instance.prize();

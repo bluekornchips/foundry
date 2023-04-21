@@ -8,6 +8,8 @@ contract BankAttacker {
 
     constructor() {}
 
+    receive() external payable {}
+
     function setBank(address bank_) public {
         bank = Bank(bank_);
     }

@@ -135,16 +135,10 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         approvePrank(TEST_WALLET_MAIN, tokensTwo, tokensTwo_tokenId);
 
         vm.prank(TEST_WALLET_MAIN);
-        uint256 tokensOne_itemId = escrow.createItem(
-            address(tokensOne),
-            tokensOne_tokenId
-        );
+        escrow.createItem(address(tokensOne), tokensOne_tokenId);
 
         vm.prank(TEST_WALLET_MAIN);
-        uint256 tokensTwo_itemId = escrow.createItem(
-            address(tokensTwo),
-            tokensTwo_tokenId
-        );
+        escrow.createItem(address(tokensTwo), tokensTwo_tokenId);
 
         assertEq(
             IERC721(tokensOne).ownerOf(tokensOne_tokenId),

@@ -44,14 +44,32 @@ contract Ducky is Test {
         string memory headerStyle,
         uint8 width
     ) public view {
-        ppLine(headerStyle, width);
-        console.log(line);
-        ppLine(headerStyle, width);
+        uint8 lineWidth = (CONSOLE_WIDTH / width);
+
+        ppLine(headerStyle, lineWidth);
+
+        string memory formattedLine = string(abi.encodePacked("| ", line));
+        uint256 lineLength = lineWidth - bytes(line).length - 3;
+
+        for (uint256 i = 0; i < lineLength; i++) {
+            formattedLine = string(abi.encodePacked(formattedLine, " "));
+        }
+
+        formattedLine = string(abi.encodePacked(formattedLine, "|"));
+        console.log(formattedLine);
+
+        ppLine(headerStyle, lineWidth);
+    }
+
+    function ppSubHeader(string memory line, uint8 width) public view {
+        uint8 lineWidth = (CONSOLE_WIDTH / width);
+        console.log(string(abi.encodePacked(" ", line)));
+        ppLine("*", lineWidth);
     }
 
     function ppLine(string memory headerStyle, uint8 width) public view {
         string memory line = "";
-        for (uint256 i = 0; i < CONSOLE_WIDTH / width; i++) {
+        for (uint256 i = 0; i < width; i++) {
             line = string(abi.encodePacked(line, headerStyle));
         }
         console.log(line);

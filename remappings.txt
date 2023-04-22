@@ -1,8 +1,11 @@
+aave-v3-core/=lib/aave-v3-core/
+
 openzeppelin-contracts/=lib/openzeppelin-contracts/
 @openzeppelin/=lib/openzeppelin-contracts/
-aave-v3-core/=lib/aave-v3-core/
+
 uniswap/=lib/uniswap/
 @uniswap/=lib/uniswap/
+
 euroleague=src/euroleague/
 clancy/=src/clancy/
 test-helpers/=test/helpers/

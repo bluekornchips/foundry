@@ -6,10 +6,3 @@
 [submodule "lib/openzeppelin-contracts"]
 	path = lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
-[submodule "aave-v3-core"]
-	path = aave-v3-core
-[submodule "v3-core"]
-	path = v3-core
-	url = https://github.com/Uniswap/v3-core
-[submodule "v3-periphery"]
-	path = v3-periphery

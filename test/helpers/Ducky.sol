@@ -41,10 +41,9 @@ contract Ducky is Test {
 
     function ppHeader(
         string memory line,
-        string memory headerStyle,
-        uint8 width
+        string memory headerStyle
     ) public view {
-        uint8 lineWidth = (CONSOLE_WIDTH / width);
+        uint8 lineWidth = uint8(bytes(line).length + 4);
 
         ppLine(headerStyle, lineWidth);
 

@@ -8,6 +8,7 @@ sentinel_dev = 'http://20.104.160.183'
 mumbai = 'https://polygon-mumbai.g.alchemy.com/v2/llYUUXF98MrQ4FJi4KS5HmXl4o8hhtRW'
 sepolia = 'https://eth-sepolia.g.alchemy.com/v2/WpIrVTJ-BZImjZWzqD-xUDqtU3QcZTGH'
 polygon = 'https://polygon-mainnet.g.alchemy.com/v2/y4kKxiW5rseu6vg0iTHt7U4ebg2Ou70J'
+mainnet = 'https://eth-mainnet.g.alchemy.com/v2/k49Tf3fpwGjTMUGcq6CFR4LixzANjizK'
 
 [etherscan]
 

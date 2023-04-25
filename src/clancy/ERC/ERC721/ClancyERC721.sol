@@ -240,9 +240,12 @@ contract ClancyERC721 is
         address to
     ) internal whenNotPaused nonReentrant returns (uint32 tokenId) {
         uint32 tokenIdCounter = _tokenIdCounter;
+
         if (tokenIdCounter >= _maxSupply) revert MaxSupply_Reached();
+
         _safeMint(to, ++tokenIdCounter);
         _tokenIdCounter = tokenIdCounter;
+
         return tokenIdCounter;
     }
 }

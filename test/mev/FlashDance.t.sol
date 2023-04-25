@@ -14,6 +14,7 @@ import {ISwapRouter} from "uniswap/v3-periphery/contracts/interfaces/ISwapRouter
 
 import {Ducky} from "test-helpers/Ducky.sol";
 import {Titan} from "test-helpers/Titan/Titan.sol";
+import {Forks} from "test-helpers/Titan/Forks.sol";
 
 interface IWETH {
     function deposit() external payable;
@@ -21,7 +22,7 @@ interface IWETH {
     function withdraw(uint256 wad) external;
 }
 
-contract FlashDance_Test is Test, Ducky, Titan {
+contract FlashDance_Test is Test, Ducky, Titan, Forks {
     using Strings for uint256;
 
     FlashDance flashDance;
@@ -40,6 +41,7 @@ contract FlashDance_Test is Test, Ducky, Titan {
     }
 
     function test_requestFlashLoan_Eth() public {
+        vm.selectFork(mainnetFork);
         ppSmall("test_requestFlashLoan_Eth");
 
         /*

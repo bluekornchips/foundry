@@ -171,7 +171,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     function test_mint_1() public {
         clancyERC721.setPublicMintStatus(true);
         uint256 tokenId = clancyERC721.mint();
-        assertEq(tokenId, 0);
+        assertEq(tokenId, 1);
     }
 
     // function test_mint_100() public {

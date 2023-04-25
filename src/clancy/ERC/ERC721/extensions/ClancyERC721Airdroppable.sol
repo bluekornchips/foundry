@@ -30,28 +30,41 @@ contract ClancyERC721Airdroppable is IClancyERC721Airdroppable, ClancyERC721 {
     function deliverDrop(Airdrop[] memory airdrops_) public onlyOwner {
         // Check that the amount of tokens to be minted is not greater than the max supply
         uint32 tokenCount;
-        for (uint32 i; i < airdrops_.length; i++) {
+        uint32 i;
+        do {
             tokenCount += airdrops_[i].tokenCount;
             if (tokenCount > getMaxSupply()) revert MaxSupply_Reached();
             if (airdrops_[i].recipient == address(0))
                 revert AirdropRecipientCannotBeZero();
             if (airdrops_[i].tokenCount < 1)
                 revert AirdropTokenCountCannotBeLTOne();
-        }
+
+            i++;
+        } while (i < airdrops_.length);
+
+        i = 0; // Reset i
+
+        uint32 tokenId = _tokenIdCounter;
 
         Airdropped[] memory airdropped = new Airdropped[](airdrops_.length);
-        for (uint32 i; i < airdrops_.length; i++) {
+        do {
             Airdrop memory airdrop = airdrops_[i];
 
             airdropped[i].recipient = airdrop.recipient;
             airdropped[i].tokenIds = new uint32[](airdrop.tokenCount);
 
-            for (uint32 j; j < airdrop.tokenCount; j++) {
-                uint32 tokenId = clancyMint(airdrop.recipient);
-                airdropped[i].tokenIds[j] = (uint32(tokenId));
-            }
-        }
-        _airDropCounter++;
-        emit AirdropDelivered(uint8(_airDropCounter), airdropped);
+            uint32 j;
+            do {
+                _mint(airdrop.recipient, ++tokenId);
+                airdropped[i].tokenIds[j] = tokenId;
+                ++j;
+            } while (j < airdrop.tokenCount);
+
+            ++i;
+        } while (i < airdrops_.length);
+
+        _tokenIdCounter = tokenId;
+
+        emit AirdropDelivered(uint8(++_airDropCounter), airdropped);
     }
 }

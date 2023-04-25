@@ -21,16 +21,16 @@ contract ClancyERC721 is
     uint32 public constant SUPPLY_CEILING = 1_000_000;
 
     /// @dev A counter for tracking the token ID.
-    uint32 private _tokenIdCounter;
+    uint32 internal _tokenIdCounter;
 
     /// @dev The maximum supply of the token. Defaults to 1,000,000.
-    uint32 private _maxSupply = 1_000_000;
+    uint32 internal _maxSupply = 1_000_000;
 
     /// @dev A flag for enabling or disabling public minting
-    bool private _publicMintEnabled;
+    bool internal _publicMintEnabled;
 
     /// @dev A flag for enabling or disabling burning of tokens
-    bool private _burnEnabled;
+    bool internal _burnEnabled;
 
     /// @dev A base URI for metadata of the token, to be concatenated with the token ID
     string internal _baseURILocal;

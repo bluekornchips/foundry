@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.19;
 
-import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
 import {ClancyPayable} from "clancy/utils/ClancyPayable.sol";
@@ -13,11 +12,6 @@ contract OffersERC721_v1 is
     IOffersERC721_v1,
     ClancyPayable
 {
-    /**
-     * @dev Uses the Counters library to handle counters for the contract
-     */
-    using Counters for Counters.Counter;
-
     /**
      * @dev Mapping of token contract addresses to token IDs to OfferItem structs, representing offers
      */
@@ -31,7 +25,7 @@ contract OffersERC721_v1 is
      */
     function createOffer(
         address contractAddress_,
-        uint256 tokenId
+        uint32 tokenId
     ) public payable whenNotPaused {
         uint256 value = msg.value;
         if (value <= 0) {
@@ -170,21 +164,21 @@ contract OffersERC721_v1 is
      */
     function newOffer(
         address contractAddress_,
-        uint256 tokenId,
+        uint32 tokenId,
         address ownerOfToken,
         uint256 value
     ) private nonReentrant {
-        _itemIdCounter.increment();
+        _itemIdCounter++;
 
         _items[contractAddress_][tokenId] = OfferItem({
-            itemId: _itemIdCounter.current(),
+            itemId: _itemIdCounter,
             offerAmount: value,
             offeror: msg.sender
         });
 
         emit OfferEvent({
             offerType: "New",
-            itemId: _itemIdCounter.current(),
+            itemId: _itemIdCounter,
             contractAddress: contractAddress_,
             tokenId: tokenId,
             tokenOwner: ownerOfToken,
@@ -203,7 +197,7 @@ contract OffersERC721_v1 is
      */
     function outbidOffer(
         address contractAddress_,
-        uint256 tokenId,
+        uint32 tokenId,
         address newOfferor,
         uint256 value
     ) private nonReentrant {

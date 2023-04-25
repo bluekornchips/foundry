@@ -8,7 +8,7 @@ contract CoinFlip {
         57896044618658097711785492504343953926634992332820282019728792003956564819968;
 
     constructor() {
-        consecutiveWins = 0;
+        consecutiveWins;
     }
 
     function flip(bool _guess) public returns (bool) {
@@ -26,7 +26,7 @@ contract CoinFlip {
             consecutiveWins++;
             return true;
         } else {
-            consecutiveWins = 0;
+            consecutiveWins;
             return false;
         }
     }

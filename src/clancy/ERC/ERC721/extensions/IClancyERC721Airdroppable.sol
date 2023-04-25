@@ -7,13 +7,13 @@ contract IClancyERC721Airdroppable {
 
     struct Airdrop {
         address recipient;
-        uint64 tokenCount;
+        uint32 tokenCount;
     }
 
     struct Airdropped {
         address recipient;
-        uint64[] tokenIds;
+        uint32[] tokenIds;
     }
 
-    event AirdropDelivered(uint8 indexed, Airdropped[]);
+    event AirdropDelivered(uint16 indexed, Airdropped[]);
 }

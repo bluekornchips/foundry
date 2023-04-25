@@ -17,9 +17,9 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
     constructor(
         string memory name_,
         string memory symbol_,
-        uint256 maxSupply,
+        uint32 maxSupply_,
         string memory base_uri_
-    ) ClancyERC721Airdroppable(name_, symbol_, maxSupply, base_uri_) {}
+    ) ClancyERC721Airdroppable(name_, symbol_, maxSupply_, base_uri_) {}
 
     /**
      * @dev Opens a Series 1 case.
@@ -39,8 +39,8 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
      * @return An array of the IDs of the reels that were minted.
      */
     function openCase(
-        uint256 tokenId
-    ) public whenNotPaused returns (uint256[] memory) {
+        uint32 tokenId
+    ) public whenNotPaused returns (uint32[] memory) {
         if (_reelsContract == Reels(payable(address(0))))
             revert ReelsContractNotSet();
         if (!_isApprovedOrOwner(_msgSender(), tokenId))
@@ -50,8 +50,8 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
 
         burn(tokenId);
 
-        uint256[] memory minted_reels = new uint256[](_reelsPerCase);
-        for (uint256 i = 0; i < _reelsPerCase; i++) {
+        uint32[] memory minted_reels = new uint32[](_reelsPerCase);
+        for (uint32 i; i < _reelsPerCase; i++) {
             minted_reels[i] = _reelsContract.mintTo(tokenOwner);
         }
 

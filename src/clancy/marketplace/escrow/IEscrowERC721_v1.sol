@@ -13,40 +13,40 @@ interface IEscrowERC721_v1 {
     error EscrowItemSellerCannotBeZeroAddress();
 
     event EscrowItemCreated(
-        uint256 indexed itemId,
+        uint32 indexed itemId,
+        uint32 indexed tokenId,
         address indexed tokenContract,
-        uint256 indexed tokenId,
         address seller
     );
 
     event EscrowItemPurchaseCreated(
-        uint256 indexed itemId,
+        uint32 indexed itemId,
+        uint32 indexed tokenId,
         address indexed tokenContract,
-        uint256 indexed tokenId,
         address seller,
         address buyer
     );
 
     event EscrowItemCancelled(
-        uint256 indexed itemId,
-        address indexed tokenContract,
-        uint256 indexed tokenId
+        uint32 indexed itemId,
+        uint32 indexed tokenId,
+        address indexed tokenContract
     );
 
     event EscrowItemClaimed(
-        uint256 indexed itemId,
-        address indexed tokenContract,
-        uint256 indexed tokenId
+        uint32 indexed itemId,
+        uint32 indexed tokenId,
+        address indexed tokenContract
     );
 
     struct EscrowItem {
-        uint256 itemId;
+        uint32 itemId;
         address seller;
         address buyer;
     }
 
     function getItem(
         address tokenContract,
-        uint256 itemId
+        uint32 itemId
     ) external view returns (EscrowItem memory);
 }

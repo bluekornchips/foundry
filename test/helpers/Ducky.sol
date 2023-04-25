@@ -27,14 +27,14 @@ contract Ducky is Test {
     //     string memory indentChar
     // ) public view {
     //     string memory indent = "";
-    //     for (uint256 i = 0; i < indentAmount; i++) {
+    //     for (uint256 i; i < indentAmount; i++) {
     //         indent = string(abi.encodePacked(indent, indentChar));
     //     }
     //     console.log(indent, params);
     // }
 
     function ppLines(uint8 lineCount) public view {
-        for (uint256 i = 0; i < lineCount; i++) {
+        for (uint256 i; i < lineCount; i++) {
             console.log("");
         }
     }
@@ -50,7 +50,7 @@ contract Ducky is Test {
         string memory formattedLine = string(abi.encodePacked("| ", line));
         uint256 lineLength = lineWidth - bytes(line).length - 3;
 
-        for (uint256 i = 0; i < lineLength; i++) {
+        for (uint256 i; i < lineLength; i++) {
             formattedLine = string(abi.encodePacked(formattedLine, " "));
         }
 
@@ -68,7 +68,7 @@ contract Ducky is Test {
 
     function ppLine(string memory headerStyle, uint8 width) public view {
         string memory line = "";
-        for (uint256 i = 0; i < width; i++) {
+        for (uint256 i; i < width; i++) {
             line = string(abi.encodePacked(line, headerStyle));
         }
         console.log(line);
@@ -81,7 +81,7 @@ contract Ducky is Test {
     }
 
     function setLines() private {
-        for (uint256 i = 0; i < CONSOLE_WIDTH; i++) {
+        for (uint256 i; i < CONSOLE_WIDTH; i++) {
             BIG_LINE = string(abi.encodePacked(BIG_LINE, "="));
             SMALL_LINE = string(abi.encodePacked(SMALL_LINE, "-"));
         }
@@ -93,7 +93,7 @@ contract Ducky is Test {
         uint256 textLength = bytes(text).length;
         uint256 padding = (CONSOLE_WIDTH - textLength) / 2;
         string memory paddingString = "";
-        for (uint256 i = 0; i < padding; i++) {
+        for (uint256 i; i < padding; i++) {
             paddingString = string(abi.encodePacked(paddingString, " "));
         }
         return string(abi.encodePacked(paddingString, text));

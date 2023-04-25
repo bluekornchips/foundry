@@ -55,28 +55,28 @@ contract ClancyERC721Airdroppable_Test is
         Airdropped[] memory airdropped = new Airdropped[](airdrops.length);
         airdropped[0] = Airdropped({
             recipient: w_main,
-            tokenIds: new uint64[](tokenCount)
+            tokenIds: new uint32[](tokenCount)
         });
         airdropped[0].tokenIds[0] = 1;
         airdropped[1] = Airdropped({
             recipient: w_one,
-            tokenIds: new uint64[](tokenCount)
+            tokenIds: new uint32[](tokenCount)
         });
         airdropped[1].tokenIds[0] = 2;
         airdropped[2] = Airdropped({
             recipient: address(this),
-            tokenIds: new uint64[](tokenCount)
+            tokenIds: new uint32[](tokenCount)
         });
         airdropped[2].tokenIds[0] = 3;
-        uint8 airDropCounter = clancyERC721Airdroppable.getAirdropCount();
+        uint16 airDropCounter = clancyERC721Airdroppable._airDropCounter();
         vm.expectEmit(true, false, false, false);
         emit AirdropDelivered(airDropCounter + 1, airdropped);
         clancyERC721Airdroppable.deliverDrop(airdrops);
 
         uint256 counter = 1;
-        for (uint256 i = 0; i < airdrops.length; i++) {
+        for (uint256 i; i < airdrops.length; i++) {
             Airdrop memory airdrop = airdrops[i];
-            for (uint256 j = 0; j < airdrop.tokenCount; j++) {
+            for (uint256 j; j < airdrop.tokenCount; j++) {
                 assertEq(
                     clancyERC721Airdroppable.ownerOf(counter++),
                     airdrop.recipient
@@ -86,22 +86,22 @@ contract ClancyERC721Airdroppable_Test is
     }
 
     function test_deliverDrop_ManyAddress_ShouldPass() public {
-        uint128 addressCount = 10;
+        uint32 addressCount = 10;
         address[] memory tos = new address[](addressCount);
-        for (uint256 i = 0; i < addressCount; i++) {
+        for (uint32 i; i < addressCount; i++) {
             tos[i] = address(w_main);
         }
 
         uint8 tokenCount = 1;
 
         Airdrop[] memory airdrops = new Airdrop[](tos.length);
-        for (uint256 i = 0; i < airdrops.length; i++) {
+        for (uint32 i; i < airdrops.length; i++) {
             airdrops[i] = Airdrop({recipient: tos[i], tokenCount: tokenCount});
         }
 
         //Count up how many tokens are to be minted
-        uint256 totalTokens = 0;
-        for (uint256 i = 0; i < airdrops.length; i++) {
+        uint32 totalTokens;
+        for (uint32 i; i < airdrops.length; i++) {
             totalTokens += airdrops[i].tokenCount;
         }
 
@@ -111,9 +111,9 @@ contract ClancyERC721Airdroppable_Test is
         clancyERC721Airdroppable.deliverDrop(airdrops);
 
         uint256 counter = 1;
-        for (uint256 i = 0; i < airdrops.length; i++) {
+        for (uint256 i; i < airdrops.length; i++) {
             Airdrop memory airdrop = airdrops[i];
-            for (uint256 j = 0; j < airdrop.tokenCount; j++) {
+            for (uint256 j; j < airdrop.tokenCount; j++) {
                 assertEq(
                     clancyERC721Airdroppable.ownerOf(counter++),
                     airdrop.recipient
@@ -127,7 +127,7 @@ contract ClancyERC721Airdroppable_Test is
         // vm.assume(tos.length <= 100);
 
         // Assume each address is not the zero address
-        for (uint256 i = 0; i < tos.length; i++) {
+        for (uint32 i; i < tos.length; i++) {
             vm.assume(tos[i] != address(0));
             // Assume each address implements the IERC721Receiver interface
             vm.assume(
@@ -139,15 +139,15 @@ contract ClancyERC721Airdroppable_Test is
         uint8 tokenCount = 1;
 
         Airdrop[] memory airdrops = new Airdrop[](tos.length);
-        for (uint256 i = 0; i < airdrops.length; i++) {
+        for (uint32 i; i < airdrops.length; i++) {
             // // Random number between 1 and 10
             // tokenCount = uint8(uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty))) % maxDrops) + 1;
             airdrops[i] = Airdrop({recipient: tos[i], tokenCount: tokenCount});
         }
 
-        //Count up how many tokens are to be minted
-        uint256 totalTokens = 0;
-        for (uint256 i = 0; i < airdrops.length; i++) {
+        // Count up how many tokens are to be minted
+        uint32 totalTokens;
+        for (uint32 i; i < airdrops.length; i++) {
             totalTokens += airdrops[i].tokenCount;
         }
 
@@ -155,10 +155,10 @@ contract ClancyERC721Airdroppable_Test is
 
         clancyERC721Airdroppable.deliverDrop(airdrops);
 
-        uint256 counter = 1;
-        for (uint256 i = 0; i < airdrops.length; i++) {
+        uint32 counter = 1;
+        for (uint32 i; i < airdrops.length; i++) {
             Airdrop memory airdrop = airdrops[i];
-            for (uint256 j = 0; j < airdrop.tokenCount; j++) {
+            for (uint32 j; j < airdrop.tokenCount; j++) {
                 assertEq(
                     clancyERC721Airdroppable.ownerOf(counter++),
                     airdrop.recipient

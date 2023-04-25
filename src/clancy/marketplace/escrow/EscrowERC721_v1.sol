@@ -2,8 +2,6 @@
 pragma solidity ^0.8.19;
 
 import {Address} from "openzeppelin-contracts/contracts/utils/Address.sol";
-import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
-
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import {IERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 
@@ -13,27 +11,26 @@ import {ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceER
 import {IEscrowERC721_v1} from "./IEscrowERC721_v1.sol";
 
 contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
-    using Counters for Counters.Counter;
     using Address for address;
 
     uint32 public constant MAX_ITEMS = 1_000;
-    Counters.Counter private _activeListings;
-    mapping(address => mapping(uint256 => EscrowItem)) private _items;
+    uint32 private _activeListings;
+    mapping(address => mapping(uint32 => EscrowItem)) private _items;
 
     /**
      * @dev Creates a new EscrowItem and places it in escrow.
      * @param tokenContract The address of the token contract.
      * @param tokenId The unique identifier of the token.
-     * @return Returns the unique identifier of the created EscrowItem as a uint256.
+     * @return Returns the unique identifier of the created EscrowItem as a uint32.
      *
      * Emits a {EscrowItemCreated} event indicating a new item has been created.
      * Emits a {Transfer} event indicating the transfer of the token to the escrow contract.
      */
     function createItem(
         address tokenContract,
-        uint256 tokenId
-    ) public whenNotPaused nonReentrant returns (uint256) {
-        if (_activeListings.current() >= MAX_ITEMS) revert EscrowFull();
+        uint32 tokenId
+    ) public whenNotPaused nonReentrant returns (uint32) {
+        if (_activeListings >= MAX_ITEMS) revert EscrowFull();
         if (!getAllowedContract(tokenContract)) revert InputContractInvalid();
         if (IERC721(tokenContract).ownerOf(tokenId) != _msgSender())
             revert NotTokenOwner();
@@ -46,13 +43,11 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
             tokenId
         );
 
-        _activeListings.increment();
-        _itemIdCounter.increment();
-
-        uint256 itemId = _itemIdCounter.current();
+        ++_activeListings;
+        ++_itemIdCounter;
 
         _items[tokenContract][tokenId] = EscrowItem({
-            itemId: itemId,
+            itemId: _itemIdCounter,
             seller: _msgSender(),
             buyer: address(0)
         });
@@ -61,10 +56,10 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
             tokenContract: tokenContract,
             tokenId: tokenId,
             seller: _msgSender(),
-            itemId: itemId
+            itemId: _itemIdCounter
         });
 
-        return itemId;
+        return _itemIdCounter;
     }
 
     /**
@@ -79,7 +74,7 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
      */
     function cancelItem(
         address tokenContract,
-        uint256 tokenId
+        uint32 tokenId
     ) public whenNotPaused nonReentrant {
         if (!getAllowedContract(tokenContract)) revert InputContractInvalid();
 
@@ -102,7 +97,7 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
 
         delete _items[tokenContract][tokenId];
 
-        _activeListings.decrement();
+        --_activeListings;
 
         IERC721(tokenContract).safeTransferFrom(
             address(this),
@@ -124,7 +119,7 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
      */
     function createPurchase(
         address tokenContract,
-        uint256 tokenId,
+        uint32 tokenId,
         address buyer
     ) public onlyOwner {
         if (!getAllowedContract(tokenContract)) revert InputContractInvalid();
@@ -158,7 +153,7 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
      */
     function claimItem(
         address tokenContract,
-        uint256 tokenId
+        uint32 tokenId
     ) public whenNotPaused nonReentrant {
         if (!getAllowedContract(tokenContract)) revert InputContractInvalid();
 
@@ -176,7 +171,7 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
 
         delete _items[tokenContract][tokenId];
 
-        _activeListings.decrement();
+        --_activeListings;
 
         IERC721(tokenContract).safeTransferFrom(
             address(this),
@@ -193,7 +188,7 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
      */
     function getItem(
         address tokenContract,
-        uint256 tokenId
+        uint32 tokenId
     ) public view override returns (EscrowItem memory) {
         return _items[tokenContract][tokenId];
     }

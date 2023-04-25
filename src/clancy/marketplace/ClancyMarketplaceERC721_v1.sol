@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.19;
 
-import {Counters} from "openzeppelin-contracts/contracts/utils/Counters.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Pausable} from "openzeppelin-contracts/contracts/security/Pausable.sol";
 import {ReentrancyGuard} from "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
@@ -17,12 +16,10 @@ abstract contract ClancyMarketplaceERC721_v1 is
     Pausable,
     ReentrancyGuard
 {
-    using Counters for Counters.Counter;
-
     /**
      * @dev Counter to keep track of item IDs
      */
-    Counters.Counter internal _itemIdCounter;
+    uint32 internal _itemIdCounter;
 
     /**
      * @dev Mapping of token contract addresses to booleans indicating whether the contract is allowed or not
@@ -39,14 +36,6 @@ abstract contract ClancyMarketplaceERC721_v1 is
         bytes memory
     ) public virtual returns (bytes4) {
         return this.onERC721Received.selector;
-    }
-
-    /**
-     * @dev Retrieves the current value of the item ID counter.
-     * @return Returns the current value of the item ID counter as a uint256.
-     */
-    function getItemIdCounter() public view returns (uint256) {
-        return _itemIdCounter.current();
     }
 
     /**
@@ -98,5 +87,13 @@ abstract contract ClancyMarketplaceERC721_v1 is
         address tokenContract
     ) public view returns (bool) {
         return _contracts[tokenContract];
+    }
+
+    /**
+     * @dev Retrieves the current value of the item ID counter.
+     * @return Returns the current value of the item ID counter as a uint32.
+     */
+    function getItemIdCounter() public view returns (uint32) {
+        return _itemIdCounter;
     }
 }

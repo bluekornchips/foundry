@@ -15,14 +15,16 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
     ClancyERC721 tokensTwo;
     EscrowERC721_v1 escrow;
 
-    uint256 public escrow_max_items;
+    uint32 public escrow_max_items;
 
     function setUp() public {
         escrow = new EscrowERC721_v1();
         escrow_max_items = escrow.MAX_ITEMS();
+
         //tokensOne
         tokensOne = new ClancyERC721(NAME, SYMBOL, escrow_max_items, BASE_URI);
         tokensOne.setPublicMintStatus(true);
+
         //tokensTwo
         tokensTwo = new ClancyERC721(NAME, SYMBOL, escrow_max_items, BASE_URI);
         tokensTwo.setPublicMintStatus(true);
@@ -33,9 +35,9 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
 
     //#region Single Contract Tests
     function test_resaleFlow_ShouldPass() public {
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
-        uint256 itemId = escrow.createItem(address(tokensOne), tokenId);
+        uint32 itemId = escrow.createItem(address(tokensOne), tokenId);
         escrow.createPurchase(address(tokensOne), tokenId, address(w_main));
 
         vm.prank(address(w_main));
@@ -60,19 +62,19 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         escrow_max_items = escrow.MAX_ITEMS();
 
         // Mint escrow_max_items tokens
-        uint256[] memory tokenIds = new uint256[](escrow_max_items);
-        for (uint256 i = 0; i < escrow_max_items; i++) {
+        uint32[] memory tokenIds = new uint32[](escrow_max_items);
+        for (uint32 i; i < escrow_max_items; i++) {
             tokenIds[i] = mintAndApprove();
         }
 
         // Create escrow_max_items items
-        uint256[] memory itemIds = new uint256[](escrow_max_items);
-        for (uint256 i = 0; i < escrow_max_items; i++) {
+        uint32[] memory itemIds = new uint32[](escrow_max_items);
+        for (uint32 i; i < escrow_max_items; i++) {
             itemIds[i] = escrow.createItem(address(tokensOne), tokenIds[i]);
         }
 
         // Create escrow_max_items purchases
-        for (uint256 i = 0; i < escrow_max_items; i++) {
+        for (uint32 i; i < escrow_max_items; i++) {
             escrow.createPurchase(
                 address(tokensOne),
                 tokenIds[i],
@@ -81,13 +83,13 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         }
 
         // Claim escrow_max_items items
-        for (uint256 i = 0; i < escrow_max_items; i++) {
+        for (uint32 i; i < escrow_max_items; i++) {
             vm.prank(address(w_main));
             escrow.claimItem(address(tokensOne), tokenIds[i]);
         }
 
         // List the same escrow_max_items items again
-        for (uint256 i = 0; i < escrow_max_items; i++) {
+        for (uint32 i; i < escrow_max_items; i++) {
             vm.prank(address(w_main));
             tokensOne.approve(address(escrow), tokenIds[i]);
             vm.prank(address(w_main));
@@ -95,7 +97,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         }
 
         // Create escrow_max_items purchases
-        for (uint256 i = 0; i < escrow_max_items; i++) {
+        for (uint32 i; i < escrow_max_items; i++) {
             escrow.createPurchase(
                 address(tokensOne),
                 tokenIds[i],
@@ -104,7 +106,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         }
 
         // Claim escrow_max_items items
-        for (uint256 i = 0; i < escrow_max_items; i++) {
+        for (uint32 i; i < escrow_max_items; i++) {
             vm.prank(address(this));
             escrow.claimItem(address(tokensOne), tokenIds[i]);
         }
@@ -115,8 +117,8 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
     //#region Multiple Contracts Tests
     function test_ListingOneTokenFromEitherContract_ShouldPass() public {
         // console.log("Escrow Address:%s", address(escrow));
-        uint256 tokensOne_tokenId = mintPrank(w_main, tokensOne);
-        uint256 tokensTwo_tokenId = mintPrank(w_main, tokensTwo);
+        uint32 tokensOne_tokenId = mintPrank(w_main, tokensOne);
+        uint32 tokensTwo_tokenId = mintPrank(w_main, tokensTwo);
 
         assertEq(
             IERC721(tokensOne).ownerOf(tokensOne_tokenId),
@@ -172,8 +174,8 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
     //#endregion
 
     //#region Helpers
-    function mintAndApprove() internal returns (uint256) {
-        uint256 tokenId = tokensOne.mint();
+    function mintAndApprove() internal returns (uint32) {
+        uint32 tokenId = tokensOne.mint();
         tokensOne.approve(address(escrow), tokenId);
         return tokenId;
     }
@@ -181,7 +183,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
     function mintPrank(
         address pranker,
         ClancyERC721 ercContract
-    ) internal returns (uint256) {
+    ) internal returns (uint32) {
         vm.prank(pranker);
         return IClancyERC721(ercContract).mint();
     }
@@ -189,7 +191,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
     function approvePrank(
         address pranker,
         ClancyERC721 ercContract,
-        uint256 tokenId
+        uint32 tokenId
     ) internal {
         vm.prank(pranker);
         IERC721(ercContract).approve(address(escrow), tokenId);

@@ -8,11 +8,7 @@ import {ClancyERC721StorageURI} from "clancy/ERC/ERC721/extensions/ClancyERC721S
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
 import {Titan} from "test-helpers/Titan/Titan.sol";
 
-contract ClancyERC721StorageURI_Test is
-    Test,
-    ClancyERC721TestHelpers,
-    Titan
-{
+contract ClancyERC721StorageURI_Test is Test, ClancyERC721TestHelpers, Titan {
     ClancyERC721StorageURI public clancyERC721StorageURI;
 
     function setUp() public {
@@ -25,7 +21,7 @@ contract ClancyERC721StorageURI_Test is
     }
 
     function test_setTokenURI() public {
-        uint256 tokenId = 1;
+        uint32 tokenId = 1;
         string memory tokenURI = "https://browncows.com/chocolate";
 
         // Clear the BaseURI

@@ -26,7 +26,7 @@ contract Reels is IReels, ClancyERC721Airdroppable {
     constructor(
         string memory name_,
         string memory symbol_,
-        uint256 max_supply_,
+        uint32 max_supply_,
         string memory base_uri_
     ) ClancyERC721Airdroppable(name_, symbol_, max_supply_, base_uri_) {}
 
@@ -70,7 +70,7 @@ contract Reels is IReels, ClancyERC721Airdroppable {
      * - Is NOT user callable. This is for owner intervention.
      * @return The ID of the token that was minted.
      */
-    function mint() public override whenNotPaused onlyOwner returns (uint256) {
+    function mint() public override whenNotPaused onlyOwner returns (uint32) {
         return super.mint();
     }
 
@@ -82,7 +82,7 @@ contract Reels is IReels, ClancyERC721Airdroppable {
      */
     function mintTo(
         address to
-    ) public whenNotPaused onlyCaseContract returns (uint256) {
+    ) public whenNotPaused onlyCaseContract returns (uint32) {
         return clancyMint(to);
     }
 }

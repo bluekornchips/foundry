@@ -44,7 +44,7 @@ contract FlashDance is FlashLoanSimpleReceiverBase, Uniswapper, ClancyPayable {
         address asset = _token;
         uint256 amount = _amount;
         bytes memory params = "";
-        uint16 referralCode = 0;
+        uint16 referralCode;
         POOL.flashLoanSimple(
             receiverAddress,
             asset,

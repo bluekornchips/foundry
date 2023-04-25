@@ -128,7 +128,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
 
         vm.startPrank(w_main);
 
-        uint256 tokenId = series1Case.mint();
+        uint32 tokenId = series1Case.mint();
         series1Case.openCase(tokenId);
 
         vm.stopPrank();
@@ -142,7 +142,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
     function test_openCase_AsNonOwner_ShouldRevert() public {
         reelsSetup();
 
-        uint256 tokenId = series1Case.mint();
+        uint32 tokenId = series1Case.mint();
 
         vm.prank(w_main);
         vm.expectRevert(
@@ -155,7 +155,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
         reelsSetup();
 
         vm.prank(w_main);
-        uint256 tokenId = series1Case.mint();
+        uint32 tokenId = series1Case.mint();
 
         vm.prank(w_main);
         series1Case.approve(address(this), tokenId);

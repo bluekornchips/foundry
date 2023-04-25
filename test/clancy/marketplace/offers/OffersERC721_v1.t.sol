@@ -20,7 +20,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         // ClancyERC721 Setup
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
         clancyERC721.setPublicMintStatus(true);
-        clancyERC721.setBurnStatus(true);
+        clancyERC721.setBurnStatus(false);
 
         // Offers Setup
         offers = new OffersERC721_v1();
@@ -31,13 +31,13 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
     //#region newOffer
     function test_createOffer_ValueLTEZero_ShouldFail() public {
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
         vm.expectRevert(IOffersERC721_v1.OfferCannotBeLTEZero.selector);
         offers.createOffer{value: 0}(address(clancyERC721), tokenId);
     }
 
     function test_createOffer_InvalidContract_ShouldFail() public {
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.expectRevert(
             IClancyMarketplaceERC721_v1.InputContractInvalid.selector
@@ -47,20 +47,20 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
     function test_createOffer_CannotBeFromZeroAddress_ShouldFail() public {
         vm.deal(address(0), 1 ether);
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
         vm.expectRevert(IOffersERC721_v1.OfferorCannotBeZeroAddress.selector);
         vm.prank(address(0));
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
     }
 
     function test_createOffer_OfferCannotBeTokenOwner_ShouldFail() public {
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
         vm.expectRevert(IOffersERC721_v1.OfferorCannotBeTokenOwner.selector);
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
     }
 
     function test_createOffer_TokenDoesNotExist_ShouldFail() public {
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
         vm.expectRevert("ERC721: invalid token ID");
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId + 1);
     }
@@ -68,8 +68,8 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_createOffer_ValidContract_ShouldPass() public {
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
-        uint256 itemId = offers.getItemIdCounter();
+        uint32 tokenId = mintAndApprove();
+        uint32 itemId = offers.getItemIdCounter();
 
         vm.stopPrank();
 
@@ -93,7 +93,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_outbidOffer_ValueLTExistingOffer_ShouldFail() public {
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
@@ -107,14 +107,14 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         vm.deal(w_one, 3 ether);
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
 
         uint256 balanceBefore = address(this).balance;
-        uint256 itemId = offers.getItemIdCounter();
+        uint32 itemId = offers.getItemIdCounter();
 
         vm.startPrank(w_one);
 
@@ -151,7 +151,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_acceptOffer_NotTokenOwner_ShouldFail() public {
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
@@ -164,7 +164,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_acceptOffer_InsufficientContractBalance_ShouldFail() public {
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
@@ -182,7 +182,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
@@ -192,7 +192,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         assertEq(address(offers).balance, 1 ether);
         uint256 sellerBalanceBefore = w_main.balance;
         console.log("sellerBalanceBefore", sellerBalanceBefore);
-        uint256 itemId = offers.getItemIdCounter();
+        uint32 itemId = offers.getItemIdCounter();
 
         vm.startPrank(w_main);
 
@@ -230,7 +230,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_cancelOffer_NotOwner_ShouldFail() public {
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
@@ -244,7 +244,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_cancelOffer_ToNonPayable_ShouldFail() public {
         vm.deal(address(clancyERC721), 1 ether);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.startPrank(address(clancyERC721));
 
@@ -261,7 +261,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     {
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
@@ -278,7 +278,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
@@ -291,7 +291,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.stopPrank();
 
-        uint256 itemId = offers.getItemIdCounter();
+        uint32 itemId = offers.getItemIdCounter();
         vm.expectEmit(true, true, true, true, address(offers));
         emit OfferEvent({
             offerType: "Cancel",
@@ -313,8 +313,8 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     //#region getOffer
     function test_getOffer_ForNonExistentOffer_ShouldPass() public {
         vm.startPrank(w_main);
-        uint256 tokenId = mintAndApprove();
-        uint256 itemId = offers.getItemIdCounter();
+        uint32 tokenId = mintAndApprove();
+        uint32 itemId = offers.getItemIdCounter();
 
         OfferItem memory offer = offers.getOffer(
             address(clancyERC721),
@@ -327,7 +327,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_getOffer_ForExistentOffer_ShouldPass() public {
         vm.startPrank(w_main);
 
-        uint256 tokenId = mintAndApprove();
+        uint32 tokenId = mintAndApprove();
 
         vm.stopPrank();
 
@@ -337,7 +337,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
             tokenId
         );
 
-        uint256 itemId = offers.getItemIdCounter();
+        uint32 itemId = offers.getItemIdCounter();
 
         assertEq(offer.itemId, itemId);
         assertEq(offer.offerAmount, 1 ether);
@@ -347,8 +347,8 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
     //#endregion
 
     //#region Helpers
-    function mintAndApprove() internal returns (uint256) {
-        uint256 tokenId = clancyERC721.mint();
+    function mintAndApprove() internal returns (uint32) {
+        uint32 tokenId = clancyERC721.mint();
         clancyERC721.approve(address(offers), tokenId);
         return tokenId;
     }

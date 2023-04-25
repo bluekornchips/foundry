@@ -11,7 +11,7 @@ contract ClancyERC721StorageURI is ClancyERC721, ERC721URIStorage {
     constructor(
         string memory name_,
         string memory symbol_,
-        uint256 maxSupply_,
+        uint32 maxSupply_,
         string memory baseURILocal_
     ) ClancyERC721(name_, symbol_, maxSupply_, baseURILocal_) {}
 
@@ -25,7 +25,7 @@ contract ClancyERC721StorageURI is ClancyERC721, ERC721URIStorage {
      * @param tokenURI_ The URI to assign to the token.
      */
     function setTokenURI(
-        uint256 tokenId,
+        uint32 tokenId,
         string memory tokenURI_
     ) public onlyOwner {
         _setTokenURI(tokenId, tokenURI_);

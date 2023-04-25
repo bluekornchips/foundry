@@ -107,7 +107,7 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, Titan {
         reels.setCaseContract(address(series1Case), true);
         reels.setPublicMintStatus(true);
 
-        uint256 tokenId = reels.mint();
+        uint32 tokenId = reels.mint();
         assertEq(tokenId, 1);
     }
 
@@ -116,7 +116,7 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, Titan {
         reels.setPublicMintStatus(true);
         uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
-        for (uint256 i = 0; i < 100; i++) {
+        for (uint32 i; i < 100; i++) {
             reels.mint();
             uint256 tokenId = reels.getTokenIdCounter();
             string memory tokenURI = reels.tokenURI(i + 1);
@@ -134,7 +134,7 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, Titan {
         reels.setPublicMintStatus(true);
         uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
-        for (uint256 i = 0; i < 100; i++) {
+        for (uint32 i = 0; i < 100; i++) {
             reels.mint();
         }
         totalSupply = reels.totalSupply();
@@ -148,21 +148,21 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, Titan {
     // function test_mint_supplyCeiling() public {
     //     reels.setCaseContract(address(series1Case), true);
     //     reels.setPublicMintStatus(true);
-    //     uint256 ceiling = reels.SUPPLY_CEILING();
-    //     reels.setMaxSupply(uint256(ceiling));
+    //     uint32 ceiling = reels.SUPPLY_CEILING();
+    //     reels.setMaxSupply(uint32(ceiling));
     //     assertEq(ceiling, 1_000_000);
-    //     for (uint256 i = 0; i < ceiling; i++) {
+    //     for (uint32 i = 0; i < ceiling; i++) {
     //         vm.prank(address(series1Case));
     //         reels.mint();
     //     }
-    //     uint256 totalSupply = reels.totalSupply();
+    //     uint32 totalSupply = reels.totalSupply();
     //     assertEq(totalSupply, ceiling);
     //     vm.expectRevert("ClancyERC721: Max supply reached.");
     //     vm.prank(address(series1Case));
     //     reels.mint();
     // }
 
-    function testFuzz_mint(uint256 seed) public {
+    function testFuzz_mint(uint32 seed) public {
         vm.assume(seed < MAX_SUPPLY);
 
         reels.setCaseContract(address(series1Case), true);
@@ -170,7 +170,7 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, Titan {
 
         uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
-        for (uint256 i = 0; i < seed; i++) {
+        for (uint32 i = 0; i < seed; i++) {
             reels.mint();
             uint256 tokenId = reels.getTokenIdCounter();
             string memory tokenURI = reels.tokenURI(i + 1);

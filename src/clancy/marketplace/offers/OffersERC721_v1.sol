@@ -17,6 +17,10 @@ contract OffersERC721_v1 is
      */
     mapping(address => mapping(uint256 => OfferItem)) private _items;
 
+    mapping(address => CollectionOfferItem[]) private _collectionOffers;
+    uint32 private _collectionOffersCount;
+    uint8 private constant MAX_OFFERS = type(uint8).max;
+
     /**
      * @notice Creates a new offer or outbids an existing offer for a specific token in a specific contract
      * @dev This function is public and can only be called when the contract is not paused
@@ -94,7 +98,7 @@ contract OffersERC721_v1 is
         );
 
         emit OfferEvent({
-            offerType: "Accept",
+            offerType: OfferType.Accept,
             itemId: itemId,
             contractAddress: contractAddress_,
             tokenId: tokenId,
@@ -129,7 +133,7 @@ contract OffersERC721_v1 is
         }
 
         emit OfferEvent({
-            offerType: "Cancel",
+            offerType: OfferType.Cancel,
             itemId: item.itemId,
             contractAddress: contractAddress_,
             tokenId: tokenId,
@@ -177,7 +181,7 @@ contract OffersERC721_v1 is
         });
 
         emit OfferEvent({
-            offerType: "New",
+            offerType: OfferType.Create,
             itemId: _itemIdCounter,
             contractAddress: contractAddress_,
             tokenId: tokenId,
@@ -215,13 +219,104 @@ contract OffersERC721_v1 is
         }
 
         emit OfferEvent({
-            offerType: "Outbid",
+            offerType: OfferType.Outbid,
             itemId: existingItem.itemId,
             contractAddress: contractAddress_,
             tokenId: tokenId,
             tokenOwner: IERC721(contractAddress_).ownerOf(tokenId),
             offeror: newOfferor,
             value: value
+        });
+    }
+
+    /**
+     * @dev This is a gas heavy method that is not intended to be ran on on chain.
+     *      Use this method to get all the offers on chain and pass in info for other methods
+     *      as required.
+     *      eg: For cancelling a collection offer, get all collection offers, find the index of
+     *          the offer you want to cancel, and pass in the index to the cancelCollectionOffer method.
+     */
+    function getCollectionOffers(
+        address collectionAddress_
+    ) public view returns (CollectionOfferItem[] memory) {
+        if (!getAllowedContract(collectionAddress_)) {
+            revert InputContractInvalid();
+        }
+        CollectionOfferItem[] memory offers = _collectionOffers[
+            collectionAddress_
+        ];
+        return offers;
+    }
+
+    function createCollectionOffer(
+        address contractAddress_
+    ) public payable whenNotPaused {
+        if (msg.value <= 0) {
+            revert OfferCannotBeLTEZero();
+        }
+        if (!getAllowedContract(contractAddress_)) {
+            revert InputContractInvalid();
+        }
+        if (msg.sender == address(0)) {
+            revert OfferorCannotBeZeroAddress();
+        }
+
+        uint256 value = msg.value;
+        uint32 itemId = _collectionOffersCount;
+        ++itemId;
+
+        CollectionOfferItem memory item = CollectionOfferItem({
+            itemId: itemId,
+            contractAddress: contractAddress_,
+            offeror: msg.sender,
+            value: value
+        });
+
+        _collectionOffersCount = itemId;
+        _collectionOffers[contractAddress_].push(item);
+
+        emit CollectionOfferEvent({
+            offerType: OfferType.Create,
+            contractAddress: contractAddress_,
+            offeror: msg.sender,
+            value: value
+        });
+    }
+
+    function cancelCollectionOffer(
+        address contractAddress_,
+        uint32 offerIndex
+    ) public whenNotPaused {
+        if (!getAllowedContract(contractAddress_)) {
+            revert InputContractInvalid();
+        }
+        if (offerIndex >= _collectionOffers[contractAddress_].length) {
+            revert OfferDoesNotExist();
+        }
+        CollectionOfferItem memory offer = _collectionOffers[contractAddress_][
+            offerIndex
+        ];
+
+        if (offer.offeror != msg.sender) {
+            revert NotOfferor();
+        }
+
+        uint256 offerAmount = offer.value;
+
+        delete _collectionOffers[contractAddress_];
+
+        (bool success, ) = msg.sender.call{value: offerAmount}("");
+        if (!success) {
+            revert TransferFailed(
+                "OffersERC721_v1: Cancelled Offer refund failed."
+            );
+        }
+
+        emit CollectionOfferEvent({
+            offerType: OfferType.Cancel,
+            contractAddress: contractAddress_,
+            offeror: msg.sender,
+            value: offerAmount
         });
     }
 }

@@ -10,7 +10,7 @@ import {IOffersERC721_v1, OffersERC721_v1} from "clancy/marketplace/offers/Offer
 import {IOffersERC721_v1_Test} from "./IOffersERC721_v1.t.sol";
 import {IClancyMarketplaceERC721_v1, ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";
 
-contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
+contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     ClancyERC721 clancyERC721;
     OffersERC721_v1 offers;
 
@@ -75,7 +75,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.expectEmit(true, true, true, true, address(offers));
         emit OfferEvent({
-            offerType: "New",
+            offerType: OfferType.Create,
             itemId: itemId + 1,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
@@ -120,7 +120,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.expectEmit(true, true, true, true, address(offers));
         emit OfferEvent({
-            offerType: "Outbid",
+            offerType: OfferType.Outbid,
             itemId: itemId,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
@@ -191,7 +191,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
         assertEq(address(offers).balance, 1 ether);
         uint256 sellerBalanceBefore = w_main.balance;
-        console.log("sellerBalanceBefore", sellerBalanceBefore);
+        // console.log("sellerBalanceBefore", sellerBalanceBefore);
         uint32 itemId = offers.getItemIdCounter();
 
         vm.startPrank(w_main);
@@ -200,7 +200,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.expectEmit(true, true, true, true, address(offers));
         emit OfferEvent({
-            offerType: "Accept",
+            offerType: OfferType.Accept,
             itemId: itemId,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
@@ -209,7 +209,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
             value: 1 ether
         });
         offers.acceptOffer(address(clancyERC721), tokenId);
-        console.log("sellerBalanceAfter", w_main.balance);
+        // console.log("sellerBalanceAfter", w_main.balance);
         assertEq(IERC721(clancyERC721).ownerOf(tokenId), w_one);
         assertEq(w_main.balance, sellerBalanceBefore + 1 ether);
 
@@ -294,7 +294,7 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         uint32 itemId = offers.getItemIdCounter();
         vm.expectEmit(true, true, true, true, address(offers));
         emit OfferEvent({
-            offerType: "Cancel",
+            offerType: OfferType.Cancel,
             itemId: itemId,
             contractAddress: address(clancyERC721),
             tokenId: tokenId,
@@ -344,7 +344,336 @@ contract MarketplaceOffersERC721_Test is Test, IOffersERC721_v1_Test {
         assertEq(offer.offeror, address(this));
     }
 
-    //#endregion
+    //#endregion getOffer
+
+    //#region createCollectionOffer
+    function test_createCollectionOffer_NoValueSent_ShouldRevert() public {
+        vm.expectRevert(IOffersERC721_v1.OfferCannotBeLTEZero.selector);
+        offers.createCollectionOffer(address(clancyERC721));
+    }
+
+    function test_createCollectionOffer_InvalidContractAddress_ShouldRevert()
+        public
+    {
+        vm.expectRevert(
+            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
+        );
+        offers.createCollectionOffer{value: 1 ether}(address(0));
+    }
+
+    function test_createCollectionOffer_ZeroAddressOfferor_ShouldRevert()
+        public
+    {
+        vm.deal(address(0), 10 ether);
+        offers.setAllowedContract(address(clancyERC721), true);
+        vm.expectRevert(IOffersERC721_v1.OfferorCannotBeZeroAddress.selector);
+        vm.prank(address(0));
+        offers.createCollectionOffer{value: 1 ether}(address(clancyERC721));
+    }
+
+    function test_newCollectionOffer_ShouldPass() public {
+        offers.setAllowedContract(address(clancyERC721), true);
+
+        uint256 offerValue = 1 ether;
+
+        vm.startPrank(w_main);
+
+        vm.expectEmit(true, true, true, true, address(offers));
+        emit CollectionOfferEvent({
+            offerType: OfferType.Create,
+            contractAddress: address(clancyERC721),
+            offeror: w_main,
+            value: offerValue
+        });
+        offers.createCollectionOffer{value: offerValue}(address(clancyERC721));
+
+        vm.stopPrank();
+    }
+
+    function test_newCollectionOffer_MultipleOffers_ShouldPass() public {
+        offers.setAllowedContract(address(clancyERC721), true);
+
+        uint8 offerCount = 2;
+        uint256 offerValue = 1 ether;
+
+        address[] memory offerors = new address[](offerCount);
+        offerors[0] = w_main;
+        offerors[1] = w_one;
+
+        for (uint8 i; i < offerors.length; ++i) {
+            address offeror = offerors[i];
+            vm.deal(offeror, offerValue);
+
+            vm.startPrank(offeror);
+
+            vm.expectEmit(true, true, true, true, address(offers));
+            emit CollectionOfferEvent({
+                offerType: OfferType.Create,
+                contractAddress: address(clancyERC721),
+                offeror: offeror,
+                value: offerValue
+            });
+
+            offers.createCollectionOffer{value: offerValue}(
+                address(clancyERC721)
+            );
+
+            vm.stopPrank();
+        }
+    }
+
+    function testFuzz_createCollectionOffer_ShouldPass(
+        address[] calldata offerors
+    ) public {
+        offers.setAllowedContract(address(clancyERC721), true);
+
+        uint8 offerorCount = uint8(offerors.length);
+        uint256 offerAmount = 1 ether;
+
+        // Assumptions
+        vm.assume(offerors.length > 0);
+        vm.assume(offerors.length <= offerorCount);
+        for (uint i; i < offerors.length; ++i) {
+            vm.assume(offerors[i] != address(0));
+        }
+
+        for (uint8 i; i < offerorCount; ++i) {
+            address offeror = offerors[i];
+            vm.deal(offeror, offerAmount);
+
+            vm.startPrank(offeror);
+
+            vm.expectEmit(true, true, true, true, address(offers));
+            emit CollectionOfferEvent({
+                offerType: OfferType.Create,
+                contractAddress: address(clancyERC721),
+                offeror: offeror,
+                value: offerAmount
+            });
+            offers.createCollectionOffer{value: offerAmount}(
+                address(clancyERC721)
+            );
+
+            CollectionOfferItem[] memory offers_ = offers.getCollectionOffers(
+                address(clancyERC721)
+            );
+
+            assertEq(offers_.length, i + 1);
+
+            assertEq(offers_[i].offeror, offeror);
+            assertEq(offers_[i].value, offerAmount);
+
+            vm.stopPrank();
+        }
+    }
+
+    // forge test --match-path test/clancy/marketplace/offers/OffersERC721_v1.t.sol --match-test testFuzz_cancelCollectionOffer_ShouldPass -vvv
+
+    //#endregion createCollectionOffer
+
+    //#region getCollectionOffers
+
+    function test_getCollectionOffers_InvalidContract() public {
+        vm.expectRevert(
+            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
+        );
+        offers.getCollectionOffers(address(0));
+    }
+
+    function test_getCollectionOffers_ShouldPass() public {
+        offers.setAllowedContract(address(clancyERC721), true);
+
+        vm.startPrank(w_main);
+
+        offers.createCollectionOffer{value: 1 ether}(address(clancyERC721));
+
+        vm.stopPrank();
+
+        CollectionOfferItem[] memory offers_ = offers.getCollectionOffers(
+            address(clancyERC721)
+        );
+        uint16 offersLength = uint16(offers_.length);
+        CollectionOfferItem memory mock = CollectionOfferItem({
+            itemId: 1,
+            contractAddress: address(clancyERC721),
+            offeror: w_main,
+            value: 1 ether
+        });
+
+        // // Log the two items side by side
+        // console.log(
+        //     "ItemIds: mock - %s  offers - %s ",
+        //     mock.itemId,
+        //     offers_[0].itemId
+        // );
+        // console.log(
+        //     "ContractAddresses: mock - %s  offers - %s ",
+        //     mock.contractAddress,
+        //     offers_[0].contractAddress
+        // );
+        // console.log(
+        //     "Offerors: mock - %s  offers - %s ",
+        //     mock.offeror,
+        //     offers_[0].offeror
+        // );
+        // console.log(
+        //     "Values: mock - %s  offers - %s ",
+        //     mock.value,
+        //     offers_[0].value
+        // );
+
+        assertEq(offersLength, 1);
+        assertEq(offers_[0].itemId, mock.itemId);
+    }
+
+    //#endregion getCollectionOffers
+
+    //#region cancelCollectionOffer
+
+    function test_cancelCollectionOffer_InvalidContract_ShouldRevert() public {
+        vm.expectRevert(
+            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
+        );
+        offers.cancelCollectionOffer(address(0), 1);
+    }
+
+    function test_cancelCollectionOffer_OfferDoesNotExist_ShouldRevert()
+        public
+    {
+        offers.setAllowedContract(address(clancyERC721), true);
+        vm.expectRevert(IOffersERC721_v1.OfferDoesNotExist.selector);
+        offers.cancelCollectionOffer(address(clancyERC721), 1);
+    }
+
+    function test_cancelCollectionOffer_NotOfferor_ShouldRevert() public {
+        offers.setAllowedContract(address(clancyERC721), true);
+
+        vm.prank(w_main);
+        offers.createCollectionOffer{value: 1 ether}(address(clancyERC721));
+
+        vm.expectRevert(IOffersERC721_v1.NotOfferor.selector);
+        offers.cancelCollectionOffer(address(clancyERC721), 0);
+    }
+
+    function test_cancelCollectionOffer_ContractBalanceBelowOffer_ShouldRevert()
+        public
+    {
+        offers.setAllowedContract(address(clancyERC721), true);
+
+        offers.createCollectionOffer{value: 1 ether}(address(clancyERC721));
+
+        offers.withdraw();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IOffersERC721_v1.TransferFailed.selector,
+                "OffersERC721_v1: Cancelled Offer refund failed."
+            )
+        );
+        offers.cancelCollectionOffer(address(clancyERC721), 0);
+    }
+
+    function test_cancelCollectionOffer_ShouldPass() public {
+        offers.setAllowedContract(address(clancyERC721), true);
+
+        uint256 offerValue = 1 ether;
+        uint256 balanceBefore = address(this).balance;
+
+        offers.createCollectionOffer{value: offerValue}(address(clancyERC721));
+
+        uint256 balanceAfterOffer = address(this).balance;
+        assertEq(balanceAfterOffer, balanceBefore - offerValue);
+
+        vm.expectEmit(true, true, true, true, address(offers));
+        emit CollectionOfferEvent({
+            offerType: OfferType.Cancel,
+            contractAddress: address(clancyERC721),
+            offeror: address(this),
+            value: offerValue
+        });
+        offers.cancelCollectionOffer(address(clancyERC721), 0);
+
+        uint256 balanceAfterCancel = address(this).balance;
+        assertEq(balanceAfterCancel, balanceAfterOffer + offerValue);
+        assertEq(balanceAfterCancel, balanceBefore);
+    }
+
+    function testFuzz_cancelCollectionOffer_ShouldPass(
+        address[] calldata offerors
+    ) public {
+        offers.setAllowedContract(address(clancyERC721), true);
+
+        uint8 offerorCount = uint8(offerors.length);
+        uint256 offerAmount = 1 ether;
+
+        // Assumptions
+        vm.assume(offerors.length > 0);
+        vm.assume(offerors.length <= offerorCount);
+        for (uint8 i; i < offerors.length; ++i) {
+            vm.assume(offerors[i] != address(0));
+        }
+
+        for (uint8 i; i < offerorCount; ++i) {
+            address offeror = offerors[i];
+            vm.deal(offeror, offerAmount);
+
+            vm.startPrank(offeror);
+
+            vm.expectEmit(true, true, true, true, address(offers));
+            emit CollectionOfferEvent({
+                offerType: OfferType.Create,
+                contractAddress: address(clancyERC721),
+                offeror: offeror,
+                value: offerAmount
+            });
+            offers.createCollectionOffer{value: offerAmount}(
+                address(clancyERC721)
+            );
+
+            CollectionOfferItem[] memory offers_ = offers.getCollectionOffers(
+                address(clancyERC721)
+            );
+
+            assertEq(offers_.length, i + 1);
+
+            assertEq(offers_[i].offeror, offeror);
+            assertEq(offers_[i].value, offerAmount);
+
+            vm.stopPrank();
+        }
+
+        for (uint8 i; i < offerorCount; ++i) {
+            address offeror = offerors[i];
+
+            vm.startPrank(offeror);
+
+            CollectionOfferItem[] memory offers_ = offers.getCollectionOffers(
+                address(clancyERC721)
+            );
+            console.log("offers_.length: %s", offers_.length);
+            // Find the index where the offeror is the offeror
+            uint8 index;
+            for (uint8 j; j < offers_.length; ++j) {
+                if (offers_[j].offeror == offeror) {
+                    index = j;
+                    console.log("Found offeror at index: %s", index);
+                    break;
+                }
+            }
+            // vm.expectEmit(true, true, true, true, address(offers));
+            // emit CollectionOfferEvent({
+            //     offerType: "cancel",
+            //     contractAddress: address(clancyERC721),
+            //     offeror: offeror,
+            //     value: offerAmount
+            // });
+            // offers.cancelCollectionOffer(address(clancyERC721), index);
+
+            vm.stopPrank();
+        }
+    }
+
+    //#endregion cancelCollectionOffer
 
     //#region Helpers
     function mintAndApprove() internal returns (uint32) {

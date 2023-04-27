@@ -16,7 +16,7 @@ import { EOAS, RPC } from "../../../../../config/constants";
 const deploy = async (name: string): Promise<ethers.Contract> => {
     const artifact = artifact_finder(name);
 
-    Ducky.Debug(__filename, "deploy", `Deploying ${name} to ${RPC.NAME}`);
+    Ducky.Debug(__filename, "deploy", `Deploying ${name} to ${RPC.URL}`);
     try {
         const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, createWalletWithPrivateKey(EOAS.DEPLOYMENT_KEY));
 

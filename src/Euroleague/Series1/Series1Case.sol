@@ -11,8 +11,8 @@ import {ISeries1Case} from "./ISeries1Case.sol";
 contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
     using Address for address;
 
-    Reels private _reelsContract;
-    uint8 private _reelsPerCase = 3;
+    Reels public _reelsContract;
+    uint8 public _reelsPerCase = 3;
 
     constructor(
         string memory name_,
@@ -88,23 +88,5 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
     function setReelsPerCase(uint8 reelsPerCase) public onlyOwner {
         if (reelsPerCase <= 0) revert ReelsPerCaseNotValid();
         _reelsPerCase = reelsPerCase;
-    }
-
-    /**
-     * @dev Returns the Reels contract.
-     *
-     * @return A Reels contract instance.
-     */
-    function getReelsContract() public view returns (Reels) {
-        return _reelsContract;
-    }
-
-    /**
-     * @dev Returns the number of reels in a case.
-     *
-     * @return A number representing the number of reels in a case.
-     */
-    function getReelsPerCase() public view returns (uint8) {
-        return _reelsPerCase;
     }
 }

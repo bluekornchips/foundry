@@ -101,7 +101,7 @@ contract ClancyERC721StorageURI is ClancyERC721, ERC721URIStorage {
         override(ClancyERC721, ERC721)
         returns (string memory)
     {
-        return _baseURILocal;
+        return baseURILocal;
     }
     //# endregion
 }

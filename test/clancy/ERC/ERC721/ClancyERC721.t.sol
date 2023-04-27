@@ -17,30 +17,30 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
 
     event MaxSupplyChanged(uint32 indexed);
     event BaseURIChanged(string indexed, string indexed);
-    event BurnStatusChanged(bool indexed);
+    event BurnEnabledChanged(bool indexed);
 
     function setUp() public {
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
     }
 
     function test_get_token_id_counter() public {
-        uint32 tokenIdCounter = clancyERC721.getTokenIdCounter();
+        uint32 tokenIdCounter = clancyERC721.tokenIdCounter();
         assertEq(tokenIdCounter, 0);
     }
 
-    function test_InheritedContractChangesgetTokenIdCounter() public {
-        clancyERC721.setPublicMintStatus(true);
-        clancyERC721.getTokenIdCounter();
+    function test_InheritedContractChangestokenIdCounter() public {
+        clancyERC721.setPublicMintEnabled(true);
+        clancyERC721.tokenIdCounter();
     }
 
     //#region Max Supply
     function test_maxSupply() public {
-        uint256 maxSupply = clancyERC721.getMaxSupply();
+        uint256 maxSupply = clancyERC721.maxSupply();
         assertEq(maxSupply, 100);
     }
 
     function testFuzz_SetMaxSupply(uint32 amount) public {
-        uint32 existingMaxSupply = clancyERC721.getMaxSupply();
+        uint32 existingMaxSupply = clancyERC721.maxSupply();
         uint256 currentSupply = clancyERC721.totalSupply();
         uint32 ceiling = clancyERC721.SUPPLY_CEILING();
 
@@ -49,7 +49,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
             vm.expectRevert(IClancyERC721.MaxSupply_LTEZero.selector);
             clancyERC721.setMaxSupply(amount);
 
-            uint32 postMaxSupply = clancyERC721.getMaxSupply();
+            uint32 postMaxSupply = clancyERC721.maxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         }
         // Less than the existing max supply, and less than the current supply, should revert.
@@ -57,13 +57,13 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
             vm.expectRevert(IClancyERC721.MaxSupply_CannotBeDecreased.selector);
             clancyERC721.setMaxSupply(amount);
 
-            uint32 postMaxSupply = clancyERC721.getMaxSupply();
+            uint32 postMaxSupply = clancyERC721.maxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         }
         // Greater than the existing max supply and less than ceiling, should pass.
         else if (amount > existingMaxSupply && amount <= ceiling) {
             clancyERC721.setMaxSupply(amount);
-            uint32 postMaxSupply = clancyERC721.getMaxSupply();
+            uint32 postMaxSupply = clancyERC721.maxSupply();
             assertEq(amount, postMaxSupply);
         }
         // Greater than the ceiling, should revert.
@@ -71,7 +71,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
             vm.expectRevert(IClancyERC721.MaxSupply_AboveCeiling.selector);
             clancyERC721.setMaxSupply(amount);
 
-            uint32 postMaxSupply = clancyERC721.getMaxSupply();
+            uint32 postMaxSupply = clancyERC721.maxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         }
         // Greater than 0 and less than the current supply, should revert.
@@ -80,18 +80,18 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
                 IClancyERC721.MaxSupply_LowerThanCurrentSupply.selector
             );
             clancyERC721.setMaxSupply(amount);
-            uint32 postMaxSupply = clancyERC721.getMaxSupply();
+            uint32 postMaxSupply = clancyERC721.maxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         }
         // Equal to zero, should revert.
         else if (amount == 0) {
             vm.expectRevert(IClancyERC721.MaxSupply_LTEZero.selector);
             clancyERC721.setMaxSupply(amount);
-            uint32 postMaxSupply = clancyERC721.getMaxSupply();
+            uint32 postMaxSupply = clancyERC721.maxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         } else {
             clancyERC721.setMaxSupply(amount);
-            uint32 postMaxSupply = clancyERC721.getMaxSupply();
+            uint32 postMaxSupply = clancyERC721.maxSupply();
             assertEq(amount, postMaxSupply);
         }
     }
@@ -103,7 +103,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
         emit MaxSupplyChanged(test_max_supply);
         clancyERC721.setMaxSupply(test_max_supply);
 
-        uint32 maxSupply = clancyERC721.getMaxSupply();
+        uint32 maxSupply = clancyERC721.maxSupply();
         console.log("maxSupply: %s", uint256(maxSupply).toString());
         assertEq(maxSupply, test_max_supply);
     }
@@ -135,20 +135,20 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
 
     //#endregion
 
-    //#region setPublicMintStatus
-    function test_setPublicMintStatus() public {
-        bool prePublicMintStatus = clancyERC721.getPublicMintStatus();
-        assertEq(prePublicMintStatus, false);
+    //#region setPublicMintEnabled
+    function test_setPublicMintEnabled() public {
+        bool prepublicMintEnabled = clancyERC721.publicMintEnabled();
+        assertEq(prepublicMintEnabled, false);
 
-        clancyERC721.setPublicMintStatus(true);
-        bool postPublicMintStatus = clancyERC721.getPublicMintStatus();
-        assertEq(postPublicMintStatus, true);
+        clancyERC721.setPublicMintEnabled(true);
+        bool postpublicMintEnabled = clancyERC721.publicMintEnabled();
+        assertEq(postpublicMintEnabled, true);
     }
 
-    function test_setPublicMintStatus_asNonOwner() public {
+    function test_setPublicMintEnabled_asNonOwner() public {
         vm.prank(address(clancyERC721));
         vm.expectRevert("Ownable: caller is not the owner");
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
     }
 
     //#endregion
@@ -163,24 +163,24 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
 
     function test_mint_whenPublicMintIsEnabled_andPaused() public {
         clancyERC721.pause();
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
         vm.expectRevert("Pausable: paused");
         clancyERC721.mint();
     }
 
     function test_mint_1() public {
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
         uint256 tokenId = clancyERC721.mint();
         assertEq(tokenId, 1);
     }
 
     // function test_mint_100() public {
-    //     clancyERC721.setPublicMintStatus(true);
+    //     clancyERC721.setPublicMintEnabled(true);
     //     uint256 totalSupply = clancyERC721.totalSupply();
     //     assertEq(totalSupply, 0);
     //     for (uint256 i; i < 100; i++) {
     //         clancyERC721.mint();
-    //         uint256 tokenId = clancyERC721.getTokenIdCounter();
+    //         uint256 tokenId = clancyERC721.tokenIdCounter();
     //         string memory tokenURI = clancyERC721.tokenURI(i + 1);
     //         string memory expectedTokenURI = string(
     //             abi.encodePacked(BASE_URI, tokenId.toString())
@@ -192,7 +192,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     // }
 
     // function test_mint_101() public {
-    //     clancyERC721.setPublicMintStatus(true);
+    //     clancyERC721.setPublicMintEnabled(true);
     //     uint256 totalSupply = clancyERC721.totalSupply();
     //     assertEq(totalSupply, 0);
     //     for (uint256 i; i < 100; i++) {
@@ -207,7 +207,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     // }
 
     // function test_mint_supplyCeiling() public {
-    //     clancyERC721.setPublicMintStatus(true);
+    //     clancyERC721.setPublicMintEnabled(true);
     //     uint256 ceiling = clancyERC721.SUPPLY_CEILING();
     //     clancyERC721.setMaxSupply(uint256(ceiling));
     //     assertEq(ceiling, 1_000_000);
@@ -224,24 +224,24 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
 
     //#region burn status
 
-    function test_getBurnStatus() public {
-        bool burnStatus = clancyERC721.getBurnStatus();
+    function test_burnEnabled() public {
+        bool burnStatus = clancyERC721.burnEnabled();
         assertEq(burnStatus, false);
     }
 
-    function test_setBurnStatus() public {
-        bool preBurnStatus = clancyERC721.getBurnStatus();
+    function test_setBurnEnabled() public {
+        bool preBurnStatus = clancyERC721.burnEnabled();
         assertEq(preBurnStatus, false);
 
-        clancyERC721.setBurnStatus(true);
-        bool postBurnStatus = clancyERC721.getBurnStatus();
+        clancyERC721.setBurnEnabled(true);
+        bool postBurnStatus = clancyERC721.burnEnabled();
         assertEq(postBurnStatus, true);
     }
 
-    function test_setBurnStatus_AsNonOwner() public {
+    function test_setBurnEnabled_AsNonOwner() public {
         vm.prank(address(clancyERC721));
         vm.expectRevert("Ownable: caller is not the owner");
-        clancyERC721.setBurnStatus(true);
+        clancyERC721.setBurnEnabled(true);
     }
 
     //#endregion
@@ -256,36 +256,36 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     }
 
     function test_burn_whenBurnIsEnabled_andPaused() public {
-        clancyERC721.setBurnStatus(true);
+        clancyERC721.setBurnEnabled(true);
         clancyERC721.pause();
         vm.expectRevert("Pausable: paused");
         clancyERC721.burn(1);
     }
 
     function test_burn_whenBurnIsEnabled() public {
-        clancyERC721.setBurnStatus(true);
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setBurnEnabled(true);
+        clancyERC721.setPublicMintEnabled(true);
         clancyERC721.mint();
 
         uint256 totalSupply = clancyERC721.totalSupply();
-        uint256 token_id_counter = clancyERC721.getTokenIdCounter();
+        uint256 token_id_counter = clancyERC721.tokenIdCounter();
         assertEq(totalSupply, 1);
         assertEq(token_id_counter, 1);
 
         clancyERC721.burn(1);
-        token_id_counter = clancyERC721.getTokenIdCounter();
+        token_id_counter = clancyERC721.tokenIdCounter();
         totalSupply = clancyERC721.totalSupply();
         assertEq(totalSupply, 0);
         assertEq(token_id_counter, 1);
     }
 
     function test_burn_AnotherAccountsToken() public {
-        clancyERC721.setBurnStatus(true);
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setBurnEnabled(true);
+        clancyERC721.setPublicMintEnabled(true);
         clancyERC721.mint();
 
         uint256 totalSupply = clancyERC721.totalSupply();
-        uint256 token_id_counter = clancyERC721.getTokenIdCounter();
+        uint256 token_id_counter = clancyERC721.tokenIdCounter();
         assertEq(totalSupply, 1);
         assertEq(token_id_counter, 1);
 
@@ -297,14 +297,14 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     }
 
     // function test_burn_100Tokens() public {
-    //     clancyERC721.setBurnStatus(true);
-    //     clancyERC721.setPublicMintStatus(true);
+    //     clancyERC721.setBurnEnabled(true);
+    //     clancyERC721.setPublicMintEnabled(true);
     //     for (uint256 i; i < 100; i++) {
     //         clancyERC721.mint();
     //     }
 
     //     uint256 totalSupply = clancyERC721.totalSupply();
-    //     uint256 token_id_counter = clancyERC721.getTokenIdCounter();
+    //     uint256 token_id_counter = clancyERC721.tokenIdCounter();
     //     assertEq(totalSupply, 100);
     //     assertEq(token_id_counter, 100);
 
@@ -312,7 +312,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     //         clancyERC721.burn(i + 1);
     //     }
 
-    //     token_id_counter = clancyERC721.getTokenIdCounter();
+    //     token_id_counter = clancyERC721.tokenIdCounter();
     //     totalSupply = clancyERC721.totalSupply();
     //     assertEq(totalSupply, 0);
     //     assertEq(token_id_counter, 100);
@@ -323,14 +323,14 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     //#region balanceOf
 
     function test_balanceOf() public {
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
         clancyERC721.mint();
         uint256 balance = clancyERC721.balanceOf(address(this));
         assertEq(balance, 1);
     }
 
     function test_balanceOf_afterTransfer() public {
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
         clancyERC721.mint();
         clancyERC721.safeTransferFrom(address(this), w_main, 1);
         uint256 balance = clancyERC721.balanceOf(address(this));
@@ -343,7 +343,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
 
     function test_delegateCall() public {
         (bool success, bytes memory result) = address(clancyERC721)
-            .delegatecall(abi.encodeWithSignature("getBurnStatus()"));
+            .delegatecall(abi.encodeWithSignature("burnEnabled()"));
         require(success, "Delegate call failed");
         bool myResult = abi.decode(result, (bool));
         console.log("myResult %s", myResult);
@@ -353,7 +353,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     //#region safeTransferFrom
 
     function test_safeTransferFrom() public {
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
         clancyERC721.mint();
         clancyERC721.safeTransferFrom(address(this), w_main, 1);
         uint256 balance = clancyERC721.balanceOf(w_main);
@@ -363,7 +363,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     function test_safeTransferFrom_MintOneThensafeTransferFrom_CircuitTest()
         public
     {
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
         clancyERC721.mint();
         clancyERC721.safeTransferFrom(address(this), w_main, 1);
 
@@ -382,7 +382,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     }
 
     function test_safeTransferFrom_asApprovedOrOwner() public {
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
         clancyERC721.mint();
         clancyERC721.approve(w_main, 1);
         clancyERC721.safeTransferFrom(address(this), w_main, 1);
@@ -393,7 +393,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     function test_safeTransferFrom_asApprovedOrOwnerForNonApprovedToken()
         public
     {
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
         clancyERC721.mint();
         clancyERC721.mint();
         clancyERC721.approve(w_main, 1);

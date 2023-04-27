@@ -36,8 +36,8 @@ const series1Case = async (config: IEuroleagueConfig): Promise<ContractContainer
 
             // Deploy the ERC-721 token and store it in the object of deployed tokens.
             const series1case_contract = await collections.euroleague.series1.series1case.deploy(name, symbol, max_supply, uri, odoo_token_id)
-            await collections.clancy.ERC.ClancyERC721.setPublicMintStatus(series1case_contract, config.publicMintStatus)
-            await collections.clancy.ERC.ClancyERC721.setPublicBurnStatus(series1case_contract, config.publicBurnStatus)
+            await collections.clancy.ERC.ClancyERC721.setPublicMintEnabled(series1case_contract, config.publicMintStatus)
+            await collections.clancy.ERC.ClancyERC721.setBurnEnabled(series1case_contract, config.publicBurnStatus)
             series1case_contracts[name] = series1case_contract
         } catch (error: any) {
             // Log an error message if the deployment fails and re-throw the error.

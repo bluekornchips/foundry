@@ -14,12 +14,12 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
     using Address for address;
 
     uint32 public constant MAX_ITEMS = 1_000;
-    uint32 private _activeListings;
-    mapping(address => mapping(uint32 => EscrowItem)) private _items;
+    uint32 public _activeListings;
+    mapping(address => mapping(uint32 => EscrowItem)) public items;
 
     /**
      * @dev Creates a new EscrowItem and places it in escrow.
-     * @param tokenContract The address of the token contract.
+     * @param contractAddress The address of the token contract.
      * @param tokenId The unique identifier of the token.
      * @return Returns the unique identifier of the created EscrowItem as a uint32.
      *
@@ -27,44 +27,50 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
      * Emits a {Transfer} event indicating the transfer of the token to the escrow contract.
      */
     function createItem(
-        address tokenContract,
+        address contractAddress,
         uint32 tokenId
     ) public whenNotPaused nonReentrant returns (uint32) {
-        if (_activeListings >= MAX_ITEMS) revert EscrowFull();
-        if (!getAllowedContract(tokenContract)) revert InputContractInvalid();
-        if (IERC721(tokenContract).ownerOf(tokenId) != _msgSender())
+        if (_activeListings >= MAX_ITEMS) {
+            revert EscrowFull();
+        }
+        if (!vendors[contractAddress]) {
+            revert InputContractInvalid();
+        }
+        if (IERC721(contractAddress).ownerOf(tokenId) != _msgSender()) {
             revert NotTokenOwner();
-        if (_items[tokenContract][tokenId].buyer != address(0))
+        }
+        if (items[contractAddress][tokenId].buyer != address(0)) {
             revert EscrowItemAlreadyForSale();
+        }
 
-        IERC721(tokenContract).safeTransferFrom(
+        IERC721(contractAddress).safeTransferFrom(
             _msgSender(),
             address(this),
             tokenId
         );
 
         ++_activeListings;
-        ++_itemIdCounter;
+        ++itemIdCounter;
 
-        _items[tokenContract][tokenId] = EscrowItem({
-            itemId: _itemIdCounter,
+        items[contractAddress][tokenId] = EscrowItem({
+            itemId: itemIdCounter,
             seller: _msgSender(),
             buyer: address(0)
         });
 
         emit EscrowItemCreated({
-            tokenContract: tokenContract,
+            contractAddress: contractAddress,
             tokenId: tokenId,
             seller: _msgSender(),
-            itemId: _itemIdCounter
+            itemId: itemIdCounter
         });
 
-        return _itemIdCounter;
+        return itemIdCounter;
     }
 
     /**
      * @dev Cancels a EscrowItem and transfers the token back to the seller.
-     * @param tokenContract The address of the ERC721 contract for the token being cancelled.
+     * @param contractAddress The address of the ERC721 contract for the token being cancelled.
      * @param tokenId The ID of the token being cancelled.
      * Requirements:
      * - The contract calling this function must be an allowed contract.
@@ -73,33 +79,39 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
      * - The item must not have been sold.
      */
     function cancelItem(
-        address tokenContract,
+        address contractAddress,
         uint32 tokenId
     ) public whenNotPaused nonReentrant {
-        if (!getAllowedContract(tokenContract)) revert InputContractInvalid();
+        if (!vendors[contractAddress]) {
+            revert InputContractInvalid();
+        }
+        EscrowItem storage item = items[contractAddress][tokenId];
 
-        EscrowItem storage item = _items[tokenContract][tokenId];
-
-        if (item.itemId == 0) revert EscrowItemDoesNotExist();
+        if (item.itemId == 0) {
+            revert EscrowItemDoesNotExist();
+        }
         /**
          * The token is not approved for transfer by the marketplace during the createItem function.
          * We use the item.seller instead of an approved caller or owner.
          * This prevents the item from being cancelled without clearing the mapping.
          */
-        if (item.seller != _msgSender()) revert NotTokenSeller();
-        if (item.buyer != address(0)) revert EscrowItemIsSold();
-
+        if (item.seller != _msgSender()) {
+            revert NotTokenSeller();
+        }
+        if (item.buyer != address(0)) {
+            revert EscrowItemIsSold();
+        }
         emit EscrowItemCancelled({
             itemId: item.itemId,
-            tokenContract: tokenContract,
+            contractAddress: contractAddress,
             tokenId: tokenId
         });
 
-        delete _items[tokenContract][tokenId];
+        delete items[contractAddress][tokenId];
 
         --_activeListings;
 
-        IERC721(tokenContract).safeTransferFrom(
+        IERC721(contractAddress).safeTransferFrom(
             address(this),
             _msgSender(),
             tokenId
@@ -108,7 +120,7 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
 
     /**
      * @dev Creates a EscrowItem purchase by updating the buyer and soldAt timestamp.
-     * @param tokenContract The address of the ERC721 contract for the token being purchased.
+     * @param contractAddress The address of the ERC721 contract for the token being purchased.
      * @param tokenId The ID of the token being purchased.
      * @param buyer The address of the buyer making the purchase.
      * Requirements:
@@ -118,24 +130,29 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
      * - The buyer must not be the seller or the zero address.
      */
     function createPurchase(
-        address tokenContract,
+        address contractAddress,
         uint32 tokenId,
         address buyer
     ) public onlyOwner {
-        if (!getAllowedContract(tokenContract)) revert InputContractInvalid();
+        if (!vendors[contractAddress]) {
+            revert InputContractInvalid();
+        }
+        EscrowItem storage item = items[contractAddress][tokenId];
 
-        EscrowItem storage item = _items[tokenContract][tokenId];
-
-        if (item.buyer != address(0)) revert EscrowItemIsSold();
-        if (item.seller == address(0))
+        if (item.buyer != address(0)) {
+            revert EscrowItemIsSold();
+        }
+        if (item.seller == address(0)) {
             revert EscrowItemSellerCannotBeZeroAddress();
-        if (item.seller == buyer) revert EscrowItemBuyerCannotBeSeller();
-
+        }
+        if (item.seller == buyer) {
+            revert EscrowItemBuyerCannotBeSeller();
+        }
         item.buyer = buyer;
 
         emit EscrowItemPurchaseCreated({
             itemId: item.itemId,
-            tokenContract: tokenContract,
+            contractAddress: contractAddress,
             tokenId: tokenId,
             seller: item.seller,
             buyer: buyer
@@ -144,7 +161,7 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
 
     /**
      * @dev Claims a purchased EscrowItem and transfers ownership to the buyer.
-     * @param tokenContract The address of the ERC721 contract for the token being claimed.
+     * @param contractAddress The address of the ERC721 contract for the token being claimed.
      * @param tokenId The ID of the token being claimed.
      * Requirements:
      * - The contract calling this function must be an allowed contract.
@@ -152,28 +169,35 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
      * - The caller must be the buyer of the item.
      */
     function claimItem(
-        address tokenContract,
+        address contractAddress,
         uint32 tokenId
     ) public whenNotPaused nonReentrant {
-        if (!getAllowedContract(tokenContract)) revert InputContractInvalid();
+        if (!vendors[contractAddress]) {
+            revert InputContractInvalid();
+        }
 
-        EscrowItem storage item = _items[tokenContract][tokenId];
+        EscrowItem storage item = items[contractAddress][tokenId];
 
-        if (item.itemId == 0) revert EscrowItemDoesNotExist();
-        if (item.buyer == address(0)) revert EscrowItemIsNotSold();
-        if (item.buyer != _msgSender()) revert NotTokenBuyer();
-
+        if (item.itemId == 0) {
+            revert EscrowItemDoesNotExist();
+        }
+        if (item.buyer == address(0)) {
+            revert EscrowItemIsNotSold();
+        }
+        if (item.buyer != _msgSender()) {
+            revert NotTokenBuyer();
+        }
         emit EscrowItemClaimed({
             itemId: item.itemId,
-            tokenContract: tokenContract,
+            contractAddress: contractAddress,
             tokenId: tokenId
         });
 
-        delete _items[tokenContract][tokenId];
+        delete items[contractAddress][tokenId];
 
         --_activeListings;
 
-        IERC721(tokenContract).safeTransferFrom(
+        IERC721(contractAddress).safeTransferFrom(
             address(this),
             _msgSender(),
             tokenId
@@ -189,7 +213,7 @@ contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
     function getItem(
         address tokenContract,
         uint32 tokenId
-    ) public view override returns (EscrowItem memory) {
-        return _items[tokenContract][tokenId];
+    ) public view returns (EscrowItem memory) {
+        return items[tokenContract][tokenId];
     }
 }

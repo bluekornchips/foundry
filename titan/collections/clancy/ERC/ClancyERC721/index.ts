@@ -1,11 +1,11 @@
 import deploy from "./deploy"
-import setPublicMintStatus from "./setPublicMintStatus"
-import setPublicBurnStatus from "./setBurnStatus"
+import setPublicMintEnabled from "./setPublicMintEnabled"
+import setBurnEnabled from "./setBurnEnabled"
 
 const ClancyERC721 = {
     deploy,
-    setPublicMintStatus,
-    setPublicBurnStatus
+    setPublicMintEnabled,
+    setBurnEnabled
 }
 
 export default ClancyERC721

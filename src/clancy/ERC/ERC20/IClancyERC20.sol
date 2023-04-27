@@ -6,7 +6,7 @@ interface IClancyERC20 {
     error BurnDisabled();
     error Cap_Reached();
 
-    event BurnStatusChanged(bool indexed);
+    event BurnEnabledChanged(bool indexed);
 
     function mint(uint256 amount) external;
 

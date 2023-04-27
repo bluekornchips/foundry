@@ -19,12 +19,12 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         // ClancyERC721 Setup
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
-        clancyERC721.setPublicMintStatus(true);
-        clancyERC721.setBurnStatus(false);
+        clancyERC721.setPublicMintEnabled(true);
+        clancyERC721.setBurnEnabled(false);
 
         // Offers Setup
         offers = new OffersERC721_v1();
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
     }
 
     //#region createOffer
@@ -69,7 +69,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         vm.startPrank(w_main);
 
         uint32 tokenId = mintAndApprove();
-        uint32 itemId = offers.getItemIdCounter();
+        uint32 itemId = offers.itemIdCounter();
 
         vm.stopPrank();
 
@@ -114,7 +114,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
 
         uint256 balanceBefore = address(this).balance;
-        uint32 itemId = offers.getItemIdCounter();
+        uint32 itemId = offers.itemIdCounter();
 
         vm.startPrank(w_one);
 
@@ -192,7 +192,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         assertEq(address(offers).balance, 1 ether);
         uint256 sellerBalanceBefore = w_main.balance;
         // console.log("sellerBalanceBefore", sellerBalanceBefore);
-        uint32 itemId = offers.getItemIdCounter();
+        uint32 itemId = offers.itemIdCounter();
 
         vm.startPrank(w_main);
 
@@ -215,13 +215,14 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.stopPrank();
 
-        OfferItem memory offerItem = offers.getOffer(
+        OfferItem memory item;
+        (item.itemId, item.offerAmount, item.offeror) = offers.items(
             address(clancyERC721),
             itemId
         );
-        assertEq(offerItem.itemId, 0);
-        assertEq(offerItem.offeror, address(0));
-        assertEq(offerItem.offerAmount, 0);
+        assertEq(item.itemId, 0);
+        assertEq(item.offeror, address(0));
+        assertEq(item.offerAmount, 0);
     }
 
     //#endregion acceptOffer
@@ -291,7 +292,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.stopPrank();
 
-        uint32 itemId = offers.getItemIdCounter();
+        uint32 itemId = offers.itemIdCounter();
         vm.expectEmit(true, true, true, true, address(offers));
         emit OfferEvent({
             offerType: OfferType.Cancel,
@@ -314,14 +315,16 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_getOffer_ForNonExistentOffer_ShouldPass() public {
         vm.startPrank(w_main);
         uint32 tokenId = mintAndApprove();
-        uint32 itemId = offers.getItemIdCounter();
+        uint32 itemId = offers.itemIdCounter();
 
-        OfferItem memory offer = offers.getOffer(
+        OfferItem memory item;
+        (item.itemId, item.offerAmount, item.offeror) = offers.items(
             address(clancyERC721),
-            tokenId
+            itemId
         );
+
         vm.stopPrank();
-        assertEq(offer.itemId, itemId);
+        assertEq(item.itemId, itemId);
     }
 
     function test_getOffer_ForExistentOffer_ShouldPass() public {
@@ -332,16 +335,17 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         vm.stopPrank();
 
         offers.createOffer{value: 1 ether}(address(clancyERC721), tokenId);
-        OfferItem memory offer = offers.getOffer(
+
+        OfferItem memory item;
+        (item.itemId, item.offerAmount, item.offeror) = offers.items(
             address(clancyERC721),
             tokenId
         );
+        uint32 itemId = offers.itemIdCounter();
 
-        uint32 itemId = offers.getItemIdCounter();
-
-        assertEq(offer.itemId, itemId);
-        assertEq(offer.offerAmount, 1 ether);
-        assertEq(offer.offeror, address(this));
+        assertEq(item.itemId, itemId);
+        assertEq(item.offerAmount, 1 ether);
+        assertEq(item.offeror, address(this));
     }
 
     //#endregion getOffer
@@ -365,14 +369,14 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         public
     {
         vm.deal(address(0), 10 ether);
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
         vm.expectRevert(IOffersERC721_v1.OfferorCannotBeZeroAddress.selector);
         vm.prank(address(0));
         offers.createCollectionOffer{value: 1 ether}(address(clancyERC721));
     }
 
     function test_newCollectionOffer_ShouldPass() public {
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
 
         uint256 offerValue = 1 ether;
 
@@ -391,7 +395,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     }
 
     function test_newCollectionOffer_MultipleOffers_ShouldPass() public {
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
 
         uint8 offerCount = 2;
         uint256 offerValue = 1 ether;
@@ -425,7 +429,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     function testFuzz_createCollectionOffer_ShouldPass(
         address[] calldata offerors
     ) public {
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
 
         uint8 offerorCount = uint8(offerors.length);
         uint256 offerAmount = 1 ether;
@@ -454,14 +458,14 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
                 address(clancyERC721)
             );
 
-            CollectionOfferItem[] memory offers_ = offers.getCollectionOffers(
+            CollectionOfferItem[] memory items_ = offers.getCollectionOffers(
                 address(clancyERC721)
             );
 
-            assertEq(offers_.length, i + 1);
+            assertEq(items_.length, i + 1);
 
-            assertEq(offers_[i].offeror, offeror);
-            assertEq(offers_[i].value, offerAmount);
+            assertEq(items_[i].offeror, offeror);
+            assertEq(items_[i].value, offerAmount);
 
             vm.stopPrank();
         }
@@ -481,7 +485,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     }
 
     function test_getCollectionOffers_ShouldPass() public {
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
 
         vm.startPrank(w_main);
 
@@ -489,10 +493,10 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.stopPrank();
 
-        CollectionOfferItem[] memory offers_ = offers.getCollectionOffers(
+        CollectionOfferItem[] memory items_ = offers.getCollectionOffers(
             address(clancyERC721)
         );
-        uint16 offersLength = uint16(offers_.length);
+        uint16 offersLength = uint16(items_.length);
         CollectionOfferItem memory mock = CollectionOfferItem({
             itemId: 1,
             contractAddress: address(clancyERC721),
@@ -504,26 +508,26 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         // console.log(
         //     "ItemIds: mock - %s  offers - %s ",
         //     mock.itemId,
-        //     offers_[0].itemId
+        //     items_[0].itemId
         // );
         // console.log(
         //     "ContractAddresses: mock - %s  offers - %s ",
         //     mock.contractAddress,
-        //     offers_[0].contractAddress
+        //     items_[0].contractAddress
         // );
         // console.log(
         //     "Offerors: mock - %s  offers - %s ",
         //     mock.offeror,
-        //     offers_[0].offeror
+        //     items_[0].offeror
         // );
         // console.log(
         //     "Values: mock - %s  offers - %s ",
         //     mock.value,
-        //     offers_[0].value
+        //     items_[0].value
         // );
 
         assertEq(offersLength, 1);
-        assertEq(offers_[0].itemId, mock.itemId);
+        assertEq(items_[0].itemId, mock.itemId);
     }
 
     //#endregion getCollectionOffers
@@ -540,13 +544,13 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_cancelCollectionOffer_OfferDoesNotExist_ShouldRevert()
         public
     {
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
         vm.expectRevert(IOffersERC721_v1.OfferDoesNotExist.selector);
         offers.cancelCollectionOffer(address(clancyERC721), 1);
     }
 
     function test_cancelCollectionOffer_NotOfferor_ShouldRevert() public {
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
 
         vm.prank(w_main);
         offers.createCollectionOffer{value: 1 ether}(address(clancyERC721));
@@ -558,7 +562,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     function test_cancelCollectionOffer_ContractBalanceBelowOffer_ShouldRevert()
         public
     {
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
 
         offers.createCollectionOffer{value: 1 ether}(address(clancyERC721));
 
@@ -574,7 +578,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     }
 
     function test_cancelCollectionOffer_ShouldPass() public {
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
 
         uint256 offerValue = 1 ether;
         uint256 balanceBefore = address(this).balance;
@@ -601,7 +605,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     function testFuzz_cancelCollectionOffer_ShouldPass(
         address[] calldata offerors
     ) public {
-        offers.setAllowedContract(address(clancyERC721), true);
+        offers.setVendorStatus(address(clancyERC721), true);
 
         uint8 offerorCount = uint8(offerors.length);
         uint256 offerAmount = 1 ether;
@@ -630,14 +634,14 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
                 address(clancyERC721)
             );
 
-            CollectionOfferItem[] memory offers_ = offers.getCollectionOffers(
+            CollectionOfferItem[] memory items_ = offers.getCollectionOffers(
                 address(clancyERC721)
             );
 
-            assertEq(offers_.length, i + 1);
+            assertEq(items_.length, i + 1);
 
-            assertEq(offers_[i].offeror, offeror);
-            assertEq(offers_[i].value, offerAmount);
+            assertEq(items_[i].offeror, offeror);
+            assertEq(items_[i].value, offerAmount);
 
             vm.stopPrank();
         }
@@ -647,14 +651,14 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
             vm.startPrank(offeror);
 
-            CollectionOfferItem[] memory offers_ = offers.getCollectionOffers(
+            CollectionOfferItem[] memory items_ = offers.getCollectionOffers(
                 address(clancyERC721)
             );
-            console.log("offers_.length: %s", offers_.length);
+            console.log("items_.length: %s", items_.length);
             // Find the index where the offeror is the offeror
             uint8 index;
-            for (uint8 j; j < offers_.length; ++j) {
-                if (offers_[j].offeror == offeror) {
+            for (uint8 j; j < items_.length; ++j) {
+                if (items_[j].offeror == offeror) {
                     index = j;
                     console.log("Found offeror at index: %s", index);
                     break;

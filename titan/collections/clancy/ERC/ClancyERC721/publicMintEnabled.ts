@@ -9,10 +9,10 @@ import Ducky from "../../../../utility/logging/ducky";
  * @returns The public mint status of the contract.
  * @throws If the public mint status could not be retrieved.
  */
-const getPublicMintStatus = async (contract: ethers.Contract): Promise<boolean> => {
+const publicMintEnabled = async (contract: ethers.Contract): Promise<boolean> => {
     try {
-        const isPublicMintingEnabled = await contract.getPublicMintStatus(); // Retrieve the public mint status of the contract.
-        Ducky.Debug(__filename, "getPublicMintStatus", `${await contract.name()}.publicMintStatus is ${isPublicMintingEnabled}`);
+        const isPublicMintingEnabled = await contract.publicMintEnabled(); // Retrieve the public mint status of the contract.
+        Ducky.Debug(__filename, "getPublicMintStatus", `${await contract.name()}.publicMintEnabled is ${isPublicMintingEnabled}`);
         return isPublicMintingEnabled;
     } catch (error: any) {
         const message = `Could not getPublicMintStatus for contract at address ${contract.address}`;
@@ -22,4 +22,4 @@ const getPublicMintStatus = async (contract: ethers.Contract): Promise<boolean> 
 }
 
 
-export default getPublicMintStatus
+export default publicMintEnabled

@@ -17,7 +17,7 @@ import Ducky from "../../../../utility/logging/ducky";
  * @throws If the contract deployment or addition to PostgreSQL fails.
  */
 const deploy = async (name: string, symbol: string, max_supply: number, uri: string, odoo_token_id: number, artifact: any): Promise<ethers.Contract> => {
-    Ducky.Debug(__filename, "deploy", `Deploying ClancyERC721: ${name} to ${RPC.NAME}`);
+    Ducky.Debug(__filename, "deploy", `Deploying ClancyERC721: ${name} to ${RPC.URL}`);
     const deployedContract = await deployToBlockchain(name, symbol, max_supply, uri, artifact);
     await addToPostgres(name, deployedContract, odoo_token_id, artifact); // Add the deployed contract and its artifact to PostgreSQL.
     return deployedContract;

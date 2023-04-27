@@ -26,8 +26,8 @@ const deploy = async () => {
 
         // Deploy the Euroleague Reels ERC-721 token.
         const reels = await deploy_reels(euroleagueConfig)
-        await collections.clancy.ERC.ClancyERC721.setPublicMintStatus(reels, true)
-        await collections.clancy.marketplace.setAllowedContract(marketplace, reels, true, VALID_CONTRACTS.EscrowERC721_v1)
+        await collections.clancy.ERC.ClancyERC721.setPublicMintEnabled(reels, true)
+        await collections.clancy.marketplace.setVendorStatus(marketplace, reels, true, VALID_CONTRACTS.EscrowERC721_v1)
 
         // Deploy the series of ERC721 tokens representing Euroleague cases.
         const series1cases: ContractContainer = await series1Case(euroleagueConfig)
@@ -38,7 +38,7 @@ const deploy = async () => {
             Ducky.Debug(__filename, "deploy", `Setting reels contract for series1case #${count++}.`)
             await collections.euroleague.series1.series1case.setReelsContract(series1case, await reels.getAddress())
             await collections.euroleague.series1.reels.setCaseContract(reels, await series1case.getAddress(), true)
-            await collections.clancy.marketplace.setAllowedContract(marketplace, series1case, true, VALID_CONTRACTS.EscrowERC721_v1)
+            await collections.clancy.marketplace.setVendorStatus(marketplace, series1case, true, VALID_CONTRACTS.EscrowERC721_v1)
         }
 
         // Log a success message indicating that the deployment completed.

@@ -33,7 +33,7 @@ contract ClancyERC721Airdroppable is IClancyERC721Airdroppable, ClancyERC721 {
         uint32 i;
         do {
             tokenCount += airdrops_[i].tokenCount;
-            if (tokenCount > getMaxSupply()) revert MaxSupply_Reached();
+            if (tokenCount > maxSupply) revert MaxSupply_Reached();
             if (airdrops_[i].recipient == address(0))
                 revert AirdropRecipientCannotBeZero();
             if (airdrops_[i].tokenCount < 1)
@@ -44,7 +44,7 @@ contract ClancyERC721Airdroppable is IClancyERC721Airdroppable, ClancyERC721 {
 
         i = 0; // Reset i
 
-        uint32 tokenId = _tokenIdCounter;
+        uint32 tokenId = tokenIdCounter;
 
         Airdropped[] memory airdropped = new Airdropped[](airdrops_.length);
         do {
@@ -63,7 +63,7 @@ contract ClancyERC721Airdroppable is IClancyERC721Airdroppable, ClancyERC721 {
             ++i;
         } while (i < airdrops_.length);
 
-        _tokenIdCounter = tokenId;
+        tokenIdCounter = tokenId;
 
         emit AirdropDelivered(uint8(++_airDropCounter), airdropped);
     }

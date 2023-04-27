@@ -22,21 +22,21 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         escrow_max_items = escrow.MAX_ITEMS();
 
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
     }
 
-    //#region setAllowedContract
+    //#region setVendorStatus
     function test_setAllowedContract_WhenNotOwner_ShouldRevert() public {
         vm.prank(w_main);
         vm.expectRevert("Ownable: caller is not the owner");
-        escrow.setAllowedContract(address(clancyERC721), true);
+        escrow.setVendorStatus(address(clancyERC721), true);
     }
 
     function test_setAllowedContract_ForZeroAddress_ShouldRevert() public {
         vm.expectRevert(
             IClancyMarketplaceERC721_v1.InputContractInvalid.selector
         );
-        escrow.setAllowedContract(address(0), true);
+        escrow.setVendorStatus(address(0), true);
     }
 
     function test_setAllowedContract_ForNonERC721Contract_ShouldRevert()
@@ -45,23 +45,23 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         vm.expectRevert(
             IClancyMarketplaceERC721_v1.InputContractInvalid.selector
         );
-        escrow.setAllowedContract(w_main, true);
+        escrow.setVendorStatus(w_main, true);
     }
 
     function test_setAllowedContract_ShouldSucceed() public {
-        escrow.setAllowedContract(address(clancyERC721), true);
+        escrow.setVendorStatus(address(clancyERC721), true);
     }
 
     //#endregion
 
     //#region getAllowedContract
     function test_getAllowedContract() public {
-        escrow.setAllowedContract(address(clancyERC721), true);
-        assertEq(escrow.getAllowedContract(address(clancyERC721)), true);
+        escrow.setVendorStatus(address(clancyERC721), true);
+        assertEq(escrow.vendors(address(clancyERC721)), true);
     }
 
     function test_getAllowedContract_ShouldReturnFalse() public {
-        assertEq(escrow.getAllowedContract(address(clancyERC721)), false);
+        assertEq(escrow.vendors(address(clancyERC721)), false);
     }
 
     //#endregion
@@ -96,9 +96,9 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
 
         vm.expectEmit(true, true, true, true, address(escrow));
         emit EscrowItemCreated({
-            itemId: escrow.getItemIdCounter() + 1,
+            itemId: escrow.itemIdCounter() + 1,
             tokenId: tokenId,
-            tokenContract: address(clancyERC721),
+            contractAddress: address(clancyERC721),
             seller: address(this)
         });
         uint32 escrowItemId = escrow.createItem(address(clancyERC721), tokenId);
@@ -116,9 +116,9 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
             clancyERC721.approve(address(escrow), tokenId);
             vm.expectEmit(true, true, true, true, address(escrow));
             emit EscrowItemCreated({
-                itemId: escrow.getItemIdCounter() + 1,
+                itemId: escrow.itemIdCounter() + 1,
                 tokenId: tokenId,
-                tokenContract: address(clancyERC721),
+                contractAddress: address(clancyERC721),
                 seller: address(this)
             });
             escrow.createItem(address(clancyERC721), tokenId);
@@ -127,7 +127,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         assertEq(clancyERC721.balanceOf(address(escrow)), escrow_max_items);
         assertEq(clancyERC721.balanceOf(address(this)), 0);
 
-        console.log("Created", escrow.getItemIdCounter(), "items.");
+        console.log("Created", escrow.itemIdCounter(), "items.");
     }
 
     function test_createItem_MaxItemsPlusOne_ShouldRevert() public {
@@ -160,7 +160,8 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
     function test_getItem_DoesNotExist_ShouldReturnZeroes() public {
         escrowSetup();
 
-        IEscrowERC721_v1.EscrowItem memory item = escrow.getItem(
+        EscrowItem memory item;
+        (item.itemId, item.seller, item.buyer) = escrow.items(
             address(clancyERC721),
             0
         );
@@ -173,11 +174,12 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         escrowSetup();
 
         uint32 tokenId = mintAndApprove();
-        escrow.createItem(address(clancyERC721), tokenId);
 
-        IEscrowERC721_v1.EscrowItem memory item = escrow.getItem(
+        uint32 escrowItemId = escrow.createItem(address(clancyERC721), tokenId);
+
+        EscrowItem memory item = escrow.getItem(
             address(clancyERC721),
-            tokenId
+            escrowItemId
         );
 
         assertEq(item.seller, address(this));
@@ -278,17 +280,19 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         uint32 itemId = escrow.createItem(address(clancyERC721), tokenId);
         console.log("Listed item with ID: %s", itemId);
 
-        IEscrowERC721_v1.EscrowItem memory item = escrow.getItem(
+        EscrowItem memory item;
+        (item.itemId, item.seller, item.buyer) = escrow.items(
             address(clancyERC721),
-            tokenId
+            0
         );
+
         console.log("itemId: %s, seller: %s", item.itemId, item.seller);
 
         vm.expectEmit(true, true, true, false, address(escrow));
         emit EscrowItemCancelled({
             itemId: itemId,
             tokenId: tokenId,
-            tokenContract: address(clancyERC721)
+            contractAddress: address(clancyERC721)
         });
         escrow.cancelItem(address(clancyERC721), tokenId);
 
@@ -299,7 +303,10 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         console.log("Cancelled item with ID: %s", itemId);
 
         // GetItem should return 0
-        item = escrow.getItem(address(clancyERC721), tokenId);
+        (item.itemId, item.seller, item.buyer) = escrow.items(
+            address(clancyERC721),
+            0
+        );
         assertEq(item.itemId, 0);
         assertEq(item.seller, address(0));
         assertEq(item.buyer, address(0));
@@ -370,7 +377,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         emit EscrowItemPurchaseCreated({
             itemId: itemId,
             tokenId: tokenId,
-            tokenContract: address(clancyERC721),
+            contractAddress: address(clancyERC721),
             seller: address(this),
             buyer: address(w_main)
         });
@@ -442,7 +449,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         emit EscrowItemClaimed({
             itemId: itemId,
             tokenId: tokenId,
-            tokenContract: address(clancyERC721)
+            contractAddress: address(clancyERC721)
         });
 
         vm.prank(address(w_main));
@@ -460,10 +467,10 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
             escrow_max_items + 1,
             BASE_URI
         );
-        clancyERC721.setPublicMintStatus(true);
+        clancyERC721.setPublicMintEnabled(true);
 
         escrow = new EscrowERC721_v1();
-        escrow.setAllowedContract(address(clancyERC721), true);
+        escrow.setVendorStatus(address(clancyERC721), true);
     }
 
     function mintAndApprove() internal returns (uint32) {

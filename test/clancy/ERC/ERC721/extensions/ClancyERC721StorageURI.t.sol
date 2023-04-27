@@ -26,7 +26,7 @@ contract ClancyERC721StorageURI_Test is Test, ClancyERC721TestHelpers, Titan {
 
         // Clear the BaseURI
         clancyERC721StorageURI.setBaseURI("");
-        clancyERC721StorageURI.setPublicMintStatus(true);
+        clancyERC721StorageURI.setPublicMintEnabled(true);
         clancyERC721StorageURI.mint();
         clancyERC721StorageURI.setTokenURI(tokenId, tokenURI);
 

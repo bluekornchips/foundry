@@ -14,7 +14,8 @@ interface IClancyERC721 {
 
     // Events
     event BaseURIChanged(string indexed, string indexed);
-    event BurnStatusChanged(bool indexed);
+    event BurnEnabledChanged(bool indexed);
+    event PublicMintEnabledChanged(bool indexed);
     event MaxSupplyChanged(uint32 indexed);
 
     // Functions

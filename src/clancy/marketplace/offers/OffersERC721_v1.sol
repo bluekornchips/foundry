@@ -15,11 +15,11 @@ contract OffersERC721_v1 is
     /**
      * @dev Mapping of token contract addresses to token IDs to OfferItem structs, representing offers
      */
-    mapping(address => mapping(uint256 => OfferItem)) private _items;
+    mapping(address => mapping(uint256 => OfferItem)) public items;
 
-    mapping(address => CollectionOfferItem[]) private _collectionOffers;
-    uint32 private _collectionOffersCount;
-    uint8 private constant MAX_OFFERS = type(uint8).max;
+    mapping(address => CollectionOfferItem[]) public _collectionOffers;
+    uint32 public _collectionOffersCount;
+    uint8 public constant MAX_OFFERS = type(uint8).max;
 
     /**
      * @notice Creates a new offer or outbids an existing offer for a specific token in a specific contract
@@ -35,7 +35,7 @@ contract OffersERC721_v1 is
         if (value <= 0) {
             revert OfferCannotBeLTEZero();
         }
-        if (!getAllowedContract(contractAddress_)) {
+        if (!vendors[contractAddress_]) {
             revert InputContractInvalid();
         }
         if (msg.sender == address(0)) {
@@ -45,7 +45,7 @@ contract OffersERC721_v1 is
         if (ownerOfToken == msg.sender) {
             revert OfferorCannotBeTokenOwner();
         }
-        OfferItem storage existingItem = _items[contractAddress_][tokenId];
+        OfferItem storage existingItem = items[contractAddress_][tokenId];
 
         if (existingItem.offeror != address(0)) {
             if (value <= existingItem.offerAmount) {
@@ -67,7 +67,7 @@ contract OffersERC721_v1 is
         address contractAddress_,
         uint256 tokenId
     ) public whenNotPaused {
-        OfferItem storage item = _items[contractAddress_][tokenId];
+        OfferItem storage item = items[contractAddress_][tokenId];
         if (item.itemId <= 0) {
             revert OfferDoesNotExist();
         }
@@ -82,7 +82,7 @@ contract OffersERC721_v1 is
         address offeror = item.offeror;
         uint256 itemId = item.itemId;
 
-        delete _items[contractAddress_][tokenId];
+        delete items[contractAddress_][tokenId];
 
         (bool success, ) = msg.sender.call{value: offerAmount}("");
         if (!success) {
@@ -118,7 +118,7 @@ contract OffersERC721_v1 is
         address contractAddress_,
         uint256 tokenId
     ) public onlyOwner {
-        OfferItem storage item = _items[contractAddress_][tokenId];
+        OfferItem storage item = items[contractAddress_][tokenId];
 
         if (address(this).balance < item.offerAmount) {
             revert InsufficientContractBalance();
@@ -142,7 +142,7 @@ contract OffersERC721_v1 is
             value: item.offerAmount
         });
 
-        delete _items[contractAddress_][tokenId];
+        delete items[contractAddress_][tokenId];
     }
 
     /**
@@ -155,7 +155,7 @@ contract OffersERC721_v1 is
         address contractAddress_,
         uint256 tokenId
     ) public view returns (OfferItem memory) {
-        return _items[contractAddress_][tokenId];
+        return items[contractAddress_][tokenId];
     }
 
     /**
@@ -172,17 +172,17 @@ contract OffersERC721_v1 is
         address ownerOfToken,
         uint256 value
     ) private nonReentrant {
-        _itemIdCounter++;
+        itemIdCounter++;
 
-        _items[contractAddress_][tokenId] = OfferItem({
-            itemId: _itemIdCounter,
+        items[contractAddress_][tokenId] = OfferItem({
+            itemId: itemIdCounter,
             offerAmount: value,
             offeror: msg.sender
         });
 
         emit OfferEvent({
             offerType: OfferType.Create,
-            itemId: _itemIdCounter,
+            itemId: itemIdCounter,
             contractAddress: contractAddress_,
             tokenId: tokenId,
             tokenOwner: ownerOfToken,
@@ -205,7 +205,7 @@ contract OffersERC721_v1 is
         address newOfferor,
         uint256 value
     ) private nonReentrant {
-        OfferItem storage existingItem = _items[contractAddress_][tokenId];
+        OfferItem storage existingItem = items[contractAddress_][tokenId];
 
         address existingOfferor = existingItem.offeror;
         uint256 existingOfferAmount = existingItem.offerAmount;
@@ -229,32 +229,13 @@ contract OffersERC721_v1 is
         });
     }
 
-    /**
-     * @dev This is a gas heavy method that is not intended to be ran on on chain.
-     *      Use this method to get all the offers on chain and pass in info for other methods
-     *      as required.
-     *      eg: For cancelling a collection offer, get all collection offers, find the index of
-     *          the offer you want to cancel, and pass in the index to the cancelCollectionOffer method.
-     */
-    function getCollectionOffers(
-        address collectionAddress_
-    ) public view returns (CollectionOfferItem[] memory) {
-        if (!getAllowedContract(collectionAddress_)) {
-            revert InputContractInvalid();
-        }
-        CollectionOfferItem[] memory offers = _collectionOffers[
-            collectionAddress_
-        ];
-        return offers;
-    }
-
     function createCollectionOffer(
         address contractAddress_
     ) public payable whenNotPaused {
         if (msg.value <= 0) {
             revert OfferCannotBeLTEZero();
         }
-        if (!getAllowedContract(contractAddress_)) {
+        if (!vendors[contractAddress_]) {
             revert InputContractInvalid();
         }
         if (msg.sender == address(0)) {
@@ -287,7 +268,7 @@ contract OffersERC721_v1 is
         address contractAddress_,
         uint32 offerIndex
     ) public whenNotPaused {
-        if (!getAllowedContract(contractAddress_)) {
+        if (!vendors[contractAddress_]) {
             revert InputContractInvalid();
         }
         if (offerIndex >= _collectionOffers[contractAddress_].length) {
@@ -318,5 +299,24 @@ contract OffersERC721_v1 is
             offeror: msg.sender,
             value: offerAmount
         });
+    }
+
+    /**
+     * @dev This is a gas heavy method that is not intended to be ran on on chain.
+     *      Use this method to get all the offers on chain and pass in info for other methods
+     *      as required.
+     *      eg: For cancelling a collection offer, get all collection offers, find the index of
+     *          the offer you want to cancel, and pass in the index to the cancelCollectionOffer method.
+     */
+    function getCollectionOffers(
+        address collectionAddress_
+    ) public view returns (CollectionOfferItem[] memory) {
+        if (!vendors[collectionAddress_]) {
+            revert InputContractInvalid();
+        }
+        CollectionOfferItem[] memory offers = _collectionOffers[
+            collectionAddress_
+        ];
+        return offers;
     }
 }

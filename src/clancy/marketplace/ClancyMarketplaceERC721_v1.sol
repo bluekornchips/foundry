@@ -19,12 +19,12 @@ abstract contract ClancyMarketplaceERC721_v1 is
     /**
      * @dev Counter to keep track of item IDs
      */
-    uint32 internal _itemIdCounter;
+    uint32 public itemIdCounter;
 
     /**
      * @dev Mapping of token contract addresses to booleans indicating whether the contract is allowed or not
      */
-    mapping(address => bool) internal _contracts;
+    mapping(address => bool) public vendors;
 
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
@@ -69,31 +69,13 @@ abstract contract ClancyMarketplaceERC721_v1 is
      * - Only the owner can call this function.
      * - The token contract must implement the ERC721 standard.
      */
-    function setAllowedContract(
+    function setVendorStatus(
         address tokenContract,
         bool allowed
     ) public onlyOwner {
-        if (!ERC165Checker.supportsERC165(tokenContract))
+        if (!ERC165Checker.supportsERC165(tokenContract)) {
             revert InputContractInvalid();
-        _contracts[tokenContract] = allowed;
-    }
-
-    /**
-     * @dev Returns whether a particular token contract is allowed to participate in the marketplace.
-     * @param tokenContract The address of the token contract to get the allowed status for.
-     * @return A boolean indicating whether the token contract is allowed to participate in the marketplace.
-     */
-    function getAllowedContract(
-        address tokenContract
-    ) public view returns (bool) {
-        return _contracts[tokenContract];
-    }
-
-    /**
-     * @dev Retrieves the current value of the item ID counter.
-     * @return Returns the current value of the item ID counter as a uint32.
-     */
-    function getItemIdCounter() public view returns (uint32) {
-        return _itemIdCounter;
+        }
+        vendors[tokenContract] = allowed;
     }
 }

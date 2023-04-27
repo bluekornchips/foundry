@@ -114,9 +114,9 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
         series1Case.setReelsContract(address(reelsContract));
         reels = reelsContract;
         reels.setCaseContract(address(series1Case), true);
-        series1Case.setPublicMintStatus(true);
-        series1Case.setBurnStatus(true);
-        reels.setPublicMintStatus(true);
+        series1Case.setPublicMintEnabled(true);
+        series1Case.setBurnEnabled(true);
+        reels.setPublicMintEnabled(true);
     }
 
     function test_openCase_shouldPass() public {

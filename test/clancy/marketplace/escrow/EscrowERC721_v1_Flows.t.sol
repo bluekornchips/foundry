@@ -23,14 +23,14 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
 
         //tokensOne
         tokensOne = new ClancyERC721(NAME, SYMBOL, escrow_max_items, BASE_URI);
-        tokensOne.setPublicMintStatus(true);
+        tokensOne.setPublicMintEnabled(true);
 
         //tokensTwo
         tokensTwo = new ClancyERC721(NAME, SYMBOL, escrow_max_items, BASE_URI);
-        tokensTwo.setPublicMintStatus(true);
+        tokensTwo.setPublicMintEnabled(true);
 
-        escrow.setAllowedContract(address(tokensOne), true);
-        escrow.setAllowedContract(address(tokensTwo), true);
+        escrow.setVendorStatus(address(tokensOne), true);
+        escrow.setVendorStatus(address(tokensTwo), true);
     }
 
     //#region Single Contract Tests

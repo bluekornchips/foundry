@@ -24,8 +24,7 @@ export const DATABASE_URL = {
 
 // # Blockchain
 export const RPC = {
-    URL: process.env.RPC_URL,
-    NAME: process.env.RPC_NAME,
+    URL: process.env.RPC_URL_SENTINEL_DEV
 }
 
 export const EOAS = {

@@ -1,11 +1,11 @@
 import escrow from "./escrow";
 import offers from "./offers"
-import setAllowedContract from "./setAllowedContract";
+import setVendorStatus from "./setVendorStatus";
 
 const marketplace = {
     escrow,
     offers,
-    setAllowedContract
+    setVendorStatus
 }
 
 export default marketplace

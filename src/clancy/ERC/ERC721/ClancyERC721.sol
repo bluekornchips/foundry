@@ -21,19 +21,19 @@ contract ClancyERC721 is
     uint32 public constant SUPPLY_CEILING = 1_000_000;
 
     /// @dev A counter for tracking the token ID.
-    uint32 internal _tokenIdCounter;
+    uint32 public tokenIdCounter;
 
     /// @dev The maximum supply of the token. Defaults to 1,000,000.
-    uint32 internal _maxSupply = 1_000_000;
+    uint32 public maxSupply = 1_000_000;
 
     /// @dev A flag for enabling or disabling public minting
-    bool internal _publicMintEnabled;
+    bool public publicMintEnabled;
 
     /// @dev A flag for enabling or disabling burning of tokens
-    bool internal _burnEnabled;
+    bool public burnEnabled;
 
     /// @dev A base URI for metadata of the token, to be concatenated with the token ID
-    string internal _baseURILocal;
+    string public baseURILocal;
 
     constructor(
         string memory name_,
@@ -41,8 +41,8 @@ contract ClancyERC721 is
         uint32 maxSupply_,
         string memory baseURILocal_
     ) ERC721(name_, symbol_) {
-        _maxSupply = maxSupply_;
-        _baseURILocal = baseURILocal_;
+        maxSupply = maxSupply_;
+        baseURILocal = baseURILocal_;
     }
 
     /**
@@ -87,9 +87,9 @@ contract ClancyERC721 is
      *
      * @param status A bool indicating whether or not burning is enabled.
      */
-    function setBurnStatus(bool status) public onlyOwner {
-        _burnEnabled = status;
-        emit BurnStatusChanged(status);
+    function setBurnEnabled(bool status) public onlyOwner {
+        burnEnabled = status;
+        emit BurnEnabledChanged(status);
     }
 
     /**
@@ -100,8 +100,9 @@ contract ClancyERC721 is
      *
      * @param status The new public minting status.
      */
-    function setPublicMintStatus(bool status) public onlyOwner {
-        _publicMintEnabled = status;
+    function setPublicMintEnabled(bool status) public onlyOwner {
+        publicMintEnabled = status;
+        emit PublicMintEnabledChanged(status);
     }
 
     /**
@@ -123,7 +124,7 @@ contract ClancyERC721 is
             revert MaxSupply_LowerThanCurrentSupply();
         if (increasedSupply > SUPPLY_CEILING) revert MaxSupply_AboveCeiling();
 
-        _maxSupply = increasedSupply;
+        maxSupply = increasedSupply;
 
         emit MaxSupplyChanged(increasedSupply);
     }
@@ -139,9 +140,9 @@ contract ClancyERC721 is
      * @param baseURI_ The new base URI for the token metadata.
      */
     function setBaseURI(string calldata baseURI_) public onlyOwner {
-        string memory existingBaseURI = _baseURILocal;
-        _baseURILocal = baseURI_;
-        emit BaseURIChanged(existingBaseURI, _baseURILocal);
+        string memory existingBaseURI = baseURILocal;
+        baseURILocal = baseURI_;
+        emit BaseURIChanged(existingBaseURI, baseURILocal);
     }
 
     /**
@@ -154,7 +155,7 @@ contract ClancyERC721 is
      * @return The id of the newly minted token.
      */
     function mint() public virtual override returns (uint32) {
-        if (!_publicMintEnabled) revert PublicMintDisabled();
+        if (!publicMintEnabled) revert PublicMintDisabled();
         return clancyMint(_msgSender());
     }
 
@@ -170,7 +171,7 @@ contract ClancyERC721 is
      * @param tokenId The ID of the token to be burned.
      */
     function burn(uint32 tokenId) public virtual whenNotPaused nonReentrant {
-        if (!_burnEnabled) revert BurnDisabled();
+        if (!burnEnabled) revert BurnDisabled();
         if (!_isApprovedOrOwner(_msgSender(), tokenId))
             revert NotApprovedOrOwner();
         _burn(tokenId);
@@ -185,45 +186,11 @@ contract ClancyERC721 is
     }
 
     /**
-     * @dev Returns the burn status of the contract.
-     *
-     * @return A bool indicating whether or not burning is currently enabled.
-     */
-    function getBurnStatus() public view returns (bool) {
-        return _burnEnabled;
-    }
-
-    /**
-     * @dev Returns the maximum supply for this token.
-     * @return An unsigned integer representing the maximum supply.
-     */
-    function getMaxSupply() public view returns (uint32) {
-        return _maxSupply;
-    }
-
-    /**
-     * @dev Returns the public minting status of the Clancy ERC721 token.
-     * @return A bool indicating whether or not public minting is currently enabled.
-     */
-    function getPublicMintStatus() public view returns (bool) {
-        return _publicMintEnabled;
-    }
-
-    /**
-     * @dev Returns the total number of tokens in existence.
-     *      Burned tokens will not reduce this number, it will only increase.
-     * @return uint32 representing the total number of tokens in existence.
-     */
-    function getTokenIdCounter() public view returns (uint32) {
-        return _tokenIdCounter;
-    }
-
-    /**
      * @dev Returns the base URI for this contract.
      * @return A string representing the base URI.
      */
     function _baseURI() internal view virtual override returns (string memory) {
-        return _baseURILocal;
+        return baseURILocal;
     }
 
     /**
@@ -239,12 +206,12 @@ contract ClancyERC721 is
     function clancyMint(
         address to
     ) internal whenNotPaused nonReentrant returns (uint32 tokenId) {
-        uint32 tokenIdCounter = _tokenIdCounter;
+        uint32 tokenIdCounter_ = tokenIdCounter;
 
-        if (tokenIdCounter >= _maxSupply) revert MaxSupply_Reached();
+        if (tokenIdCounter_ >= maxSupply) revert MaxSupply_Reached();
 
-        _safeMint(to, ++tokenIdCounter);
-        _tokenIdCounter = tokenIdCounter;
+        _safeMint(to, ++tokenIdCounter_);
+        tokenIdCounter = tokenIdCounter_;
 
         return tokenIdCounter;
     }

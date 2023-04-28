@@ -15,11 +15,13 @@ contract OffersERC721_v1 is
     /**
      * @dev Mapping of token contract addresses to token IDs to OfferItem structs, representing offers
      */
-    mapping(address => mapping(uint256 => OfferItem)) public items;
+    mapping(address => mapping(uint256 => OfferItem)) public offerItems;
 
-    mapping(address => CollectionOfferItem[]) public _collectionOffers;
-    uint32 public _collectionOffersCount;
+    mapping(address => CollectionOffer[]) public collectionOffers;
+    uint32 public collectionOffersCount;
     uint8 public constant MAX_OFFERS = type(uint8).max;
+
+    //#region Item Offers
 
     /**
      * @notice Creates a new offer or outbids an existing offer for a specific token in a specific contract
@@ -27,11 +29,12 @@ contract OffersERC721_v1 is
      * @param contractAddress_ The address of the token contract
      * @param tokenId The ID of the token for which to create or outbid the offer
      */
-    function createOffer(
+    function createOfferItem(
         address contractAddress_,
         uint32 tokenId
     ) public payable whenNotPaused {
         uint256 value = msg.value;
+
         if (value <= 0) {
             revert OfferCannotBeLTEZero();
         }
@@ -41,19 +44,22 @@ contract OffersERC721_v1 is
         if (msg.sender == address(0)) {
             revert OfferorCannotBeZeroAddress();
         }
+
         address ownerOfToken = IERC721(contractAddress_).ownerOf(tokenId); // Will revert if token does not exist
+
         if (ownerOfToken == msg.sender) {
             revert OfferorCannotBeTokenOwner();
         }
-        OfferItem storage existingItem = items[contractAddress_][tokenId];
+
+        OfferItem storage existingItem = offerItems[contractAddress_][tokenId];
 
         if (existingItem.offeror != address(0)) {
-            if (value <= existingItem.offerAmount) {
+            if (value <= existingItem.value) {
                 revert OfferMustBeGTExistingOffer();
             }
-            outbidOffer(contractAddress_, tokenId, msg.sender, value);
+            outbidOfferItem(contractAddress_, tokenId, msg.sender, value);
         } else {
-            newOffer(contractAddress_, tokenId, ownerOfToken, value);
+            newOfferItem(contractAddress_, tokenId, ownerOfToken, value);
         }
     }
 
@@ -63,28 +69,28 @@ contract OffersERC721_v1 is
      * @param contractAddress_ The address of the token contract
      * @param tokenId The ID of the token for which to accept the offer
      */
-    function acceptOffer(
+    function acceptOfferItem(
         address contractAddress_,
         uint256 tokenId
     ) public whenNotPaused {
-        OfferItem storage item = items[contractAddress_][tokenId];
+        OfferItem storage item = offerItems[contractAddress_][tokenId];
         if (item.itemId <= 0) {
             revert OfferDoesNotExist();
         }
         if (IERC721(contractAddress_).ownerOf(tokenId) != msg.sender) {
             revert NotTokenOwner();
         }
-        if (address(this).balance < item.offerAmount) {
+        if (address(this).balance < item.value) {
             revert InsufficientContractBalance();
         }
 
-        uint256 offerAmount = item.offerAmount;
+        uint256 value = item.value;
         address offeror = item.offeror;
         uint256 itemId = item.itemId;
 
-        delete items[contractAddress_][tokenId];
+        delete offerItems[contractAddress_][tokenId];
 
-        (bool success, ) = msg.sender.call{value: offerAmount}("");
+        (bool success, ) = msg.sender.call{value: value}("");
         if (!success) {
             revert TransferFailed(
                 "OffersERC721_v1: Offer amount failed to transfer."
@@ -104,7 +110,7 @@ contract OffersERC721_v1 is
             tokenId: tokenId,
             tokenOwner: msg.sender,
             offeror: offeror,
-            value: offerAmount
+            value: value
         });
     }
 
@@ -114,18 +120,18 @@ contract OffersERC721_v1 is
      * @param contractAddress_ The address of the token contract
      * @param tokenId The ID of the token for which to cancel the offer
      */
-    function cancelOffer(
+    function cancelOfferItem(
         address contractAddress_,
         uint256 tokenId
     ) public onlyOwner {
-        OfferItem storage item = items[contractAddress_][tokenId];
+        OfferItem storage item = offerItems[contractAddress_][tokenId];
 
-        if (address(this).balance < item.offerAmount) {
+        if (address(this).balance < item.value) {
             revert InsufficientContractBalance();
         }
 
-        uint256 offerAmount = item.offerAmount;
-        (bool success, ) = item.offeror.call{value: offerAmount}("");
+        uint256 value = item.value;
+        (bool success, ) = item.offeror.call{value: value}("");
         if (!success) {
             revert TransferFailed(
                 "OffersERC721_v1: Cancelled Offer refund failed."
@@ -139,10 +145,10 @@ contract OffersERC721_v1 is
             tokenId: tokenId,
             tokenOwner: IERC721(contractAddress_).ownerOf(tokenId),
             offeror: item.offeror,
-            value: item.offerAmount
+            value: item.value
         });
 
-        delete items[contractAddress_][tokenId];
+        delete offerItems[contractAddress_][tokenId];
     }
 
     /**
@@ -151,11 +157,11 @@ contract OffersERC721_v1 is
      * @param tokenId The ID of the token for which to retrieve the offer details
      * @return The OfferItem struct containing the offer details
      */
-    function getOffer(
+    function getOfferItem(
         address contractAddress_,
         uint256 tokenId
     ) public view returns (OfferItem memory) {
-        return items[contractAddress_][tokenId];
+        return offerItems[contractAddress_][tokenId];
     }
 
     /**
@@ -166,7 +172,7 @@ contract OffersERC721_v1 is
      * @param ownerOfToken The address of the owner of the token
      * @param value The offer amount
      */
-    function newOffer(
+    function newOfferItem(
         address contractAddress_,
         uint32 tokenId,
         address ownerOfToken,
@@ -174,9 +180,9 @@ contract OffersERC721_v1 is
     ) private nonReentrant {
         itemIdCounter++;
 
-        items[contractAddress_][tokenId] = OfferItem({
+        offerItems[contractAddress_][tokenId] = OfferItem({
             itemId: itemIdCounter,
-            offerAmount: value,
+            value: value,
             offeror: msg.sender
         });
 
@@ -199,21 +205,21 @@ contract OffersERC721_v1 is
      * @param newOfferor The address of the new offeror
      * @param value The new offer amount
      */
-    function outbidOffer(
+    function outbidOfferItem(
         address contractAddress_,
         uint32 tokenId,
         address newOfferor,
         uint256 value
     ) private nonReentrant {
-        OfferItem storage existingItem = items[contractAddress_][tokenId];
+        OfferItem storage existingItem = offerItems[contractAddress_][tokenId];
 
         address existingOfferor = existingItem.offeror;
-        uint256 existingOfferAmount = existingItem.offerAmount;
+        uint256 existingvalue = existingItem.value;
 
-        existingItem.offerAmount = value;
+        existingItem.value = value;
         existingItem.offeror = newOfferor;
 
-        (bool success, ) = existingOfferor.call{value: existingOfferAmount}("");
+        (bool success, ) = existingOfferor.call{value: existingvalue}("");
         if (!success) {
             revert TransferFailed("OffersERC721_v1: Outbid refund failed.");
         }
@@ -229,6 +235,8 @@ contract OffersERC721_v1 is
         });
     }
 
+    //#endregion Item Offers
+
     function createCollectionOffer(
         address contractAddress_
     ) public payable whenNotPaused {
@@ -241,20 +249,23 @@ contract OffersERC721_v1 is
         if (msg.sender == address(0)) {
             revert OfferorCannotBeZeroAddress();
         }
+        uint32 itemId = collectionOffersCount;
+        if (itemId >= MAX_OFFERS) {
+            revert MaxOffersReached();
+        }
 
         uint256 value = msg.value;
-        uint32 itemId = _collectionOffersCount;
         ++itemId;
 
-        CollectionOfferItem memory item = CollectionOfferItem({
+        CollectionOffer memory item = CollectionOffer({
             itemId: itemId,
             contractAddress: contractAddress_,
             offeror: msg.sender,
             value: value
         });
 
-        _collectionOffersCount = itemId;
-        _collectionOffers[contractAddress_].push(item);
+        collectionOffersCount = itemId;
+        collectionOffers[contractAddress_].push(item);
 
         emit CollectionOfferEvent({
             offerType: OfferType.Create,
@@ -271,10 +282,10 @@ contract OffersERC721_v1 is
         if (!vendors[contractAddress_]) {
             revert InputContractInvalid();
         }
-        if (offerIndex >= _collectionOffers[contractAddress_].length) {
+        if (offerIndex >= collectionOffers[contractAddress_].length) {
             revert OfferDoesNotExist();
         }
-        CollectionOfferItem memory offer = _collectionOffers[contractAddress_][
+        CollectionOffer memory offer = collectionOffers[contractAddress_][
             offerIndex
         ];
 
@@ -282,11 +293,20 @@ contract OffersERC721_v1 is
             revert NotOfferor();
         }
 
-        uint256 offerAmount = offer.value;
+        uint256 value = offer.value;
 
-        delete _collectionOffers[contractAddress_];
+        // Swap the last offer with the offer to delete, and then delete the last offer
+        uint32 lastOfferIndex = uint32(
+            collectionOffers[contractAddress_].length - 1
+        );
+        if (offerIndex != lastOfferIndex) {
+            collectionOffers[contractAddress_][offerIndex] = collectionOffers[
+                contractAddress_
+            ][lastOfferIndex];
+        }
+        collectionOffers[contractAddress_].pop();
 
-        (bool success, ) = msg.sender.call{value: offerAmount}("");
+        (bool success, ) = msg.sender.call{value: value}("");
         if (!success) {
             revert TransferFailed(
                 "OffersERC721_v1: Cancelled Offer refund failed."
@@ -297,7 +317,7 @@ contract OffersERC721_v1 is
             offerType: OfferType.Cancel,
             contractAddress: contractAddress_,
             offeror: msg.sender,
-            value: offerAmount
+            value: value
         });
     }
 
@@ -310,13 +330,10 @@ contract OffersERC721_v1 is
      */
     function getCollectionOffers(
         address collectionAddress_
-    ) public view returns (CollectionOfferItem[] memory) {
+    ) public view returns (CollectionOffer[] memory) {
         if (!vendors[collectionAddress_]) {
             revert InputContractInvalid();
         }
-        CollectionOfferItem[] memory offers = _collectionOffers[
-            collectionAddress_
-        ];
-        return offers;
+        return collectionOffers[collectionAddress_];
     }
 }

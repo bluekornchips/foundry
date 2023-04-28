@@ -4,20 +4,23 @@ pragma solidity ^0.8.19;
 interface IOffersERC721_v1 {
     //#region Errors
 
+    /// @notice Thrown when the contract balance is insufficient.
+    error InsufficientContractBalance();
+
+    /// @notice Thrown when no more collection offers can be placed.
+    error MaxOffersReached();
+
+    /// @notice Thrown when the caller is not the offeror.
+    error NotOfferor();
+
     /// @notice Thrown when the offer is less than or equal to zero.
     error OfferCannotBeLTEZero();
 
     /// @notice Thrown when an offer does not exist.
     error OfferDoesNotExist();
 
-    /// @notice Thrown when the caller is not the offeror.
-    error NotOfferor();
-
     /// @notice Thrown when the new offer is less than or equal to the existing offer.
     error OfferMustBeGTExistingOffer();
-
-    /// @notice Thrown when the contract balance is insufficient.
-    error InsufficientContractBalance();
 
     /// @notice Thrown when the offeror's address is the zero address.
     error OfferorCannotBeZeroAddress();
@@ -68,7 +71,7 @@ interface IOffersERC721_v1 {
 
     //#region Structs
 
-    struct CollectionOfferItem {
+    struct CollectionOffer {
         uint32 itemId;
         address contractAddress;
         address offeror;
@@ -77,7 +80,7 @@ interface IOffersERC721_v1 {
 
     struct OfferItem {
         uint256 itemId;
-        uint256 offerAmount;
+        uint256 value;
         address offeror;
     }
 

@@ -2,6 +2,12 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
+gas_reports = [
+    "ClancyERC721", "ClancyERC20",
+    "OffersERC721_v1", "EscrowERC721_v1", 
+    "Reels", "Series1Case", 
+    ]
+
 
 [rpc_endpoints]
 # Test Nets

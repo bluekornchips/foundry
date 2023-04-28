@@ -17,7 +17,7 @@ abstract contract ClancyMarketplaceERC721_v1 is
     ReentrancyGuard
 {
     /**
-     * @dev Counter to keep track of item IDs
+     * @dev Counter to keep track of item Ids
      */
     uint32 public itemIdCounter;
 

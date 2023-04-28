@@ -24,9 +24,9 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
         reels = new Reels(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
     }
 
-    //#region getReelsPerCase
+    //#region reelsPerCase
     function test_getReelsPerCase() public {
-        uint256 reelsPerCase = series1Case.getReelsPerCase();
+        uint256 reelsPerCase = series1Case.reelsPerCase();
         assertEq(reelsPerCase, 3);
     }
 
@@ -35,7 +35,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
     //#region setReelPerCase
     function test_setReelsPerCase() public {
         series1Case.setReelsPerCase(5);
-        uint256 reelsPerCase = series1Case.getReelsPerCase();
+        uint256 reelsPerCase = series1Case.reelsPerCase();
         assertEq(reelsPerCase, 5);
     }
 
@@ -48,7 +48,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
     function testFuzz_setReelsPerCase(uint8 reelsPerCase) public {
         vm.assume(reelsPerCase > 0);
         series1Case.setReelsPerCase(uint8(reelsPerCase));
-        assertEq(series1Case.getReelsPerCase(), uint256(reelsPerCase));
+        assertEq(series1Case.reelsPerCase(), uint256(reelsPerCase));
     }
 
     function testFuzz_setReelsPerCaseLTEZero_ShouldRevert(
@@ -63,9 +63,9 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
 
     //#endregion
 
-    //#region getReelsContract
+    //#region reelsContract
     function test_getReelsContract() public {
-        Reels reelsContract = series1Case.getReelsContract();
+        Reels reelsContract = series1Case.reelsContract();
         assertEq(address(reelsContract), address(0));
     }
 
@@ -75,10 +75,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
     function test_setReelsContract() public {
         Reels reelsContract = new Reels(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
         series1Case.setReelsContract(address(reelsContract));
-        assertEq(
-            address(series1Case.getReelsContract()),
-            address(reelsContract)
-        );
+        assertEq(address(series1Case.reelsContract()), address(reelsContract));
     }
 
     function test_setReelsContractAsNonOwner_ShouldRevert() public {
@@ -122,7 +119,7 @@ contract Case_Test is Test, ClancyERC721TestHelpers, Titan {
     function test_openCase_shouldPass() public {
         reelsSetup();
 
-        uint256 reelsPerCase = series1Case.getReelsPerCase();
+        uint256 reelsPerCase = series1Case.reelsPerCase();
         uint256 reelsBalanceBefore = reels.balanceOf(w_main);
         console.log("reelsBalanceBefore: ", reelsBalanceBefore.toString());
 

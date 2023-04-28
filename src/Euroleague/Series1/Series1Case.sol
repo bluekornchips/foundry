@@ -11,8 +11,8 @@ import {ISeries1Case} from "./ISeries1Case.sol";
 contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
     using Address for address;
 
-    Reels public _reelsContract;
-    uint8 public _reelsPerCase = 3;
+    Reels public reelsContract;
+    uint8 public reelsPerCase = 3;
 
     constructor(
         string memory name_,
@@ -41,7 +41,7 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
     function openCase(
         uint32 tokenId
     ) public whenNotPaused returns (uint32[] memory) {
-        if (_reelsContract == Reels(payable(address(0))))
+        if (reelsContract == Reels(payable(address(0))))
             revert ReelsContractNotSet();
         if (!_isApprovedOrOwner(_msgSender(), tokenId))
             revert NotApprovedOrOwner();
@@ -50,9 +50,9 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
 
         burn(tokenId);
 
-        uint32[] memory minted_reels = new uint32[](_reelsPerCase);
-        for (uint32 i; i < _reelsPerCase; i++) {
-            minted_reels[i] = _reelsContract.mintTo(tokenOwner);
+        uint32[] memory minted_reels = new uint32[](reelsPerCase);
+        for (uint32 i; i < reelsPerCase; i++) {
+            minted_reels[i] = reelsContract.mintTo(tokenOwner);
         }
 
         emit CaseOpened(tokenId, _msgSender());
@@ -68,12 +68,12 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
      * - The address provided must be a contract address.
      * - Can only be called by the owner of the contract.
      *
-     * @param reelsContract The address of the Reels contract.
+     * @param reelsContract_ The address of the Reels contract.
      */
-    function setReelsContract(address reelsContract) public onlyOwner {
-        if (reelsContract == address(0)) revert ReelsContractNotValid();
-        if (!reelsContract.isContract()) revert ReelsContractNotValid();
-        _reelsContract = Reels(payable(reelsContract));
+    function setReelsContract(address reelsContract_) public onlyOwner {
+        if (reelsContract_ == address(0)) revert ReelsContractNotValid();
+        if (!reelsContract_.isContract()) revert ReelsContractNotValid();
+        reelsContract = Reels(payable(reelsContract_));
     }
 
     /**
@@ -83,10 +83,10 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
      * - The number of reels per case must be greater than zero.
      * - Can only be called by the owner of the contract.
      *
-     * @param reelsPerCase The number of reels to set per case.
+     * @param reelsPerCase_ The number of reels to set per case.
      */
-    function setReelsPerCase(uint8 reelsPerCase) public onlyOwner {
-        if (reelsPerCase <= 0) revert ReelsPerCaseNotValid();
-        _reelsPerCase = reelsPerCase;
+    function setReelsPerCase(uint8 reelsPerCase_) public onlyOwner {
+        if (reelsPerCase_ <= 0) revert ReelsPerCaseNotValid();
+        reelsPerCase = reelsPerCase_;
     }
 }

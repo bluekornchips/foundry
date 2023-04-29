@@ -8,10 +8,8 @@ import {IOffersERC721} from "clancy/marketplace/offers/IOffersERC721.sol";
 import {ClancyMarketplaceERC721} from "clancy/marketplace/ClancyMarketplaceERC721.sol";
 
 contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
-    /**
-     * @dev Mapping of token contract addresses to token IDs to OfferItem structs, representing offers
-     */
-    mapping(address => mapping(uint256 => OfferItem)) public offerItems;
+    /// @dev Mapping of token contract addresses to token Ids to ItemOffer structs, representing offers
+    mapping(address => mapping(uint256 => ItemOffer)) public itemOffers;
 
     mapping(address => CollectionOffer[]) public collectionOffers;
     uint32 public collectionOffersCount;
@@ -20,12 +18,12 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
     //#region Item Offers
 
     /**
-     * @notice Creates a new offer or outbids an existing offer for a specific token in a specific contract
-     * @dev This function is public and can only be called when the contract is not paused
-     * @param contractAddress_ The address of the token contract
-     * @param tokenId The ID of the token for which to create or outbid the offer
+     * @notice Creates a new offer or outbids an existing offer for a specific token in a specific contract.
+     *
+     * @param contractAddress_ Token contract address.
+     * @param tokenId Token Id.
      */
-    function createOfferItem(
+    function createItemOffer(
         address contractAddress_,
         uint32 tokenId
     ) public payable whenNotPaused {
@@ -47,29 +45,30 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
             revert OfferorCannotBeTokenOwner();
         }
 
-        OfferItem storage existingItem = offerItems[contractAddress_][tokenId];
+        ItemOffer storage existingItem = itemOffers[contractAddress_][tokenId];
 
         if (existingItem.offeror != address(0)) {
             if (value <= existingItem.value) {
                 revert OfferMustBeGTExistingOffer();
             }
-            outbidOfferItem(contractAddress_, tokenId, msg.sender, value);
+            outbidItemOffer(contractAddress_, tokenId, msg.sender, value);
         } else {
-            newOfferItem(contractAddress_, tokenId, ownerOfToken, value);
+            newItemOffer(contractAddress_, tokenId, ownerOfToken, value);
         }
     }
 
     /**
-     * @notice Accepts an existing offer for a specific token in a specific contract
-     * @dev This function is public and can only be called by the token owner
-     * @param contractAddress_ The address of the token contract
-     * @param tokenId The ID of the token for which to accept the offer
+     * @notice Accepts an offer. Transfer the token to the offeror and the offer amount to the token owner.
+     *
+     * @param contractAddress_ Token contract address.
+     * @param tokenId Token Id.
      */
-    function acceptOfferItem(
+    function acceptItemOffer(
         address contractAddress_,
         uint256 tokenId
     ) public whenNotPaused {
-        OfferItem storage item = offerItems[contractAddress_][tokenId];
+        ItemOffer storage item = itemOffers[contractAddress_][tokenId];
+
         if (item.itemId <= 0) {
             revert OfferDoesNotExist();
         }
@@ -84,12 +83,12 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
         address offeror = item.offeror;
         uint256 itemId = item.itemId;
 
-        delete offerItems[contractAddress_][tokenId];
+        delete itemOffers[contractAddress_][tokenId];
 
         (bool success, ) = msg.sender.call{value: value}("");
         if (!success) {
             revert TransferFailed(
-                "OffersERC721: Offer amount failed to transfer."
+                "OffersERC721: Failed to transfer offer amount to token owner."
             );
         }
 
@@ -111,16 +110,16 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
     }
 
     /**
-     * @notice Cancels an offer made by the caller for a specific token in a specific contract
-     * @dev Can only be called by the owner of the contract
-     * @param contractAddress_ The address of the token contract
-     * @param tokenId The ID of the token for which to cancel the offer
+     * @notice Cancels the current offer. Not user callable.
+     *
+     * @param contractAddress_ Token contract address.
+     * @param tokenId Token Id.
      */
-    function cancelOfferItem(
+    function cancelItemOffer(
         address contractAddress_,
         uint256 tokenId
     ) public onlyOwner {
-        OfferItem storage item = offerItems[contractAddress_][tokenId];
+        ItemOffer storage item = itemOffers[contractAddress_][tokenId];
 
         if (address(this).balance < item.value) {
             revert InsufficientContractBalance();
@@ -144,39 +143,38 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
             value: item.value
         });
 
-        delete offerItems[contractAddress_][tokenId];
+        delete itemOffers[contractAddress_][tokenId];
     }
 
     /**
-     * @notice Retrieves the offer details for a specific token in a specific contract
-     * @param contractAddress_ The address of the token contract
-     * @param tokenId The ID of the token for which to retrieve the offer details
-     * @return The OfferItem struct containing the offer details
+     * @dev Retrieves the offer details for a specific token in a specific contract
+     * @param contractAddress_ Token contract address.
+     * @param tokenId Token Id.
+     * @return {ItemOffer}
      */
-    function getOfferItem(
+    function getItemOffer(
         address contractAddress_,
         uint256 tokenId
-    ) public view returns (OfferItem memory) {
-        return offerItems[contractAddress_][tokenId];
+    ) public view returns (ItemOffer memory) {
+        return itemOffers[contractAddress_][tokenId];
     }
 
     /**
      * @notice Creates a new offer for a specific token in a specific contract
-     * @dev This function is private and non-reentrant
-     * @param contractAddress_ The address of the token contract
-     * @param tokenId The ID of the token for which to create the offer
-     * @param ownerOfToken The address of the owner of the token
-     * @param value The offer amount
+     * @param contractAddress_ Token contract address.
+     * @param tokenId Token Id.
+     * @param ownerOfToken Token ownner.
+     * @param value Offer amount.
      */
-    function newOfferItem(
+    function newItemOffer(
         address contractAddress_,
         uint32 tokenId,
         address ownerOfToken,
         uint256 value
     ) private nonReentrant {
-        itemIdCounter++;
+        ++itemIdCounter;
 
-        offerItems[contractAddress_][tokenId] = OfferItem({
+        itemOffers[contractAddress_][tokenId] = ItemOffer({
             itemId: itemIdCounter,
             value: value,
             offeror: msg.sender
@@ -194,20 +192,19 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
     }
 
     /**
-     * @notice Outbids an existing offer for a specific token in a specific contract
-     * @dev This function is private and non-reentrant
-     * @param contractAddress_ The address of the token contract
-     * @param tokenId The ID of the token for which to outbid the offer
-     * @param newOfferor The address of the new offeror
-     * @param value The new offer amount
+     * @dev Outbids an existing offer.
+     * @param contractAddress_ Token contract address.
+     * @param tokenId Token Id.
+     * @param newOfferor New offeror.
+     * @param value The new offer amount.
      */
-    function outbidOfferItem(
+    function outbidItemOffer(
         address contractAddress_,
         uint32 tokenId,
         address newOfferor,
         uint256 value
     ) private nonReentrant {
-        OfferItem storage existingItem = offerItems[contractAddress_][tokenId];
+        ItemOffer storage existingItem = itemOffers[contractAddress_][tokenId];
 
         address existingOfferor = existingItem.offeror;
         uint256 existingvalue = existingItem.value;
@@ -245,7 +242,9 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
         if (msg.sender == address(0)) {
             revert OfferorCannotBeZeroAddress();
         }
+
         uint32 itemId = collectionOffersCount;
+
         if (itemId >= MAX_OFFERS) {
             revert MaxOffersReached();
         }
@@ -278,18 +277,24 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
         if (!vendors[contractAddress_]) {
             revert InputContractInvalid();
         }
-        if (offerIndex >= collectionOffers[contractAddress_].length) {
+        if (offerIndex > collectionOffers[contractAddress_].length) {
             revert OfferDoesNotExist();
         }
+
         CollectionOffer memory offer = collectionOffers[contractAddress_][
             offerIndex
         ];
 
-        if (offer.offeror != msg.sender) {
-            revert NotOfferor();
+        if (address(this).balance < offer.value) {
+            revert InsufficientContractBalance();
+        }
+
+        if (offer.offeror != msg.sender && msg.sender != owner()) {
+            revert NotOfferorOrAdmin();
         }
 
         uint256 value = offer.value;
+        address offeror = offer.offeror;
 
         // Swap the last offer with the offer to delete, and then delete the last offer
         uint32 lastOfferIndex = uint32(
@@ -300,9 +305,10 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
                 contractAddress_
             ][lastOfferIndex];
         }
+
         collectionOffers[contractAddress_].pop();
 
-        (bool success, ) = msg.sender.call{value: value}("");
+        (bool success, ) = offeror.call{value: value}("");
         if (!success) {
             revert TransferFailed(
                 "OffersERC721: Cancelled Offer refund failed."
@@ -312,9 +318,38 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
         emit CollectionOfferEvent({
             offerType: OfferType.Cancel,
             contractAddress: contractAddress_,
-            offeror: msg.sender,
+            offeror: offeror,
             value: value
         });
+    }
+
+    function cancelCollectionOffers(address contractAddress_) public onlyOwner {
+        CollectionOffer[] memory offers = collectionOffers[contractAddress_];
+
+        if (offers.length < 1) {
+            revert CollectionOffersEmpty();
+        }
+
+        uint256 repaymentTotal;
+        uint8 i;
+
+        do {
+            repaymentTotal += offers[i].value;
+            ++i;
+        } while (i < offers.length);
+
+        if (address(this).balance < repaymentTotal) {
+            revert InsufficientContractBalance();
+        }
+
+        i = uint8(offers.length); // Start at the end of the array.
+
+        do {
+            --i; // Decrement immediately, as the above i will have an index of 1 greater than the length.
+            cancelCollectionOffer(contractAddress_, i);
+        } while (i > 0);
+
+        delete collectionOffers[contractAddress_];
     }
 
     /**

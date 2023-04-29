@@ -7,11 +7,17 @@ interface IOffersERC721 {
     /// @notice Thrown when the contract balance is insufficient.
     error InsufficientContractBalance();
 
+    /// @notice Thrown when a collection offer cannot be found.
+    error CollectionOffersEmpty();
+
+    /// @notice Thrown when a collection offer cannot be found.
+    error CollectionOfferDoesNotExist();
+
     /// @notice Thrown when no more collection offers can be placed.
     error MaxOffersReached();
 
-    /// @notice Thrown when the caller is not the offeror.
-    error NotOfferor();
+    /// @notice Thrown when the caller is not the offeror or the contract admin.
+    error NotOfferorOrAdmin();
 
     /// @notice Thrown when the offer is less than or equal to zero.
     error OfferCannotBeLTEZero();
@@ -47,9 +53,7 @@ interface IOffersERC721 {
 
     //#region Events
 
-    /**
-     * @dev Emitted when an offer is created, cancelled, or accepted.
-     */
+    /// @dev Emitted when an offer is created, cancelled, or accepted.
     event CollectionOfferEvent(
         OfferType indexed offerType,
         address indexed contractAddress,
@@ -78,7 +82,7 @@ interface IOffersERC721 {
         uint256 value;
     }
 
-    struct OfferItem {
+    struct ItemOffer {
         uint256 itemId;
         uint256 value;
         address offeror;

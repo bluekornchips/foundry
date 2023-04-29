@@ -129,16 +129,21 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, Titan {
         assertEq(totalSupply, 100);
     }
 
-    function test_mint_101_AsOwner_ShouldPass() public {
+    function test_mint_OneOverMaxSupply_ShouldPass() public {
         reels.setCaseContract(address(series1Case), true);
         reels.setPublicMintEnabled(true);
+
         uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
-        for (uint32 i = 0; i < 100; i++) {
+
+        for (uint32 i = 0; i < reels.maxSupply(); i++) {
             reels.mint();
         }
+
         totalSupply = reels.totalSupply();
-        assertEq(totalSupply, 100);
+
+        assertEq(totalSupply, reels.maxSupply());
+
         vm.expectRevert(
             abi.encodeWithSelector(IClancyERC721.MaxSupply_Reached.selector)
         );

@@ -3,10 +3,10 @@ pragma solidity ^0.8.19;
 
 import {Titan} from "test-helpers/Titan/Titan.sol";
 import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
-import {IEscrowERC721_v1} from "clancy/marketplace/escrow/IEscrowERC721_v1.sol";
+import {IEscrowERC721} from "clancy/marketplace/escrow/IEscrowERC721.sol";
 
-abstract contract IEscrowERC721_v1_Test is
+abstract contract IEscrowERC721_Test is
     ClancyERC721TestHelpers,
-    IEscrowERC721_v1,
+    IEscrowERC721,
     Titan
 {}

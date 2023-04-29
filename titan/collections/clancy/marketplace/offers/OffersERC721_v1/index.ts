@@ -1,7 +1,7 @@
 import deploy from "./deploy"
 
-const OffersERC721_v1 = {
+const OffersERC721 = {
     deploy,
 }
 
-export default OffersERC721_v1
+export default OffersERC721

@@ -1,7 +1,7 @@
-import OffersERC721_v1 from "./OffersERC721_v1"
+import OffersERC721 from "./OffersERC721"
 
 const escrow = {
-    OffersERC721_v1
+    OffersERC721
 }
 
 export default escrow

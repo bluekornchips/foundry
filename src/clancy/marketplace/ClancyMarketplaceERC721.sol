@@ -7,28 +7,22 @@ import {ReentrancyGuard} from "openzeppelin-contracts/contracts/security/Reentra
 import {IERC721Receiver} from "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import {ERC165Checker} from "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 
-import {IClancyMarketplaceERC721_v1} from "./IClancyMarketplaceERC721_v1.sol";
+import {IClancyMarketplaceERC721} from "./IClancyMarketplaceERC721.sol";
 
-abstract contract ClancyMarketplaceERC721_v1 is
-    IClancyMarketplaceERC721_v1,
-    IERC721Receiver,
+abstract contract ClancyMarketplaceERC721 is
     Ownable,
     Pausable,
-    ReentrancyGuard
+    IERC721Receiver,
+    ReentrancyGuard,
+    IClancyMarketplaceERC721
 {
-    /**
-     * @dev Counter to keep track of item Ids
-     */
+    /// @dev A counter for tracking the item ID.
     uint32 public itemIdCounter;
 
-    /**
-     * @dev Mapping of token contract addresses to booleans indicating whether the contract is allowed or not
-     */
+    /// @dev A mapping of ERC721 Addresses to their allowed sale status.
     mapping(address => bool) public vendors;
 
-    /**
-     * @dev See {IERC721Receiver-onERC721Received}.
-     */
+    /// @dev See {IERC721Receiver-onERC721Received}.
     function onERC721Received(
         address,
         address,
@@ -38,35 +32,22 @@ abstract contract ClancyMarketplaceERC721_v1 is
         return this.onERC721Received.selector;
     }
 
-    /**
-     * @dev Pauses the contract.
-     *
-     * Requirements:
-     * - The contract must not already be paused.
-     * - Can only be called by the owner of the contract.
-     */
+    /// @dev See {Pausable-_pause}.
     function pause() public onlyOwner {
         _pause();
     }
 
-    /**
-     * @dev Unpauses the contract.
-     *
-     * Requirements:
-     * - The contract must be paused.
-     * - Can only be called by the owner of the contract.
-     */
+    /// @dev See {Pausable-_unpause}.
     function unpause() public onlyOwner {
         _unpause();
     }
 
     /**
-     * @dev Allows the owner to set whether a particular token contract is allowed to participate in the marketplace.
-     * @param tokenContract The address of the token contract to set the allowed status for.
-     * @param allowed The allowed status to set for the token contract.
+     * @dev Sets the vendor status for a given token contract.
+     * @param tokenContract The address of the ERC721 token contract.
+     * @param allowed Allowed status.
      *
      * Requirements:
-     * - Only the owner can call this function.
      * - The token contract must implement the ERC721 standard.
      */
     function setVendorStatus(

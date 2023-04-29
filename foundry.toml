@@ -4,7 +4,7 @@ out = 'out'
 libs = ['lib']
 gas_reports = [
     "ClancyERC721", "ClancyERC20", "ClancyERC721Airdroppable",
-    "OffersERC721_v1", "EscrowERC721_v1", 
+    "OffersERC721", "EscrowERC721", 
     "Reels", "Series1Case", 
     ]
 

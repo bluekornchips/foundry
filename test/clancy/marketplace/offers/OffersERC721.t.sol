@@ -6,13 +6,13 @@ import "forge-std/Test.sol";
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
 import {IClancyERC721, ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
-import {IOffersERC721_v1, OffersERC721_v1} from "clancy/marketplace/offers/OffersERC721_v1.sol";
-import {IOffersERC721_v1_Test} from "./IOffersERC721_v1.t.sol";
-import {IClancyMarketplaceERC721_v1, ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";
+import {IOffersERC721, OffersERC721} from "clancy/marketplace/offers/OffersERC721.sol";
+import {IOffersERC721_Test} from "./IOffersERC721.t.sol";
+import {IClancyMarketplaceERC721, ClancyMarketplaceERC721} from "clancy/marketplace/ClancyMarketplaceERC721.sol";
 
-contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
+contract OffersERC721_Test is Test, IOffersERC721_Test {
     ClancyERC721 clancyERC721;
-    OffersERC721_v1 offers;
+    OffersERC721 offers;
 
     function setUp() public {
         vm.deal(w_main, 2 ether);
@@ -23,7 +23,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         clancyERC721.setBurnEnabled(false);
 
         // Offers Setup
-        offers = new OffersERC721_v1();
+        offers = new OffersERC721();
         offers.setVendorStatus(address(clancyERC721), true);
     }
 
@@ -33,30 +33,28 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     //#region newOffer
     function test_createOffer_ValueLTEZero_ShouldFail() public {
         uint32 tokenId = mintAndApprove();
-        vm.expectRevert(IOffersERC721_v1.OfferCannotBeLTEZero.selector);
+        vm.expectRevert(IOffersERC721.OfferCannotBeLTEZero.selector);
         offers.createOfferItem{value: 0}(address(clancyERC721), tokenId);
     }
 
     function test_createOffer_InvalidContract_ShouldFail() public {
         uint32 tokenId = mintAndApprove();
 
-        vm.expectRevert(
-            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
-        );
+        vm.expectRevert(IClancyMarketplaceERC721.InputContractInvalid.selector);
         offers.createOfferItem{value: 1 ether}(address(0), tokenId);
     }
 
     function test_createOffer_CannotBeFromZeroAddress_ShouldFail() public {
         vm.deal(address(0), 1 ether);
         uint32 tokenId = mintAndApprove();
-        vm.expectRevert(IOffersERC721_v1.OfferorCannotBeZeroAddress.selector);
+        vm.expectRevert(IOffersERC721.OfferorCannotBeZeroAddress.selector);
         vm.prank(address(0));
         offers.createOfferItem{value: 1 ether}(address(clancyERC721), tokenId);
     }
 
     function test_createOffer_OfferCannotBeTokenOwner_ShouldFail() public {
         uint32 tokenId = mintAndApprove();
-        vm.expectRevert(IOffersERC721_v1.OfferorCannotBeTokenOwner.selector);
+        vm.expectRevert(IOffersERC721.OfferorCannotBeTokenOwner.selector);
         offers.createOfferItem{value: 1 ether}(address(clancyERC721), tokenId);
     }
 
@@ -103,7 +101,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         offers.createOfferItem{value: 1 ether}(address(clancyERC721), tokenId);
 
-        vm.expectRevert(IOffersERC721_v1.OfferMustBeGTExistingOffer.selector);
+        vm.expectRevert(IOffersERC721.OfferMustBeGTExistingOffer.selector);
         offers.createOfferItem{value: 1 ether}(address(clancyERC721), tokenId);
     }
 
@@ -148,7 +146,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     //#region acceptOfferItem
 
     function test_acceptOffer_ItemDoesNotExist_ShouldFail() public {
-        vm.expectRevert(IOffersERC721_v1.OfferDoesNotExist.selector);
+        vm.expectRevert(IOffersERC721.OfferDoesNotExist.selector);
         offers.acceptOfferItem(address(clancyERC721), 1);
     }
 
@@ -161,7 +159,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         offers.createOfferItem{value: 1 ether}(address(clancyERC721), tokenId);
 
-        vm.expectRevert(IClancyMarketplaceERC721_v1.NotTokenOwner.selector);
+        vm.expectRevert(IClancyMarketplaceERC721.NotTokenOwner.selector);
         offers.acceptOfferItem(address(clancyERC721), 1);
     }
 
@@ -176,7 +174,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         offers.withdraw();
 
         vm.startPrank(w_main);
-        vm.expectRevert(IOffersERC721_v1.InsufficientContractBalance.selector);
+        vm.expectRevert(IOffersERC721.InsufficientContractBalance.selector);
         offers.acceptOfferItem(address(clancyERC721), 1);
         vm.stopPrank();
     }
@@ -273,7 +271,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         offers.withdraw();
 
-        vm.expectRevert(IOffersERC721_v1.InsufficientContractBalance.selector);
+        vm.expectRevert(IOffersERC721.InsufficientContractBalance.selector);
         offers.cancelOfferItem(address(clancyERC721), tokenId);
     }
 
@@ -353,16 +351,14 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
     //#region createCollectionOffer
     function test_createCollectionOffer_NoValueSent_ShouldRevert() public {
-        vm.expectRevert(IOffersERC721_v1.OfferCannotBeLTEZero.selector);
+        vm.expectRevert(IOffersERC721.OfferCannotBeLTEZero.selector);
         offers.createCollectionOffer(address(clancyERC721));
     }
 
     function test_createCollectionOffer_InvalidContractAddress_ShouldRevert()
         public
     {
-        vm.expectRevert(
-            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
-        );
+        vm.expectRevert(IClancyMarketplaceERC721.InputContractInvalid.selector);
         offers.createCollectionOffer{value: 1 ether}(address(0));
     }
 
@@ -371,7 +367,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     {
         vm.deal(address(0), 10 ether);
         offers.setVendorStatus(address(clancyERC721), true);
-        vm.expectRevert(IOffersERC721_v1.OfferorCannotBeZeroAddress.selector);
+        vm.expectRevert(IOffersERC721.OfferorCannotBeZeroAddress.selector);
         vm.prank(address(0));
         offers.createCollectionOffer{value: 1 ether}(address(clancyERC721));
     }
@@ -477,16 +473,14 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         } while (i < offerors.length);
     }
 
-    // forge test --match-path test/clancy/marketplace/offers/OffersERC721_v1.t.sol --match-test testFuzz_cancelCollectionOffer_ShouldPass -vvv
+    // forge test --match-path test/clancy/marketplace/offers/OffersERC721.t.sol --match-test testFuzz_cancelCollectionOffer_ShouldPass -vvv
 
     //#endregion createCollectionOffer
 
     //#region getCollectionOffers
 
     function test_getCollectionOffers_InvalidContract() public {
-        vm.expectRevert(
-            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
-        );
+        vm.expectRevert(IClancyMarketplaceERC721.InputContractInvalid.selector);
         offers.getCollectionOffers(address(0));
     }
 
@@ -541,9 +535,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
     //#region cancelCollectionOffer
 
     function test_cancelCollectionOffer_InvalidContract_ShouldRevert() public {
-        vm.expectRevert(
-            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
-        );
+        vm.expectRevert(IClancyMarketplaceERC721.InputContractInvalid.selector);
         offers.cancelCollectionOffer(address(0), 1);
     }
 
@@ -551,7 +543,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         public
     {
         offers.setVendorStatus(address(clancyERC721), true);
-        vm.expectRevert(IOffersERC721_v1.OfferDoesNotExist.selector);
+        vm.expectRevert(IOffersERC721.OfferDoesNotExist.selector);
         offers.cancelCollectionOffer(address(clancyERC721), 1);
     }
 
@@ -561,7 +553,7 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
         vm.prank(w_main);
         offers.createCollectionOffer{value: 1 ether}(address(clancyERC721));
 
-        vm.expectRevert(IOffersERC721_v1.NotOfferor.selector);
+        vm.expectRevert(IOffersERC721.NotOfferor.selector);
         offers.cancelCollectionOffer(address(clancyERC721), 0);
     }
 
@@ -576,8 +568,8 @@ contract OffersERC721_Test is Test, IOffersERC721_v1_Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IOffersERC721_v1.TransferFailed.selector,
-                "OffersERC721_v1: Cancelled Offer refund failed."
+                IOffersERC721.TransferFailed.selector,
+                "OffersERC721: Cancelled Offer refund failed."
             )
         );
         offers.cancelCollectionOffer(address(clancyERC721), 0);

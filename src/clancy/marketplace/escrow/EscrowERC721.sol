@@ -6,11 +6,11 @@ import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol
 import {IERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 
 import {IClancyERC721, ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
-import {ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";
+import {ClancyMarketplaceERC721} from "clancy/marketplace/ClancyMarketplaceERC721.sol";
 
-import {IEscrowERC721_v1} from "./IEscrowERC721_v1.sol";
+import {IEscrowERC721} from "./IEscrowERC721.sol";
 
-contract EscrowERC721_v1 is IEscrowERC721_v1, ClancyMarketplaceERC721_v1 {
+contract EscrowERC721 is IEscrowERC721, ClancyMarketplaceERC721 {
     using Address for address;
 
     uint32 public constant MAX_ITEMS = 1_000;

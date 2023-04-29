@@ -33,8 +33,8 @@ export const EOAS = {
 
 export const VALID_CONTRACTS = {
     ClancyERC721: "ClancyERC721",
-    EscrowERC721_v1: "EscrowERC721_v1",
-    OffersERC721_v1: "OffersERC721_v1",
+    EscrowERC721: "EscrowERC721",
+    OffersERC721: "OffersERC721",
     Reels: "Reels",
     Clutch: "Clutch",
     CrunchTime: "CrunchTime",

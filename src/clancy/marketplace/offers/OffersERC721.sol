@@ -4,14 +4,10 @@ pragma solidity ^0.8.19;
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
 import {ClancyPayable} from "clancy/utils/ClancyPayable.sol";
-import {IOffersERC721_v1} from "clancy/marketplace/offers/IOffersERC721_v1.sol";
-import {ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";
+import {IOffersERC721} from "clancy/marketplace/offers/IOffersERC721.sol";
+import {ClancyMarketplaceERC721} from "clancy/marketplace/ClancyMarketplaceERC721.sol";
 
-contract OffersERC721_v1 is
-    ClancyMarketplaceERC721_v1,
-    IOffersERC721_v1,
-    ClancyPayable
-{
+contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
     /**
      * @dev Mapping of token contract addresses to token IDs to OfferItem structs, representing offers
      */
@@ -93,7 +89,7 @@ contract OffersERC721_v1 is
         (bool success, ) = msg.sender.call{value: value}("");
         if (!success) {
             revert TransferFailed(
-                "OffersERC721_v1: Offer amount failed to transfer."
+                "OffersERC721: Offer amount failed to transfer."
             );
         }
 
@@ -134,7 +130,7 @@ contract OffersERC721_v1 is
         (bool success, ) = item.offeror.call{value: value}("");
         if (!success) {
             revert TransferFailed(
-                "OffersERC721_v1: Cancelled Offer refund failed."
+                "OffersERC721: Cancelled Offer refund failed."
             );
         }
 
@@ -221,7 +217,7 @@ contract OffersERC721_v1 is
 
         (bool success, ) = existingOfferor.call{value: existingvalue}("");
         if (!success) {
-            revert TransferFailed("OffersERC721_v1: Outbid refund failed.");
+            revert TransferFailed("OffersERC721: Outbid refund failed.");
         }
 
         emit OfferEvent({
@@ -309,7 +305,7 @@ contract OffersERC721_v1 is
         (bool success, ) = msg.sender.call{value: value}("");
         if (!success) {
             revert TransferFailed(
-                "OffersERC721_v1: Cancelled Offer refund failed."
+                "OffersERC721: Cancelled Offer refund failed."
             );
         }
 

@@ -48,13 +48,13 @@ const deploy_contract = async (contract_name: string): Promise<ethers.Contract> 
              * Marketplace
              */
             // Escrow
-            case VALID_CONTRACTS.EscrowERC721_v1:
-                const escrowERC721_v1 = await marketplace.EscrowERC721_v1();
-                return escrowERC721_v1;
+            case VALID_CONTRACTS.EscrowERC721:
+                const escrowERC721 = await marketplace.EscrowERC721();
+                return escrowERC721;
             // Offers
-            case VALID_CONTRACTS.OffersERC721_v1:
-                const offersERC721_v1 = await marketplace.OffersERC721_v1();
-                return offersERC721_v1;
+            case VALID_CONTRACTS.OffersERC721:
+                const offersERC721 = await marketplace.OffersERC721();
+                return offersERC721;
 
             /**
              * ERC721

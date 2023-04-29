@@ -3,22 +3,22 @@ pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 
-import {IEscrowERC721_v1_Test} from "./IEscrowERC721_v1.t.sol";
+import {IEscrowERC721_Test} from "./IEscrowERC721.t.sol";
 
 import {ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
-import {IEscrowERC721_v1, EscrowERC721_v1} from "clancy/marketplace/escrow/EscrowERC721_v1.sol";
-import {IClancyMarketplaceERC721_v1, ClancyMarketplaceERC721_v1} from "clancy/marketplace/ClancyMarketplaceERC721_v1.sol";
+import {IEscrowERC721, EscrowERC721} from "clancy/marketplace/escrow/EscrowERC721.sol";
+import {IClancyMarketplaceERC721, ClancyMarketplaceERC721} from "clancy/marketplace/ClancyMarketplaceERC721.sol";
 
 import {Forks} from "test-helpers/Titan/Forks.sol";
 
-contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
+contract EscrowERC721_Test is IEscrowERC721_Test, Forks {
     ClancyERC721 clancyERC721;
-    EscrowERC721_v1 escrow;
+    EscrowERC721 escrow;
 
     uint32 public escrow_max_items;
 
     function setUp() public {
-        escrow = new EscrowERC721_v1();
+        escrow = new EscrowERC721();
         escrow_max_items = escrow.MAX_ITEMS();
 
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
@@ -33,18 +33,14 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
     }
 
     function test_setAllowedContract_ForZeroAddress_ShouldRevert() public {
-        vm.expectRevert(
-            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
-        );
+        vm.expectRevert(IClancyMarketplaceERC721.InputContractInvalid.selector);
         escrow.setVendorStatus(address(0), true);
     }
 
     function test_setAllowedContract_ForNonERC721Contract_ShouldRevert()
         public
     {
-        vm.expectRevert(
-            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
-        );
+        vm.expectRevert(IClancyMarketplaceERC721.InputContractInvalid.selector);
         escrow.setVendorStatus(w_main, true);
     }
 
@@ -148,7 +144,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         clancyERC721.approve(address(escrow), tokenId);
 
         vm.expectRevert(
-            abi.encodeWithSelector(IEscrowERC721_v1.EscrowFull.selector)
+            abi.encodeWithSelector(IEscrowERC721.EscrowFull.selector)
         );
         escrow.createItem(address(clancyERC721), tokenId);
     }
@@ -193,16 +189,14 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         escrowSetup();
 
         uint32 tokenId = mintAndApprove();
-        vm.expectRevert(
-            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
-        );
+        vm.expectRevert(IClancyMarketplaceERC721.InputContractInvalid.selector);
         escrow.cancelItem(address(escrow), tokenId);
     }
 
     function test_cancelItem_ForNonListedItem_ShouldRevert() public {
         escrowSetup();
 
-        vm.expectRevert(IEscrowERC721_v1.EscrowItemDoesNotExist.selector);
+        vm.expectRevert(IEscrowERC721.EscrowItemDoesNotExist.selector);
         escrow.cancelItem(address(clancyERC721), 5);
     }
 
@@ -218,7 +212,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         escrow.createItem(address(clancyERC721), tokenId);
 
         vm.prank(address(escrow));
-        vm.expectRevert(IEscrowERC721_v1.NotTokenSeller.selector);
+        vm.expectRevert(IEscrowERC721.NotTokenSeller.selector);
         escrow.cancelItem(address(clancyERC721), tokenId);
     }
 
@@ -256,7 +250,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         escrow.createItem(address(clancyERC721), tokenId);
 
         vm.prank(address(clancyERC721));
-        vm.expectRevert(IEscrowERC721_v1.NotTokenSeller.selector);
+        vm.expectRevert(IEscrowERC721.NotTokenSeller.selector);
         escrow.cancelItem(address(clancyERC721), tokenId);
     }
 
@@ -268,7 +262,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         escrow.createItem(address(clancyERC721), tokenId);
         escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
 
-        vm.expectRevert(IEscrowERC721_v1.EscrowItemIsSold.selector);
+        vm.expectRevert(IEscrowERC721.EscrowItemIsSold.selector);
         escrow.cancelItem(address(clancyERC721), tokenId);
     }
 
@@ -322,9 +316,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
 
         escrow.createItem(address(clancyERC721), tokenId);
 
-        vm.expectRevert(
-            IClancyMarketplaceERC721_v1.InputContractInvalid.selector
-        );
+        vm.expectRevert(IClancyMarketplaceERC721.InputContractInvalid.selector);
         escrow.createPurchase(address(escrow), tokenId, address(w_main));
     }
 
@@ -347,9 +339,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
 
         escrow.createItem(address(clancyERC721), tokenId);
 
-        vm.expectRevert(
-            IEscrowERC721_v1.EscrowItemBuyerCannotBeSeller.selector
-        );
+        vm.expectRevert(IEscrowERC721.EscrowItemBuyerCannotBeSeller.selector);
         escrow.createPurchase(address(clancyERC721), tokenId, address(this));
     }
 
@@ -362,7 +352,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
 
         escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
 
-        vm.expectRevert(IEscrowERC721_v1.EscrowItemIsSold.selector);
+        vm.expectRevert(IEscrowERC721.EscrowItemIsSold.selector);
         escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
     }
 
@@ -394,7 +384,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
 
         escrow.createItem(address(clancyERC721), tokenId);
 
-        vm.expectRevert(IEscrowERC721_v1.EscrowItemDoesNotExist.selector);
+        vm.expectRevert(IEscrowERC721.EscrowItemDoesNotExist.selector);
         escrow.claimItem(address(clancyERC721), tokenId + 1);
     }
 
@@ -406,7 +396,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         escrow.createItem(address(clancyERC721), tokenId);
         escrow.createPurchase(address(clancyERC721), tokenId, address(w_main));
 
-        vm.expectRevert(IEscrowERC721_v1.NotTokenBuyer.selector);
+        vm.expectRevert(IEscrowERC721.NotTokenBuyer.selector);
         escrow.claimItem(address(clancyERC721), tokenId);
     }
 
@@ -417,7 +407,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
 
         escrow.createItem(address(clancyERC721), tokenId);
 
-        vm.expectRevert(IEscrowERC721_v1.EscrowItemIsNotSold.selector);
+        vm.expectRevert(IEscrowERC721.EscrowItemIsNotSold.selector);
         escrow.claimItem(address(clancyERC721), tokenId);
     }
 
@@ -469,7 +459,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Forks {
         );
         clancyERC721.setPublicMintEnabled(true);
 
-        escrow = new EscrowERC721_v1();
+        escrow = new EscrowERC721();
         escrow.setVendorStatus(address(clancyERC721), true);
     }
 

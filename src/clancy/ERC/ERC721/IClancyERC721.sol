@@ -38,7 +38,4 @@ interface IClancyERC721 {
     /// @notice Emitted when the max supply is changed.
     /// @param newMaxSupply The new max supply.
     event MaxSupplyChanged(uint32 indexed newMaxSupply);
-
-    // Functions
-    function mint() external returns (uint32);
 }

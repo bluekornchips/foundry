@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.19;
 
-interface IEscrowERC721_v1 {
+interface IEscrowERC721 {
     /// @notice Thrown when the caller is not the token seller.
     error NotTokenSeller();
 

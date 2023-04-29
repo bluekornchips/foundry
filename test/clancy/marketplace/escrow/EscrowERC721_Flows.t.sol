@@ -5,20 +5,20 @@ import "forge-std/Test.sol";
 
 import {IERC721} from "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 
-import {EscrowERC721_v1} from "clancy/marketplace/escrow/EscrowERC721_v1.sol";
+import {EscrowERC721} from "clancy/marketplace/escrow/EscrowERC721.sol";
 import {IClancyERC721, ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
 
-import {IEscrowERC721_v1_Test} from "./IEscrowERC721_v1.t.sol";
+import {IEscrowERC721_Test} from "./IEscrowERC721.t.sol";
 
-contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
+contract EscrowERC721_Test is IEscrowERC721_Test, Test {
     ClancyERC721 tokensOne;
     ClancyERC721 tokensTwo;
-    EscrowERC721_v1 escrow;
+    EscrowERC721 escrow;
 
     uint32 public escrow_max_items;
 
     function setUp() public {
-        escrow = new EscrowERC721_v1();
+        escrow = new EscrowERC721();
         escrow_max_items = escrow.MAX_ITEMS();
 
         //tokensOne
@@ -185,7 +185,7 @@ contract EscrowERC721_v1_Test is IEscrowERC721_v1_Test, Test {
         ClancyERC721 ercContract
     ) internal returns (uint32) {
         vm.prank(pranker);
-        return IClancyERC721(ercContract).mint();
+        return ercContract.mint();
     }
 
     function approvePrank(

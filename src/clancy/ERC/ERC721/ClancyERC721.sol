@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Pausable} from "openzeppelin-contracts/contracts/security/Pausable.sol";
 import {ReentrancyGuard} from "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 import {IERC721Receiver} from "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 import {ERC721, ERC721Enumerable} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 
 import {IClancyERC721} from "./IClancyERC721.sol";
 
 contract ClancyERC721 is
     Ownable,
-    ERC721Enumerable,
     Pausable,
     IClancyERC721,
+    IERC721Receiver,
     ReentrancyGuard,
-    IERC721Receiver
+    ERC721Enumerable
 {
     /// @dev The ceiling for the total supply of the token
     uint32 public constant SUPPLY_CEILING = 1_000_000;
@@ -156,7 +156,7 @@ contract ClancyERC721 is
      *
      * @return The id of the newly minted token.
      */
-    function mint() public virtual override returns (uint32) {
+    function mint() public virtual returns (uint32) {
         if (!publicMintEnabled) revert PublicMintDisabled();
         return clancyMint(_msgSender());
     }
@@ -173,7 +173,9 @@ contract ClancyERC721 is
      * @param tokenId The ID of the token to be burned.
      */
     function burn(uint32 tokenId) public virtual whenNotPaused nonReentrant {
-        if (!burnEnabled) revert BurnDisabled();
+        if (!burnEnabled) {
+            revert BurnDisabled();
+        }
         if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
             revert NotApprovedOrOwner();
         }
@@ -212,6 +214,7 @@ contract ClancyERC721 is
         if (tokenIdCounter >= maxSupply) {
             revert MaxSupply_Reached();
         }
+
         _mint(to, ++tokenIdCounter);
 
         return tokenIdCounter;

@@ -53,7 +53,7 @@ const main = async (inputArgs: any): Promise<void> => {
             const contractsToBeCoordinated: ContractContainer = Object.fromEntries(
                 Object.entries(contracts).filter(([key]) => validContracts.includes(key))
             );
-            await nonClient.coordinator.marketplace.setAllowedContracts(contracts[VALID_CONTRACTS.EscrowERC721_v1], contractsToBeCoordinated, VALID_CONTRACTS.EscrowERC721_v1);
+            await nonClient.coordinator.marketplace.setAllowedContracts(contracts[VALID_CONTRACTS.EscrowERC721], contractsToBeCoordinated, VALID_CONTRACTS.EscrowERC721);
         } catch (error) {
             console.error("Error setting marketplace allowed contracts:", error);
             throw error;

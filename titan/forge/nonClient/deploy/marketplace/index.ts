@@ -1,9 +1,9 @@
-import OffersERC721_v1 from "./OffersERC721_v1";
-import EscrowERC721_v1 from "./EscrowERC721_v1";
+import OffersERC721 from "./OffersERC721";
+import EscrowERC721 from "./EscrowERC721";
 
 const marketplace = {
-    EscrowERC721_v1,
-    OffersERC721_v1
+    EscrowERC721,
+    OffersERC721
 }
 
 export default marketplace;

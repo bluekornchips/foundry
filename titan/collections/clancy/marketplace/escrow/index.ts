@@ -1,7 +1,7 @@
-import EscrowERC721_v1 from "./EscrowERC721_v1"
+import EscrowERC721 from "./EscrowERC721"
 
 const escrow = {
-    EscrowERC721_v1
+    EscrowERC721
 }
 
 export default escrow

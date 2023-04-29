@@ -288,13 +288,14 @@ contract ClancyERC20_Test is Test, Titan {
         clancyERC20.burn(burnAmount);
     }
 
-    function test_TransferInsufficientBalance_ShouldFail(
+    function testFuzz_TransferInsufficientBalance_ShouldFail(
         address to,
         uint256 mintAmount,
         uint256 sendAmount
     ) external {
         mintAmount = bound(mintAmount, 0, CAP - 1);
         sendAmount = bound(sendAmount, mintAmount + 1, CAP);
+        vm.assume(to != address(0));
 
         clancyERC20.mintTo(address(this), mintAmount);
         vm.expectRevert("ERC20: transfer amount exceeds balance");

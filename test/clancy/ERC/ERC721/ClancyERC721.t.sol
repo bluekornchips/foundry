@@ -31,7 +31,7 @@ contract ClancyERC721_Test is Test, IClancyERC721_Test {
     //#region Max Supply
     function test_maxSupply() public {
         uint256 maxSupply = clancyERC721.maxSupply();
-        assertEq(maxSupply, 100);
+        assertEq(maxSupply, MAX_SUPPLY);
     }
 
     function testFuzz_SetMaxSupply(uint32 amount) public {
@@ -106,7 +106,6 @@ contract ClancyERC721_Test is Test, IClancyERC721_Test {
     //#region URI
 
     function testFuzz_SetBaseURI(string memory uri) public {
-        string memory preBaseURI = clancyERC721.baseURI();
         vm.expectEmit(true, false, false, false);
         emit BaseURIChanged(uri);
         clancyERC721.setBaseURI(uri);

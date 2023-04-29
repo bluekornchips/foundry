@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.8.19;
 
-interface IOffersERC721_v1 {
+interface IOffersERC721 {
     //#region Errors
 
     /// @notice Thrown when the contract balance is insufficient.

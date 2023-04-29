@@ -119,10 +119,13 @@ contract ClancyERC721 is
      * @param increasedSupply The new maximum supply.
      */
     function setMaxSupply(uint32 increasedSupply) public onlyOwner {
-        if (increasedSupply <= 0) revert MaxSupply_LTEZero();
-        if (increasedSupply < totalSupply())
-            revert MaxSupply_LowerThanCurrentSupply();
-        if (increasedSupply > SUPPLY_CEILING) revert MaxSupply_AboveCeiling();
+        if (
+            increasedSupply <= 0 ||
+            increasedSupply < totalSupply() ||
+            increasedSupply > SUPPLY_CEILING
+        ) {
+            revert MaxSupply_Invalid();
+        }
 
         maxSupply = increasedSupply;
 
@@ -140,9 +143,8 @@ contract ClancyERC721 is
      * @param baseURI_ The new base URI for the token metadata.
      */
     function setBaseURI(string calldata baseURI_) public onlyOwner {
-        string memory existingBaseURI = baseURILocal;
         baseURILocal = baseURI_;
-        emit BaseURIChanged(existingBaseURI, baseURILocal);
+        emit BaseURIChanged(baseURILocal);
     }
 
     /**
@@ -172,8 +174,9 @@ contract ClancyERC721 is
      */
     function burn(uint32 tokenId) public virtual whenNotPaused nonReentrant {
         if (!burnEnabled) revert BurnDisabled();
-        if (!_isApprovedOrOwner(_msgSender(), tokenId))
+        if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
             revert NotApprovedOrOwner();
+        }
         _burn(tokenId);
     }
 
@@ -206,12 +209,10 @@ contract ClancyERC721 is
     function clancyMint(
         address to
     ) internal whenNotPaused nonReentrant returns (uint32 tokenId) {
-        uint32 tokenIdCounter_ = tokenIdCounter;
-
-        if (tokenIdCounter_ >= maxSupply) revert MaxSupply_Reached();
-
-        _safeMint(to, ++tokenIdCounter_);
-        tokenIdCounter = tokenIdCounter_;
+        if (tokenIdCounter >= maxSupply) {
+            revert MaxSupply_Reached();
+        }
+        _mint(to, ++tokenIdCounter);
 
         return tokenIdCounter;
     }

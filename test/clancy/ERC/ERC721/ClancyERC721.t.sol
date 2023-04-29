@@ -7,17 +7,12 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
 import {IClancyERC721, ClancyERC721} from "clancy/ERC/ERC721/ClancyERC721.sol";
 
-import {ClancyERC721TestHelpers} from "test-helpers//ClancyERC721TestHelpers.sol";
-import {Titan} from "test-helpers/Titan/Titan.sol";
+import {IClancyERC721_Test} from "./IClancyERC721.t.sol";
 
-contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
+contract ClancyERC721_Test is Test, IClancyERC721_Test {
     using Strings for uint256;
 
     ClancyERC721 public clancyERC721;
-
-    event MaxSupplyChanged(uint32 indexed);
-    event BaseURIChanged(string indexed, string indexed);
-    event BurnEnabledChanged(bool indexed);
 
     function setUp() public {
         clancyERC721 = new ClancyERC721(NAME, SYMBOL, MAX_SUPPLY, BASE_URI);
@@ -46,7 +41,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
 
         // A negative amount, should revert.
         if (amount < 0) {
-            vm.expectRevert(IClancyERC721.MaxSupply_LTEZero.selector);
+            vm.expectRevert(IClancyERC721.MaxSupply_Invalid.selector);
             clancyERC721.setMaxSupply(amount);
 
             uint32 postMaxSupply = clancyERC721.maxSupply();
@@ -54,7 +49,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
         }
         // Less than the existing max supply, and less than the current supply, should revert.
         else if (amount < existingMaxSupply && amount < currentSupply) {
-            vm.expectRevert(IClancyERC721.MaxSupply_CannotBeDecreased.selector);
+            vm.expectRevert(IClancyERC721.MaxSupply_Invalid.selector);
             clancyERC721.setMaxSupply(amount);
 
             uint32 postMaxSupply = clancyERC721.maxSupply();
@@ -68,7 +63,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
         }
         // Greater than the ceiling, should revert.
         else if (amount > ceiling) {
-            vm.expectRevert(IClancyERC721.MaxSupply_AboveCeiling.selector);
+            vm.expectRevert(IClancyERC721.MaxSupply_Invalid.selector);
             clancyERC721.setMaxSupply(amount);
 
             uint32 postMaxSupply = clancyERC721.maxSupply();
@@ -76,16 +71,14 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
         }
         // Greater than 0 and less than the current supply, should revert.
         else if (amount > 0 && amount < currentSupply) {
-            vm.expectRevert(
-                IClancyERC721.MaxSupply_LowerThanCurrentSupply.selector
-            );
+            vm.expectRevert(IClancyERC721.MaxSupply_Invalid.selector);
             clancyERC721.setMaxSupply(amount);
             uint32 postMaxSupply = clancyERC721.maxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
         }
         // Equal to zero, should revert.
         else if (amount == 0) {
-            vm.expectRevert(IClancyERC721.MaxSupply_LTEZero.selector);
+            vm.expectRevert(IClancyERC721.MaxSupply_Invalid.selector);
             clancyERC721.setMaxSupply(amount);
             uint32 postMaxSupply = clancyERC721.maxSupply();
             assertEq(existingMaxSupply, postMaxSupply);
@@ -114,8 +107,8 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
 
     function testFuzz_SetBaseURI(string memory uri) public {
         string memory preBaseURI = clancyERC721.baseURI();
-        vm.expectEmit(true, true, false, false);
-        emit BaseURIChanged(preBaseURI, uri);
+        vm.expectEmit(true, false, false, false);
+        emit BaseURIChanged(uri);
         clancyERC721.setBaseURI(uri);
 
         string memory postBaseURI = clancyERC721.baseURI();
@@ -201,7 +194,7 @@ contract ClancyERC721_Test is Test, ClancyERC721TestHelpers, Titan {
     //     totalSupply = clancyERC721.totalSupply();
     //     assertEq(totalSupply, 100);
     //     vm.expectRevert(
-    //         abi.encodeWithSelector(IClancyERC721.MaxSupply_Reached.selector)
+    //         abi.encodeWithSelector(IClancyERC721.MaxSupply_Invalid.selector)
     //     );
     //     clancyERC721.mint();
     // }

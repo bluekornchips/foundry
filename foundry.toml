@@ -3,7 +3,8 @@ src = 'src'
 out = 'out'
 libs = ['lib']
 gas_reports = [
-    "ClancyERC721", "ClancyERC20", "ClancyERC721Airdroppable",
+    "ClancyERC721", "ClancyERC721Airdroppable",
+    "ClancyERC20", "ClancyERC20Airdrop",
     "OffersERC721", "EscrowERC721", 
     "Reels", "Series1Case", 
     ]

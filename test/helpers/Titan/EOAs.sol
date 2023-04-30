@@ -8,4 +8,6 @@ contract EOAS {
 
     // Real Addresses
     address public constant w_real = 0x9EE14b0b99BE5a02BbF2dE0138159A9638F9F57C;
+
+    address[] public addrs = [w_main, w_one, w_real];
 }

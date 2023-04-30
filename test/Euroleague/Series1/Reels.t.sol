@@ -135,6 +135,8 @@ contract Reels_Test is Test, ClancyERC721TestHelpers, Titan {
 
         uint256 totalSupply = reels.totalSupply();
         assertEq(totalSupply, 0);
+        // Set max supply to 100
+        reels.setMaxSupply(100);
 
         for (uint32 i = 0; i < reels.maxSupply(); i++) {
             reels.mint();

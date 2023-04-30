@@ -60,7 +60,7 @@ contract ClancyERC20 is
      * @dev Can only be called when contract is not paused
      * @param amount The amount of tokens to be minted
      */
-    function mint(uint256 amount) public virtual override whenNotPaused {
+    function mint(uint256 amount) public virtual whenNotPaused {
         clancyMint(_msgSender(), amount);
     }
 
@@ -70,10 +70,7 @@ contract ClancyERC20 is
      * @param to The address to mint tokens to
      * @param amount The amount of tokens to be minted
      */
-    function mintTo(
-        address to,
-        uint256 amount
-    ) public virtual override onlyOwner {
+    function mintTo(address to, uint256 amount) public virtual onlyOwner {
         clancyMint(to, amount);
     }
 

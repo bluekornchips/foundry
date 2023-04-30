@@ -23,17 +23,6 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
 
     /**
      * @dev Opens a Series 1 case.
-     *  safeTransferForm sends to the ownerOfToken, because using _msgSender() could send
-     *  to the approved address burning the token. This is unintended behaviour.
-     *
-     * Requirements:
-     * - The contract must not be paused.
-     * - The Reels contract must be set.
-     * - The caller must own the specified token.
-     * - The token must exist.
-     * - Burning of the token must be enabled.
-     *
-     * Emits a {CaseOpened} event.
      *
      * @param tokenId The ID of the token to open.
      * @return An array of the IDs of the reels that were minted.
@@ -41,18 +30,25 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
     function openCase(
         uint32 tokenId
     ) public whenNotPaused returns (uint32[] memory) {
-        if (reelsContract == Reels(payable(address(0))))
+        if (reelsContract == Reels(payable(address(0)))) {
             revert ReelsContractNotSet();
-        if (!_isApprovedOrOwner(_msgSender(), tokenId))
+        }
+        if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
             revert NotApprovedOrOwner();
+        }
 
         address tokenOwner = ownerOf(tokenId); // Always mint to the owner, not the caller.
 
         burn(tokenId);
 
         uint32[] memory minted_reels = new uint32[](reelsPerCase);
-        for (uint32 i; i < reelsPerCase; i++) {
-            minted_reels[i] = reelsContract.mintTo(tokenOwner);
+
+        unchecked {
+            uint32 i;
+            do {
+                minted_reels[i] = reelsContract.mintTo(tokenOwner);
+                ++i;
+            } while (i < reelsPerCase);
         }
 
         emit CaseOpened(tokenId, _msgSender());
@@ -71,8 +67,9 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
      * @param reelsContract_ The address of the Reels contract.
      */
     function setReelsContract(address reelsContract_) public onlyOwner {
-        if (reelsContract_ == address(0)) revert ReelsContractNotValid();
-        if (!reelsContract_.isContract()) revert ReelsContractNotValid();
+        if (reelsContract_ == address(0) || !reelsContract_.isContract()) {
+            revert ReelsContractNotValid();
+        }
         reelsContract = Reels(payable(reelsContract_));
     }
 
@@ -86,7 +83,9 @@ contract Series1Case is ISeries1Case, ClancyERC721Airdroppable {
      * @param reelsPerCase_ The number of reels to set per case.
      */
     function setReelsPerCase(uint8 reelsPerCase_) public onlyOwner {
-        if (reelsPerCase_ <= 0) revert ReelsPerCaseNotValid();
+        if (reelsPerCase_ < 1) {
+            revert ReelsPerCaseNotValid();
+        }
         reelsPerCase = reelsPerCase_;
     }
 }

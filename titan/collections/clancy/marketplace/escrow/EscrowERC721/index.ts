@@ -1,7 +1,7 @@
-import deploy from "./deploy"
+import deploy from "./deploy";
 
 const EscrowERC721 = {
-    deploy,
+    deploy
 }
 
 export default EscrowERC721

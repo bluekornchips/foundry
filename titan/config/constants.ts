@@ -32,15 +32,26 @@ export const EOAS = {
 }
 
 export const VALID_CONTRACTS = {
-    ClancyERC721: "ClancyERC721",
-    EscrowERC721: "EscrowERC721",
-    OffersERC721: "OffersERC721",
-    Reels: "Reels",
-    Clutch: "Clutch",
-    CrunchTime: "CrunchTime",
-    HeatinUp: "HeatinUp",
-    SlamPacked: "SlamPacked",
-    Swishin: "Swishin",
+    Clancy: {
+        ERC: {
+            ClancyERC721: "ClancyERC721",
+            ClancyERC20: "ClancyERC20",
+            ClancyERC20Airdrop: "ClancyERC20Airdrop",
+        },
+        Marketplace: {
+            EscrowERC721: "EscrowERC721",
+            OffersERC721: "OffersERC721",
+
+        }
+    },
+    Euroleague: {
+        Reels: "Reels",
+        Clutch: "Clutch",
+        CrunchTime: "CrunchTime",
+        HeatinUp: "HeatinUp",
+        SlamPacked: "SlamPacked",
+        Swishin: "Swishin",
+    }
 }
 
 export const VALID_CLIENTS = {

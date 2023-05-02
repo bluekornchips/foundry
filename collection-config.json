@@ -1,17 +1,34 @@
 {
 	"Clancy": {
 		"ERC": {
-			"ClancyERC721": {
-				"name": "ClancyERC721",
-				"validForSale": true,
-				"cargs": {
+			"ERC721": {
+				"ClancyERC721": {
 					"name": "ClancyERC721",
-					"symbol": "CLANCY",
-					"max_supply": 10000,
-					"uri": "https://clancy.com/api/"
+					"validForSale": true,
+					"cargs": {
+						"name": "ClancyERC721",
+						"symbol": "CLANCY",
+						"max_supply": 10000,
+						"uri": "https://clancy.com/api/"
+					},
+					"publicMintStatus": true,
+					"publicBurnStatus": false
+				}
+			},
+			"ERC20": {
+				"ClancyERC20": {
+					"cargs": {
+						"name": "ClancyERC20",
+						"symbol": "CERC20",
+						"initial_supply": 1000,
+						"cap": 1000000
+					}
 				},
-				"publicMintStatus": true,
-				"publicBurnStatus": false
+				"Utils": {
+					"ClancyERC20Airdrop": {
+						"name": "ClancyERC20Airdrop"
+					}
+				}
 			}
 		},
 		"Marketplace": {

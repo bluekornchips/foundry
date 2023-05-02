@@ -25,7 +25,7 @@ contract ClancyERC20Airdrop_Test is Test, IClancyERC20Airdrop_Test {
      * An empty array.
      * Should revert.
      */
-    function test_airdrop_EmptyAirDropArray_ShouldRevert() public {
+    function test_airdrop_EmptyAirdropArray_ShouldRevert() public {
         ERC20Package[] memory values = new ERC20Package[](0);
         vm.expectRevert(AirdropLengthInvalid.selector);
         airdropper.airdrop(clancyERC20, values);

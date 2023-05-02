@@ -2,7 +2,8 @@ import collections from "../../../collections"
 import Ducky from "../../../utility/logging/ducky"
 import getActiveEnv from "../../env"
 import { ContractContainer } from "../../../types"
-import { IClancyERC721ContractConfig, IEuroleagueConfig } from "../../../interfaces"
+import { IEuroleagueConfig } from "../../../interfaces/EuroleagueConfig"
+import { IClancyERC721ContractConfig } from "../../../interfaces/clancy"
 
 /**
  * Deploy a series of ERC-721 tokens representing Euroleague cases, based on the configurations in the provided IEuroleagueConfig object.

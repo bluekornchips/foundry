@@ -2,7 +2,7 @@ import { ethers } from "ethers"
 
 import collections from "../../../collections"
 import Ducky from "../../../utility/logging/ducky"
-import { IEuroleagueConfig } from "../../../interfaces"
+import { IEuroleagueConfig } from "../../../interfaces/EuroleagueConfig"
 
 /**
  * Deploy the Euroleague Reels ERC-721 token based on the configuration in the provided IEuroleagueConfig object.

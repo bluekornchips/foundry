@@ -5,6 +5,7 @@ import nonClient from './nonClient';
 import { COLLECTION_CONFIG_FILE_NAME, VALID_CLIENTS, VALID_CONTRACTS, VALID_ENVS } from '../config/constants';
 import { setActiveEnv } from './env';
 import { setPrismaClient } from '../prisma/prismaClient';
+import utility from '../utility';
 
 const argv = yargs.options({
     deploy: {
@@ -12,7 +13,7 @@ const argv = yargs.options({
         description: 'The contracts to be deployed',
         type: 'array',
         demandOption: false,
-        choices: Object.keys(VALID_CONTRACTS),
+        choices: utility.getKeys(VALID_CONTRACTS),
         coerce: (arr) => {
             return arr.filter((item: any) => typeof item === 'string');
         },
@@ -22,7 +23,7 @@ const argv = yargs.options({
         description: 'The setup to be run',
         type: 'array',
         demandOption: false,
-        choices: Object.keys(VALID_CONTRACTS),
+        choices: utility.getKeys(VALID_CONTRACTS),
         coerce: (arr) => {
             return arr.filter((item: any) => typeof item === 'string');
         },
@@ -62,6 +63,8 @@ const main = async () => {
         }
     }
 }
+
+
 
 main().catch((error) => {
     console.error(error);

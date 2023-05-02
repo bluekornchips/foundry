@@ -7,6 +7,8 @@ import { ContractContainer } from "../../../types";
 import { ICollectionConfigs } from "../../../interfaces";
 import { VALID_CONTRACTS } from "../../../config/constants";
 import marketplace from "./marketplace";
+import ERC20 from "./ERC20";
+import ERC721 from "./ERC721";
 
 /**
  * Deploys the specified contracts and returns a container object with the deployed contracts.
@@ -41,28 +43,36 @@ const deployer = async (contract_names: string[]): Promise<ContractContainer> =>
  * @returns The deployed contract.
  */
 const deploy_contract = async (contract_name: string): Promise<ethers.Contract> => {
-    const contract_configs: ICollectionConfigs = utility.getCollectionConfigs();
     try {
         switch (contract_name) {
             /**
              * Marketplace
              */
             // Escrow
-            case VALID_CONTRACTS.EscrowERC721:
-                const escrowERC721 = await marketplace.EscrowERC721();
+            case VALID_CONTRACTS.Clancy.Marketplace.EscrowERC721:
+                const escrowERC721: ethers.Contract = await marketplace.EscrowERC721();
                 return escrowERC721;
             // Offers
-            case VALID_CONTRACTS.OffersERC721:
-                const offersERC721 = await marketplace.OffersERC721();
+            case VALID_CONTRACTS.Clancy.Marketplace.OffersERC721:
+                const offersERC721: ethers.Contract = await marketplace.OffersERC721();
                 return offersERC721;
 
             /**
-             * ERC721
+             * ERC20
              */
-            case VALID_CONTRACTS.ClancyERC721:
-                const clancyERC721Args = contract_configs.Clancy.ERC.ClancyERC721.cargs;
-                const artifact = utility.artifactFinder(VALID_CONTRACTS.ClancyERC721);
-                const erc721: ethers.Contract = await collections.clancy.ERC.ClancyERC721.deploy(clancyERC721Args.name, clancyERC721Args.symbol, clancyERC721Args.max_supply, clancyERC721Args.uri, 0, artifact);
+            case VALID_CONTRACTS.Clancy.ERC.ClancyERC20:
+                const erc20: ethers.Contract = await ERC20.clancyERC20();
+                return erc20;
+
+            case VALID_CONTRACTS.Clancy.ERC.ClancyERC20Airdrop:
+                const erc20Airdrop: ethers.Contract = await ERC20.clancyERC20Airdrop();
+                return erc20Airdrop;
+
+            /**
+             * ERC721
+            */
+            case VALID_CONTRACTS.Clancy.ERC.ClancyERC721:
+                const erc721: ethers.Contract = await ERC721.clancyERC721();
                 return erc721;
             default:
                 const message = `Contract ${contract_name} not found`;

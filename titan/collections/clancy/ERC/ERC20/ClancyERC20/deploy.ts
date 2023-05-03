@@ -3,6 +3,7 @@ import { EOAS, RPC } from "../../../../../config/constants";
 import pgsql from "../../../../../pgsql";
 import createWalletWithPrivateKey from "../../../../../utility/blockchain/createWalletWithPrivateKey";
 import Ducky from "../../../../../utility/logging/ducky";
+import { contract_type_db } from "../../../../../types";
 
 const deploy = async (name: string, symbol: string, initial_supply: number, cap: number, odoo_token_id: number, artifact: any): Promise<ethers.Contract> => {
     Ducky.Debug(__filename, "deploy", `Deploying ClancyERC20: ${name} to ${RPC.URL}`);
@@ -29,7 +30,7 @@ const deployToBlockchain = async (contractName: string, contractSymbol: string, 
 
 const addToPostgres = async (name: string, contract: ethers.Contract, odoo_token_id: number, artifact: any) => {
     try {
-        const upsertResult = await pgsql.contracts.upsert(name, contract, odoo_token_id, artifact);
+        const upsertResult = await pgsql.contracts.upsert(name, contract, odoo_token_id, contract_type_db.ERC20, artifact);
         if (!upsertResult) {
             const message = `Could not add ${name} to PostgreSQL.`;
             Ducky.Error(__filename, "addToPostgres", message);

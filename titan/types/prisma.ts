@@ -6,3 +6,10 @@ import { dev_users, qa_users, uat_users } from "@prisma/client";
 export type contracts_db = dev_contracts | qa_contracts | uat_contracts;
 export type tokens_db = dev_tokens | qa_tokens | uat_tokens;
 export type users_db = dev_users | qa_users | uat_users;
+
+export enum contract_type_db {
+    Utility = 0,
+    ERC20 = 20,
+    Marketplace = 101,
+    ERC721 = 721,
+}

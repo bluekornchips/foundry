@@ -34,8 +34,8 @@ export interface IClancyERC721ContractConfig {
     name: string; // The name of the ClancyERC721 contract.
     cargs: IClancyERC721ConstructorArgConfig;
     validForSale: boolean;
-    publicMintStatus: boolean;
-    publicBurnStatus: boolean;
+    publicMintEnabled: boolean;
+    burnEnabled: boolean;
 }
 
 

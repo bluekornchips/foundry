@@ -76,7 +76,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
         vm.stopPrank();
 
         vm.expectEmit(true, true, true, true, address(offers));
-        emit OfferEvent({
+        emit ItemOfferEvent({
             offerType: OfferType.Create,
             itemId: itemId + 1,
             contractAddress: address(clancyERC721),
@@ -122,7 +122,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
         vm.startPrank(w_one);
 
         vm.expectEmit(true, true, true, true, address(offers));
-        emit OfferEvent({
+        emit ItemOfferEvent({
             offerType: OfferType.Outbid,
             itemId: itemId,
             contractAddress: address(clancyERC721),
@@ -202,7 +202,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
         IERC721(clancyERC721).approve(address(offers), tokenId);
 
         vm.expectEmit(true, true, true, true, address(offers));
-        emit OfferEvent({
+        emit ItemOfferEvent({
             offerType: OfferType.Accept,
             itemId: itemId,
             contractAddress: address(clancyERC721),
@@ -296,7 +296,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
 
         uint32 itemId = offers.itemIdCounter();
         vm.expectEmit(true, true, true, true, address(offers));
-        emit OfferEvent({
+        emit ItemOfferEvent({
             offerType: OfferType.Cancel,
             itemId: itemId,
             contractAddress: address(clancyERC721),
@@ -385,7 +385,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
         vm.startPrank(w_main);
 
         vm.expectEmit(true, true, true, true, address(offers));
-        emit CollectionOfferEvent({
+        emit CollectionItemOfferEvent({
             offerType: OfferType.Create,
             contractAddress: address(clancyERC721),
             offeror: w_main,
@@ -413,7 +413,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
             vm.startPrank(offeror);
 
             vm.expectEmit(true, true, true, true, address(offers));
-            emit CollectionOfferEvent({
+            emit CollectionItemOfferEvent({
                 offerType: OfferType.Create,
                 contractAddress: address(clancyERC721),
                 offeror: offeror,
@@ -456,7 +456,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
             vm.startPrank(offeror);
 
             vm.expectEmit(true, true, true, true, address(offers));
-            emit CollectionOfferEvent({
+            emit CollectionItemOfferEvent({
                 offerType: OfferType.Create,
                 contractAddress: address(clancyERC721),
                 offeror: offeror,
@@ -590,7 +590,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
         assertEq(balanceAfterOffer, balanceBefore - offerValue);
 
         vm.expectEmit(true, true, true, true, address(offers));
-        emit CollectionOfferEvent({
+        emit CollectionItemOfferEvent({
             offerType: OfferType.Cancel,
             contractAddress: address(clancyERC721),
             offeror: address(this),
@@ -619,7 +619,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
         vm.stopPrank();
 
         vm.expectEmit(true, true, true, true, address(offers));
-        emit CollectionOfferEvent({
+        emit CollectionItemOfferEvent({
             offerType: OfferType.Cancel,
             contractAddress: address(clancyERC721),
             offeror: w_main,
@@ -691,7 +691,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
     //         }
 
     //         vm.expectEmit(true, true, true, true, address(offers));
-    //         emit CollectionOfferEvent({
+    //         emit CollectionItemOfferEvent({
     //             offerType: OfferType.Cancel,
     //             contractAddress: address(clancyERC721),
     //             offeror: offeror,
@@ -753,7 +753,7 @@ contract OffersERC721_Test is Test, IOffersERC721_Test {
     //         uint256 balanceBefore = offeror.balance;
 
     //         vm.expectEmit(true, true, true, true, address(offers));
-    //         emit CollectionOfferEvent({
+    //         emit CollectionItemOfferEvent({
     //             offerType: OfferType.Cancel,
     //             contractAddress: address(clancyERC721),
     //             offeror: offeror,

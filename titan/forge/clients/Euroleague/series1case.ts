@@ -4,14 +4,16 @@ import getActiveEnv from "../../env"
 import { ContractContainer } from "../../../types"
 import { IEuroleagueConfig } from "../../../interfaces/EuroleagueConfig"
 import { IClancyERC721ContractConfig } from "../../../interfaces/clancy"
+import { ethers } from "ethers"
 
 /**
  * Deploy a series of ERC-721 tokens representing Euroleague cases, based on the configurations in the provided IEuroleagueConfig object.
  *
- * @param config The IEuroleagueConfig object containing configurations for the ERC-721 tokens to be deployed.
- * @returns An object containing the deployed ERC-721 tokens.
+ * @param config    The IEuroleagueConfig object containing configurations for the ERC-721 tokens to be deployed.
+ * @returns         An object containing the deployed ERC-721 tokens.
  */
 const series1Case = async (config: IEuroleagueConfig): Promise<ContractContainer> => {
+
     // Get the configurations for the ERC-721 tokens to be deployed.
     const series1cases_configs: IClancyERC721ContractConfig[] = config.ERC.Series1Cases
     // Create an empty object to hold the deployed ERC-721 tokens.
@@ -22,23 +24,20 @@ const series1Case = async (config: IEuroleagueConfig): Promise<ContractContainer
         try {
             // Create an object with the arguments needed to deploy the ERC-721 token.
             const { name, symbol, max_supply, uri } = series1case.cargs
+
             // Find the matching configuration for the ERC-721 token.
             const config = series1cases_configs.find((config: IClancyERC721ContractConfig) => config.cargs.name === name)
-            if (!config) {
-                throw new Error(`No configuration found for ${name}`)
-            }
+            if (!config) throw new Error(`No configuration found for ${name}`)
 
             // Get the odoo token id for the ERC-721 token.
             const odoo_token_ids = getActiveEnv().odoo_token_ids
             const odoo_token_id = odoo_token_ids[name.toLocaleUpperCase()]
-            if (!odoo_token_id) {
-                throw new Error(`No odoo token id found for ${name}`)
-            }
+            if (!odoo_token_id) throw new Error(`No odoo token id found for ${name}`)
 
             // Deploy the ERC-721 token and store it in the object of deployed tokens.
-            const series1case_contract = await collections.euroleague.series1.series1case.deploy(name, symbol, max_supply, uri, odoo_token_id)
-            await collections.clancy.ERC.ClancyERC721.setPublicMintEnabled(series1case_contract, config.publicMintStatus)
-            await collections.clancy.ERC.ClancyERC721.setBurnEnabled(series1case_contract, config.publicBurnStatus)
+            const series1case_contract: ethers.Contract = await collections.euroleague.series1.series1case.deploy(name, symbol, max_supply, uri, odoo_token_id)
+            await collections.clancy.ERC.ClancyERC721.setPublicMintEnabled(series1case_contract, config.publicMintEnabled)
+            await collections.clancy.ERC.ClancyERC721.setBurnEnabled(series1case_contract, config.burnEnabled)
             series1case_contracts[name] = series1case_contract
         } catch (error: any) {
             // Log an error message if the deployment fails and re-throw the error.

@@ -11,8 +11,8 @@
 						"max_supply": 10000,
 						"uri": "https://clancy.com/api/"
 					},
-					"publicMintStatus": true,
-					"publicBurnStatus": false
+					"publicMintEnabled": true,
+					"burnEnabled": false
 				}
 			},
 			"ERC20": {
@@ -33,10 +33,10 @@
 		},
 		"Marketplace": {
 			"Escrow": {
-				"name": "EscrowERC721_v1"
+				"name": "EscrowERC721"
 			},
 			"Offers": {
-				"name": "OffersERC721_v1"
+				"name": "OffersERC721"
 			}
 		}
 	},
@@ -51,8 +51,8 @@
 					"max_supply": 10000,
 					"uri": "https://clancy.com/api/"
 				},
-				"publicMintStatus": true,
-				"publicBurnStatus": false
+				"publicMintEnabled": true,
+				"burnEnabled": false
 			},
 			"Series1Cases": [
 				{
@@ -64,8 +64,8 @@
 						"max_supply": 10000,
 						"uri": "https://clancy.com/api/"
 					},
-					"publicMintStatus": true,
-					"publicBurnStatus": true,
+					"publicMintEnabled": true,
+					"burnEnabled": true,
 					"reelsPerCase": 3
 				},
 				{
@@ -77,8 +77,8 @@
 						"max_supply": 10000,
 						"uri": "https://clancy.com/api/"
 					},
-					"publicMintStatus": true,
-					"publicBurnStatus": true,
+					"publicMintEnabled": true,
+					"burnEnabled": true,
 					"reelsPerCase": 3
 				},
 				{
@@ -90,8 +90,8 @@
 						"max_supply": 10000,
 						"uri": "https://clancy.com/api/"
 					},
-					"publicMintStatus": true,
-					"publicBurnStatus": true,
+					"publicMintEnabled": true,
+					"burnEnabled": true,
 					"reelsPerCase": 5
 				},
 				{
@@ -103,8 +103,8 @@
 						"max_supply": 10000,
 						"uri": "https://clancy.com/api/"
 					},
-					"publicMintStatus": true,
-					"publicBurnStatus": true,
+					"publicMintEnabled": true,
+					"burnEnabled": true,
 					"reelsPerCase": 3
 				},
 				{
@@ -116,8 +116,8 @@
 						"max_supply": 10000,
 						"uri": "https://clancy.com/api/"
 					},
-					"publicMintStatus": true,
-					"publicBurnStatus": true,
+					"publicMintEnabled": true,
+					"burnEnabled": true,
 					"reelsPerCase": 3
 				}
 			]

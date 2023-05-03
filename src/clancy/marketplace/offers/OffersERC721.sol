@@ -98,7 +98,7 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
             tokenId
         );
 
-        emit OfferEvent({
+        emit ItemOfferEvent({
             offerType: OfferType.Accept,
             itemId: itemId,
             contractAddress: contractAddress_,
@@ -133,7 +133,7 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
             );
         }
 
-        emit OfferEvent({
+        emit ItemOfferEvent({
             offerType: OfferType.Cancel,
             itemId: item.itemId,
             contractAddress: contractAddress_,
@@ -180,7 +180,7 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
             offeror: msg.sender
         });
 
-        emit OfferEvent({
+        emit ItemOfferEvent({
             offerType: OfferType.Create,
             itemId: itemIdCounter,
             contractAddress: contractAddress_,
@@ -217,7 +217,7 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
             revert TransferFailed("OffersERC721: Outbid refund failed.");
         }
 
-        emit OfferEvent({
+        emit ItemOfferEvent({
             offerType: OfferType.Outbid,
             itemId: existingItem.itemId,
             contractAddress: contractAddress_,
@@ -262,7 +262,7 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
         collectionOffersCount = itemId;
         collectionOffers[contractAddress_].push(item);
 
-        emit CollectionOfferEvent({
+        emit CollectionItemOfferEvent({
             offerType: OfferType.Create,
             contractAddress: contractAddress_,
             offeror: msg.sender,
@@ -315,7 +315,7 @@ contract OffersERC721 is ClancyMarketplaceERC721, IOffersERC721, ClancyPayable {
             );
         }
 
-        emit CollectionOfferEvent({
+        emit CollectionItemOfferEvent({
             offerType: OfferType.Cancel,
             contractAddress: contractAddress_,
             offeror: offeror,

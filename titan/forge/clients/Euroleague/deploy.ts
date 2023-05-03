@@ -17,7 +17,6 @@ const deploy = async () => {
 
     // Get the configuration for the Euroleague collection and validate it.
     const euroleagueConfig = utility.getCollectionConfigs().Euroleague
-
     if (!euroleagueConfig) throw new Error(`Failed to find Euroleague configuration in the config file.`)
 
     try {

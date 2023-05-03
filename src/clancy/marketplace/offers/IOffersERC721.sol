@@ -54,14 +54,14 @@ interface IOffersERC721 {
     //#region Events
 
     /// @dev Emitted when an offer is created, cancelled, or accepted.
-    event CollectionOfferEvent(
+    event CollectionItemOfferEvent(
         OfferType indexed offerType,
         address indexed contractAddress,
         address indexed offeror,
         uint256 value
     );
 
-    event OfferEvent(
+    event ItemOfferEvent(
         OfferType offerType,
         uint256 indexed itemId,
         address indexed contractAddress,

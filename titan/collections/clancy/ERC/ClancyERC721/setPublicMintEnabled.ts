@@ -15,7 +15,7 @@ const setPublicMintEnabled = async (contract: ethers.Contract, status: boolean) 
             Ducky.Debug(__filename, "setPublicMintEnabled", `Public mint status for ${await contract.name()} is already ${status}`);
             return;
         }
-        Ducky.Debug(__filename, "setPublicMintEnabled", `Setting public mint status for ${await contract.name()} to ${status}`);
+        // Ducky.Debug(__filename, "setPublicMintEnabled", `Setting public mint status for ${await contract.name()} to ${status}`);
         const setPublicMintEnabledTx = await contract.setPublicMintEnabled(status); // Set the public mint status of the contract to the desired value.
         await setPublicMintEnabledTx.wait(); // Wait for the transaction to be confirmed.
         Ducky.Debug(__filename, "setPublicMintEnabled", `Set public mint status for ${await contract.name()} to ${await publicMintEnabled(contract)}`);

@@ -6,6 +6,7 @@ import artifact_finder from "../../../../../utility/artifactFinder";
 import createWalletWithPrivateKey from "../../../../../utility/blockchain/createWalletWithPrivateKey";
 import pgsql from "../../../../../pgsql";
 import { EOAS, RPC } from "../../../../../config/constants";
+import { contract_type_db } from "../../../../../types";
 
 /**
  * Deploys a contract with the specified name and adds it to PostgreSQL.
@@ -28,7 +29,7 @@ const deploy = async (name: string): Promise<ethers.Contract> => {
         Ducky.Debug(__filename, "deploy", `${name} deployed to ${contract_address}`);
 
         // Add the contract to PostgreSQL.
-        const upsertResponse = await pgsql.contracts.upsert(name, contract as ethers.Contract, 0, artifact);
+        const upsertResponse = await pgsql.contracts.upsert(name, contract as ethers.Contract, 0, contract_type_db.Marketplace, artifact);
         if (!upsertResponse) {
             const message = `Could not add ${name} to PostgreSQL`;
             Ducky.Error(__filename, "deploy", message);
